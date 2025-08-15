@@ -1,8 +1,8 @@
 import { equal } from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { TaskStatus } from '../task.entity.js';
 import { TaskBuilder } from '../task.builder.js';
+import { TaskStatus } from '../task.entity.js';
 
 describe('TaskBuilder', () => {
   describe('description', () => {
