@@ -1,5 +1,5 @@
 import { deepStrictEqual, equal } from 'node:assert';
-import { afterEach, beforeEach, describe, it } from 'node:test';
+import { afterEach, beforeEach, describe, it, mock } from 'node:test';
 
 import { Utils } from '../utils.js';
 
@@ -19,40 +19,34 @@ describe('Utils', () => {
   });
 
   describe('logErrorMsg', () => {
-    const originalError = console.error;
-    const originalExit = process.exit;
-
     const errorMsg = 'Error Message';
     const exitCode = -1;
 
-    let errorCalledWith;
-    let exitCalledWith;
+    let consoleErrorMock;
+    let processExitMock;
 
     beforeEach(() => {
-      errorCalledWith = null;
-      exitCalledWith = null;
-
-      console.error = (msg) => errorCalledWith = msg;
-      process.exit = (code) => exitCalledWith = code;
-    });
-
-    afterEach(() => {
-      console.error = originalError;
-      process.exit = originalExit;
+      consoleErrorMock = mock.method(console, 'error', () => {});
+      processExitMock = mock.method(process, 'exit', () => {});
     });
 
     it('should log an error message to the console and exit the process with status = -1', () => {
       Utils.logErrorMsg(errorMsg, true);
 
-      equal(errorCalledWith, errorMsg);
-      equal(exitCalledWith, exitCode);
+      equal(consoleErrorMock.mock.callCount(), 1);
+      deepStrictEqual(consoleErrorMock.mock.calls[0].arguments, [errorMsg]);
+
+      equal(processExitMock.mock.callCount(), 1);
+      deepStrictEqual(processExitMock.mock.calls[0].arguments, [exitCode]);
     });
 
     it('should log an error message to the console and don\'t exit the process', () => {
       Utils.logErrorMsg(errorMsg, false);
 
-      equal(errorCalledWith, errorMsg);
-      equal(exitCalledWith, null);
+      equal(consoleErrorMock.mock.callCount(), 1);
+      deepStrictEqual(consoleErrorMock.mock.calls[0].arguments, [errorMsg]);
+
+      equal(processExitMock.mock.callCount(), 0);
     });
   });
 
