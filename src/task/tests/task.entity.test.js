@@ -51,6 +51,7 @@ describe('Task', () => {
         logErrorMock.mock.calls[0].arguments,
         [messages.error.REQUIRED_TASK_DESCRIPTION]
       );
+      logErrorMock.mock.restore();
     });
   });
 
@@ -71,6 +72,7 @@ describe('Task', () => {
         logErrorMock.mock.calls[0].arguments,
         [messages.error.INVALID_TASK_STATUS]
       );
+      logErrorMock.mock.restore();
     });
   });
 
@@ -99,6 +101,7 @@ describe('Task', () => {
         logErrorMock.mock.calls[0].arguments,
         [messages.error.INVALID_CREATED_AT]
       );
+      logErrorMock.mock.restore();
     });
   });
 
@@ -119,6 +122,7 @@ describe('Task', () => {
         logErrorMock.mock.calls[0].arguments,
         [messages.error.INVALID_UPDATED_AT]
       );
+      setTimeout(() => logErrorMock.mock.restore());
     });
   });
 

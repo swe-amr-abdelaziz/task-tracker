@@ -16,6 +16,7 @@ describe('BaseEntity', () => {
         logErrorMock.mock.calls[0].arguments,
         [messages.error.BASE_ENTITY_OBJECT_CREATION]
       );
+      logErrorMock.mock.restore();
     });
   });
 });

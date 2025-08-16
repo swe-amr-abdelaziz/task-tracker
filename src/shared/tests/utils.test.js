@@ -38,6 +38,11 @@ describe('Utils', () => {
       processExitMock = mock.method(process, 'exit', () => {});
     });
 
+    afterEach(() => {
+      consoleErrorMock.mock.restore();
+      processExitMock.mock.restore();
+    });
+
     it('should log an error message to the console and exit the process with status = -1', () => {
       Utils.logErrorMsg(errorMsg, true);
 

@@ -141,6 +141,7 @@ describe('TaskModel', () => {
       await TaskModel.addTask('New Task');
 
       equal(writeChangesToDbMock.mock.calls.length, 1);
+      writeChangesToDbMock.mock.restore();
     });
   });
 
@@ -163,6 +164,7 @@ describe('TaskModel', () => {
       await TaskModel.updateTaskDescription(task.id, "New Task");
 
       equal(writeChangesToDbMock.mock.calls.length, 1);
+      writeChangesToDbMock.mock.restore();
     });
 
     it('should not write changes to the database if the task doesn\'t exist', async () => {
@@ -170,6 +172,7 @@ describe('TaskModel', () => {
       await TaskModel.updateTaskDescription(-1, "New Task");
 
       equal(writeChangesToDbMock.mock.calls.length, 0);
+      writeChangesToDbMock.mock.restore();
     });
   });
 
@@ -192,6 +195,7 @@ describe('TaskModel', () => {
       await TaskModel.updateTaskStatus(task.id, TaskStatus.IN_PROGRESS);
 
       equal(writeChangesToDbMock.mock.calls.length, 1);
+      writeChangesToDbMock.mock.restore();
     });
 
     it('should not write changes to the database if the task doesn\'t exist', async () => {
@@ -199,6 +203,7 @@ describe('TaskModel', () => {
       await TaskModel.updateTaskStatus(-1, TaskStatus.IN_PROGRESS);
 
       equal(writeChangesToDbMock.mock.calls.length, 0);
+      writeChangesToDbMock.mock.restore();
     });
   });
 
@@ -221,6 +226,7 @@ describe('TaskModel', () => {
       await TaskModel.deleteTask(task.id);
 
       equal(writeChangesToDbMock.mock.calls.length, 1);
+      writeChangesToDbMock.mock.restore();
     });
 
     it('should not write changes to the database if the task is not found', async () => {
@@ -228,6 +234,7 @@ describe('TaskModel', () => {
       await TaskModel.deleteTask(-1);
 
       equal(writeChangesToDbMock.mock.calls.length, 0);
+      writeChangesToDbMock.mock.restore();
     });
   });
 });
