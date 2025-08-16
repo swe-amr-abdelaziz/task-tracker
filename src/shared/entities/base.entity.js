@@ -6,7 +6,7 @@ import { Utils } from "../utils.js";
  * @class
  */
 export class BaseEntity {
-  #id;
+  _id;
   #createdAt;
   #updatedAt;
 
@@ -35,7 +35,7 @@ export class BaseEntity {
    * @returns {number} The unique ID of the entity.
    */
   get id() {
-    return this.#id;
+    return this._id;
   }
 
   /**
@@ -44,7 +44,7 @@ export class BaseEntity {
    */
   #generateID() {
     BaseEntity.count++;
-    this.#id = BaseEntity.count;
+    this._id = BaseEntity.count;
   }
 
   /**

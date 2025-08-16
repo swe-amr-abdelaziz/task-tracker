@@ -64,6 +64,49 @@ export class Task extends BaseEntity {
     this.#status = status;
   }
 
+  /**
+   * Serialize Task to a plain object for JSON storage.
+   * Dates are converted to ISO strings for portability.
+   *
+   * @returns {{id:number, description:string, status:string, createdAt:string, updatedAt:string|null}}
+   */
+  toJSON() {
+    return {
+      id: this.id,
+      description: this.description,
+      status: this.status,
+      createdAt: this.createdAt ? this.createdAt.toISOString() : new Date().toISOString(),
+      updatedAt: this.updatedAt ? this.updatedAt.toISOString() : null,
+    };
+  }
+
+  /**
+   * Restore a Task instance from a plain object (reverse of toJSON).
+   *
+   * @static
+   * @param {{id:number, description:string, status:string, createdAt:string, updatedAt:string|null}} obj
+   * @returns {Task}
+   */
+  static fromJSON(obj) {
+    const description = obj.description ?? '';
+    const status = obj.status ?? TaskStatus.TODO;
+    const createdAt = obj.createdAt ? new Date(obj.createdAt) : new Date();
+    const updatedAt = obj.updatedAt ? new Date(obj.updatedAt) : null;
+
+    const task = new Task(description, status, createdAt, updatedAt);
+
+    task._id = typeof obj.id === 'number' ? obj.id : ++BaseEntity.count;
+    Task.setIdCount(Math.max(BaseEntity.count, task._id));
+
+    return task;
+  }
+
+  /**
+   * Set the count of tasks.
+   *
+   * @static
+   * @param {number} _count - The count of tasks.
+   */
   static setIdCount(_count) {
     BaseEntity.count = _count;
   }

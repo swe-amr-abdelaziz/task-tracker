@@ -121,4 +121,68 @@ describe('Task', () => {
       );
     });
   });
+
+  describe('toJSON', () => {
+    it('should serialize a task to a plain object', () => {
+      const task = new TaskBuilder()
+        .withDescription('Task')
+        .withStatus(TaskStatus.TODO)
+        .withCreatedAt(new Date('2025-01-01'))
+        .withUpdatedAt(new Date('2025-01-02'))
+        .build();
+      const serializedTask = task.toJSON();
+
+      equal(serializedTask.id, task.id);
+      equal(serializedTask.description, task.description);
+      equal(serializedTask.status, task.status);
+      equal(serializedTask.createdAt, task.createdAt.toISOString());
+      equal(serializedTask.updatedAt, task.updatedAt.toISOString());
+    });
+
+    it('should serialize a task to a plain object with missing createdAt, updatedAt', () => {
+      const task = new TaskBuilder()
+        .withDescription('Task')
+        .withStatus(TaskStatus.TODO)
+        .withCreatedAt(null)
+        .withUpdatedAt(null)
+        .build();
+      const serializedTask = task.toJSON();
+
+      equal(serializedTask.id, task.id);
+      equal(serializedTask.description, task.description);
+      equal(serializedTask.status, task.status);
+      equal(new Date(serializedTask.createdAt) instanceof Date, true);
+      equal(serializedTask.updatedAt, null);
+    });
+  });
+
+  describe('fromJSON', () => {
+    it('should deserialize a task from a plain object', () => {
+      const task = new TaskBuilder()
+        .withDescription('Task')
+        .withStatus(TaskStatus.TODO)
+        .withCreatedAt(new Date('2025-01-01'))
+        .withUpdatedAt(new Date('2025-01-02'))
+        .build();
+      const serializedTask = task.toJSON();
+      const deserializedTask = Task.fromJSON(serializedTask);
+
+      equal(deserializedTask.id, task.id);
+      equal(deserializedTask.description, task.description);
+      equal(deserializedTask.status, task.status);
+      equal(deserializedTask.createdAt.getSeconds(), task.createdAt.getSeconds());
+      equal(deserializedTask.updatedAt.getSeconds(), task.updatedAt.getSeconds());
+    });
+
+    it('should deserialize a task from a plain object with missing properties', () => {
+      const task = {};
+      const deserializedTask = Task.fromJSON(task);
+
+      equal(typeof deserializedTask.id, 'number');
+      equal(deserializedTask.description, '');
+      equal(deserializedTask.status, TaskStatus.TODO);
+      equal(deserializedTask.createdAt instanceof Date, true);
+      equal(deserializedTask.updatedAt, null);
+    });
+  });
 });

@@ -1,10 +1,18 @@
+import { afterEach, beforeEach, describe, it, mock } from 'node:test';
 import { deepStrictEqual, equal } from 'node:assert';
-import { beforeEach, describe, it, mock } from 'node:test';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { Utils } from '../utils.js';
 
 describe('Utils', () => {
   describe('getArgs', () => {
+    const originalArgv = process.argv;
+
+    afterEach(() => {
+      process.argv = originalArgv;
+    });
+
     it('should return cli arguments passed by the user - no arguments', () => {
       process.argv = ["one", "two"];
       const args = Utils.getArgs();
@@ -64,6 +72,27 @@ describe('Utils', () => {
     it('should return false for an invalid date - test case 2', () => {
       const date = new Date("invalid");
       equal(Utils.isValidDate(date), false);
+    });
+  });
+
+  describe('isTestEnvironment', () => {
+    it('should return true as the test environment is set', () => {
+      const isTestEnv = Utils.isTestEnvironment();
+      equal(isTestEnv, true);
+    });
+  });
+
+  describe('__filename', () => {
+    it('should return the current file path with filename', () => {
+      const __filename = fileURLToPath(import.meta.url);
+      equal(Utils.filename(import.meta.url), __filename);
+    });
+  });
+
+  describe('__dirname', () => {
+    it('should return the current file directory', () => {
+      const __dirname = dirname(fileURLToPath(import.meta.url))
+      equal(Utils.dirname(import.meta.url), __dirname);
     });
   });
 });
