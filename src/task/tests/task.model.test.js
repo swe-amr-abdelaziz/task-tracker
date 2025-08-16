@@ -7,13 +7,11 @@ import { DB_FILE_ENCODING, DB_FILENAME_TEST } from '../../shared/enums.js';
 import { TaskBuilder } from '../task.builder.js';
 import { TaskModel } from '../task.model.js';
 import { TaskStatus } from '../task.entity.js';
-import { Utils } from '../../shared/utils.js';
 import { messages } from '../../shared/messages.js';
 
 describe('TaskModel', () => {
   const dbPath = path.join(
-    Utils.dirname(import.meta.url),
-    '..',
+    process.cwd(),
     DB_FILENAME_TEST,
   );
 

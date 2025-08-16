@@ -27,7 +27,7 @@ export class TaskModel {
 
   /** @type {string} Absolute path of the database file */
   static #dbPath = path.join(
-    Utils.dirname(import.meta.url),
+    process.cwd(),
     TaskModel.#filename,
   );
 
@@ -50,7 +50,7 @@ export class TaskModel {
       return TaskModel.#tasks;
     } catch (err) {
       if (err.code === 'ENOENT') {
-        TaskModel._writeChangesToDb();
+        await TaskModel._writeChangesToDb();
         return TaskModel.#tasks;
       } else {
         throw new Error(messages.error.READ_DB_FAILED);
@@ -102,7 +102,6 @@ export class TaskModel {
     TaskModel.#tasks.push(task);
     await TaskModel._writeChangesToDb();
   }
-
 
   /**
    * Updates the description of an existing task.
