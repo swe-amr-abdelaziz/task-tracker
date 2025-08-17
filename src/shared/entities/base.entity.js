@@ -19,16 +19,14 @@ export class BaseEntity {
 
   /**
    * Initializes members of the base entity.
-   * @param {Date} [createdAt=new Date()] - The creation timestamp.
-   * @param {Date|null} [updatedAt=null] - The last updated timestamp.
    */
-  constructor(createdAt = new Date(), updatedAt = null) {
+  constructor() {
     if (new.target === BaseEntity) {
-      Utils.logErrorMsg(messages.error.BASE_ENTITY_OBJECT_CREATION);
+      throw new Error(messages.error.BASE_ENTITY_OBJECT_CREATION);
     }
     this.#generateID();
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
+    this.#createdAt = new Date();
+    this.#updatedAt = new Date();
   }
 
   /**
@@ -39,15 +37,6 @@ export class BaseEntity {
   }
 
   /**
-   * Generates a unique ID to the entity.
-   * @private
-   */
-  #generateID() {
-    BaseEntity.count++;
-    this._id = BaseEntity.count;
-  }
-
-  /**
    * @returns {Date} The creation date of the entity.
    */
   get createdAt() {
@@ -55,32 +44,39 @@ export class BaseEntity {
   }
 
   /**
-   * @param {Date} createdAt - The creation date (cannot be reassigned once set).
-   */
-  set createdAt(createdAt) {
-    if (this.#createdAt)
-      return;
-
-    if (!Utils.isValidDate(createdAt)) {
-      Utils.logErrorMsg(messages.error.INVALID_CREATED_AT);
-    }
-    this.#createdAt = createdAt;
-  }
-
-  /**
-   * @returns {Date|null} The last update date of the entity.
+   * @returns {Date} The last update date of the entity.
    */
   get updatedAt() {
     return this.#updatedAt;
   }
 
   /**
-   * @param {Date|null} updatedAt - The updated date (must be valid or null).
+   * Update the `updatedAt` timestamp.
+   * Should be called whenever the entity is modified.
+   * @protected
    */
-  set updatedAt(updatedAt = null) {
-    if (updatedAt && !Utils.isValidDate(updatedAt)) {
-      Utils.logErrorMsg(messages.error.INVALID_UPDATED_AT);
-    }
-    this.#updatedAt = updatedAt;
+  _touch() {
+    this.#updatedAt = new Date();
+  }
+
+  /**
+   * Restore the `createdAt` and `updatedAt` timestamps.
+   * Should be called whenever the entity is restored from a database.
+   * @protected
+   * @param {Date} createdAt - The creation timestamp.
+   * @param {Date} updatedAt - The last updated timestamp.
+   */
+  _restoreTimestamps(createdAt, updatedAt) {
+    this.#createdAt = Utils.isValidDate(createdAt) ? createdAt : new Date();
+    this.#updatedAt = Utils.isValidDate(updatedAt) ? updatedAt : new Date();
+  }
+
+  /**
+   * Generates a unique ID to the entity.
+   * @private
+   */
+  #generateID() {
+    BaseEntity.count++;
+    this._id = BaseEntity.count;
   }
 };

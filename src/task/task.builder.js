@@ -7,8 +7,6 @@ import { Task, TaskStatus } from "./task.entity.js";
 export class TaskBuilder {
   #description = "Task";
   #status = TaskStatus.TODO;
-  #createdAt = new Date();
-  #updatedAt = null;
 
   /**
    * Set the task description.
@@ -31,26 +29,6 @@ export class TaskBuilder {
   }
 
   /**
-   * Set the creation date.
-   * @param {Date} createdAt - The creation date.
-   * @returns {TaskBuilder}
-   */
-  withCreatedAt(createdAt) {
-    this.#createdAt = createdAt;
-    return this;
-  }
-
-  /**
-   * Set the updated date.
-   * @param {Date|null} updatedAt - The update date or null.
-   * @returns {TaskBuilder}
-   */
-  withUpdatedAt(updatedAt) {
-    this.#updatedAt = updatedAt;
-    return this;
-  }
-
-  /**
    * Builds and returns a Task instance.
    * @returns {Task} The constructed Task object.
    */
@@ -58,8 +36,6 @@ export class TaskBuilder {
     return new Task(
       this.#description,
       this.#status,
-      this.#createdAt,
-      this.#updatedAt
     );
   }
 }

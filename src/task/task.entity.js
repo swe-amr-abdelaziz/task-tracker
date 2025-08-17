@@ -1,6 +1,6 @@
 import { BaseEntity } from "../shared/entities/base.entity.js";
-import { messages } from "../shared/messages.js";
 import { Utils } from "../shared/utils.js";
+import { messages } from "../shared/messages.js";
 
 /**
  * Represents a task with a description, status, and base entity members.
@@ -14,16 +14,9 @@ export class Task extends BaseEntity {
    * Create a new Task instance.
    * @param {string} description - The description of the task.
    * @param {string} [status=TaskStatus.TODO] - The status of the task.
-   * @param {Date} [createdAt=new Date()] - The creation timestamp.
-   * @param {Date|null} [updatedAt=null] - The last updated timestamp.
    */
-  constructor(
-    description,
-    status = TaskStatus.TODO,
-    createdAt = new Date(),
-    updatedAt = null,
-  ) {
-    super(createdAt, updatedAt);
+  constructor(description, status = TaskStatus.TODO) {
+    super();
     this.description = description;
     this.status = status;
   }
@@ -39,12 +32,12 @@ export class Task extends BaseEntity {
    * @param {string} description - The new task description.
    */
   set description(description) {
-    if (!description.trim()) {
-      Utils.logErrorMsg(messages.error.REQUIRED_TASK_DESCRIPTION);
+    if (!description?.trim()) {
+      throw new Error(messages.error.REQUIRED_TASK_DESCRIPTION);
     }
     this.#description = description;
+    this._touch();
   }
-
 
   /**
    * @returns {TaskStatus} The current status of the task.
@@ -57,26 +50,26 @@ export class Task extends BaseEntity {
    * @param {TaskStatus} status - The new task status.
    */
   set status(status) {
-    const validStatuses = [TaskStatus.TODO, TaskStatus.IN_PROGRESS, TaskStatus.DONE];
-    if (!validStatuses.includes(status)) {
-      Utils.logErrorMsg(messages.error.INVALID_TASK_STATUS);
+    if (!Object.values(TaskStatus).includes(status)) {
+      throw new Error(messages.error.INVALID_TASK_STATUS);
     }
     this.#status = status;
+    this._touch();
   }
 
   /**
    * Serialize Task to a plain object for JSON storage.
    * Dates are converted to ISO strings for portability.
    *
-   * @returns {{id:number, description:string, status:string, createdAt:string, updatedAt:string|null}}
+   * @returns {{id:number, description:string, status:string, createdAt:string, updatedAt:string}}
    */
   toJSON() {
     return {
       id: this.id,
       description: this.description,
       status: this.status,
-      createdAt: this.createdAt ? this.createdAt.toISOString() : new Date().toISOString(),
-      updatedAt: this.updatedAt ? this.updatedAt.toISOString() : null,
+      createdAt: this.createdAt.toISOString(),
+      updatedAt: this.updatedAt.toISOString(),
     };
   }
 
@@ -84,16 +77,17 @@ export class Task extends BaseEntity {
    * Restore a Task instance from a plain object (reverse of toJSON).
    *
    * @static
-   * @param {{id:number, description:string, status:string, createdAt:string, updatedAt:string|null}} obj
+   * @param {{id:number, description:string, status:string, createdAt:string, updatedAt:string}} obj
    * @returns {Task}
    */
   static fromJSON(obj) {
-    const description = obj.description ?? '';
+    const description = obj.description;
     const status = obj.status ?? TaskStatus.TODO;
-    const createdAt = obj.createdAt ? new Date(obj.createdAt) : new Date();
-    const updatedAt = obj.updatedAt ? new Date(obj.updatedAt) : null;
+    const createdAt = new Date(obj.createdAt);
+    const updatedAt = new Date(obj.updatedAt);
 
-    const task = new Task(description, status, createdAt, updatedAt);
+    const task = new Task(description, status);
+    task._restoreTimestamps(createdAt, updatedAt);
 
     task._id = typeof obj.id === 'number' ? obj.id : ++BaseEntity.count;
     Task.setIdCount(Math.max(BaseEntity.count, task._id));

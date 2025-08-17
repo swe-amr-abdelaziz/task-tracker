@@ -1,14 +1,9 @@
 import path from 'path';
 import { promises as fs } from 'fs';
 
-import {
-  DB_FILENAME,
-  DB_FILENAME_TEST,
-  DB_FILE_ENCODING,
-} from '../shared/enums.js';
+import { DB_FILENAME, DB_FILE_ENCODING } from '../shared/enums.js';
 import { Task, TaskStatus } from './task.entity.js';
 import { TaskBuilder } from './task.builder.js';
-import { Utils } from '../shared/utils.js';
 import { messages } from '../shared/messages.js';
 
 /**
@@ -20,15 +15,10 @@ import { messages } from '../shared/messages.js';
  * @class
  */
 export class TaskModel {
-  /** @type {string} Path to the JSON database file */
-  static #filename = Utils.isTestEnvironment()
-    ? DB_FILENAME_TEST
-    : DB_FILENAME;
-
   /** @type {string} Absolute path of the database file */
   static #dbPath = path.join(
     process.cwd(),
-    TaskModel.#filename,
+    DB_FILENAME,
   );
 
   /** @type {Task[]} In-memory list of tasks */

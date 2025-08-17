@@ -1,9 +1,9 @@
-import { deepStrictEqual, equal, strictEqual } from 'node:assert';
 import { beforeEach, describe, it, mock } from 'node:test';
+import { equal, notEqual, rejects } from 'node:assert';
+import { setTimeout as sleep } from 'timers/promises';
 
 import { Task, TaskStatus } from '../task.entity.js';
 import { TaskBuilder } from '../task.builder.js';
-import { Utils } from '../../shared/utils.js';
 import { messages } from '../../shared/messages.js';
 
 describe('Task', () => {
@@ -65,23 +65,31 @@ describe('Task', () => {
       equal(task.description, description);
     });
 
-    it('should log an error message if an invalid description is provided', () => {
+    it('should throw an error message if an invalid description is provided', async () => {
       // Arrange
-      const logErrorMock = mock.method(Utils, 'logErrorMsg', () => {});
       const description = '    ';
 
+      // Act & Assert
+      await rejects(
+        async () => new TaskBuilder().withDescription(description).build(),
+        { message: messages.error.REQUIRED_TASK_DESCRIPTION },
+      );
+    });
+
+    it('should call the touch method when the description is set', () => {
+      // Arrange
+      let task;
+      const description = 'This is a test description';
+      const touchMock = mock.method(Task.prototype, '_touch', () => {});
+
       // Act
-      new TaskBuilder().withDescription(description).build();
+      task = new TaskBuilder().withDescription(description).build();
 
       // Assert
-      strictEqual(logErrorMock.mock.calls.length, 1);
-      deepStrictEqual(
-        logErrorMock.mock.calls[0].arguments,
-        [messages.error.REQUIRED_TASK_DESCRIPTION]
-      );
+      equal(touchMock.mock.callCount(), 2);
 
       // Teardown
-      logErrorMock.mock.restore();
+      touchMock.mock.restore();
     });
   });
 
@@ -98,103 +106,89 @@ describe('Task', () => {
       equal(task.status, status);
     });
 
-    it('should log an error message if an invalid status is provided', () => {
+    it('should throw an error message if an invalid status is provided', async () => {
       // Arrange
-      const logErrorMock = mock.method(Utils, 'logErrorMsg', () => {});
       const status = 'invalid-status';
 
+      // Act & Assert
+      await rejects(
+        async () => new TaskBuilder().withStatus(status).build(),
+        { message: messages.error.INVALID_TASK_STATUS },
+      );
+    });
+
+    it('should call the touch method when the status is set', () => {
+      // Arrange
+      let task;
+      const status = TaskStatus.IN_PROGRESS;
+      const touchMock = mock.method(Task.prototype, '_touch', () => {});
+
       // Act
-      new TaskBuilder().withStatus(status).build();
+      task = new TaskBuilder().withStatus(status).build();
 
       // Assert
-      strictEqual(logErrorMock.mock.calls.length, 1);
-      deepStrictEqual(
-        logErrorMock.mock.calls[0].arguments,
-        [messages.error.INVALID_TASK_STATUS]
-      );
+      equal(touchMock.mock.callCount(), 2);
 
       // Teardown
-      logErrorMock.mock.restore();
+      touchMock.mock.restore();
     });
   });
 
   describe('creation date', () => {
-    it('should create a task if a valid creation date is provided', () => {
+    it('should set the creation timestamp on task object creation', () => {
       // Arrange
       let task;
-      const createdAt = new Date('2025-01-01');
 
       // Act
-      task = new TaskBuilder().withCreatedAt(createdAt).build();
+      task = new TaskBuilder().build();
 
       // Assert
-      equal(task.createdAt.getSeconds(), createdAt.getSeconds());
+      equal(task.createdAt.getSeconds(), new Date().getSeconds());
     });
 
-    it('should not override the creation date if it is already set', () => {
+    it('should not override the creation timestamp on task object update', async () => {
       // Arrange
       let task;
-      const createdAt1 = new Date('2025-01-01');
-      const createdAt2 = new Date('2026-01-01');
+      const description = 'Task';
 
       // Act
-      task = new TaskBuilder().withCreatedAt(createdAt1).build();
-      task.createdAt = createdAt2;
+      task = new TaskBuilder().build();
+      const waitTime = 1000;
+      await sleep(waitTime);
+      task.description = description;
 
       // Assert
-      equal(task.createdAt.getSeconds(), createdAt1.getSeconds());
-    });
-
-    it('should log an error message if an invalid creation date is provided', () => {
-      // Arrange
-      const logErrorMock = mock.method(Utils, 'logErrorMsg', () => {});
-      const createdAt = new Date('invalid-date');
-
-      // Act
-      new TaskBuilder().withCreatedAt(createdAt).build();
-
-      // Assert
-      strictEqual(logErrorMock.mock.calls.length, 1);
-      deepStrictEqual(
-        logErrorMock.mock.calls[0].arguments,
-        [messages.error.INVALID_CREATED_AT]
-      );
-
-      // Teardown
-      logErrorMock.mock.restore();
+      notEqual(task.createdAt.getSeconds(), new Date().getSeconds());
+      equal(task.createdAt.getSeconds(), new Date().getSeconds() - (waitTime / 1000));
     });
   });
 
   describe('update date', () => {
-    it('should create a task if a valid update date is provided', () => {
+    it('should set the update timestamp on task object creation', () => {
       // Arrange
       let task;
-      const updatedAt = new Date('2025-01-01');
 
       // Act
-      task = new TaskBuilder().withUpdatedAt(updatedAt).build();
+      task = new TaskBuilder().build();
 
       // Assert
-      equal(task.updatedAt.getSeconds(), updatedAt.getSeconds());
+      equal(task.updatedAt.getSeconds(), new Date().getSeconds());
     });
 
-    it('should log an error message if an invalid update date is provided', () => {
+    it('should override the update timestamp on task object update', async () => {
       // Arrange
-      const logErrorMock = mock.method(Utils, 'logErrorMsg', () => {});
-      const updatedAt = new Date('invalid-date');
+      let task;
+      const description = 'Task';
 
       // Act
-      new TaskBuilder().withUpdatedAt(updatedAt).build();
+      task = new TaskBuilder().build();
+      const waitTime = 1000;
+      await sleep(waitTime);
+      task.description = description;
 
       // Assert
-      strictEqual(logErrorMock.mock.calls.length, 1);
-      deepStrictEqual(
-        logErrorMock.mock.calls[0].arguments,
-        [messages.error.INVALID_UPDATED_AT]
-      );
-
-      // Teardown
-      setTimeout(() => logErrorMock.mock.restore());
+      notEqual(task.updatedAt.getSeconds(), new Date().getSeconds() - (waitTime / 1000));
+      equal(task.updatedAt.getSeconds(), new Date().getSeconds());
     });
   });
 
@@ -204,8 +198,6 @@ describe('Task', () => {
       const task = new TaskBuilder()
         .withDescription('Task')
         .withStatus(TaskStatus.TODO)
-        .withCreatedAt(new Date('2025-01-01'))
-        .withUpdatedAt(new Date('2025-01-02'))
         .build();
 
       // Act
@@ -215,28 +207,8 @@ describe('Task', () => {
       equal(serializedTask.id, task.id);
       equal(serializedTask.description, task.description);
       equal(serializedTask.status, task.status);
-      equal(serializedTask.createdAt, task.createdAt.toISOString());
-      equal(serializedTask.updatedAt, task.updatedAt.toISOString());
-    });
-
-    it('should serialize a task to a plain object with missing createdAt, updatedAt', () => {
-      // Arrange
-      const task = new TaskBuilder()
-        .withDescription('Task')
-        .withStatus(TaskStatus.TODO)
-        .withCreatedAt(null)
-        .withUpdatedAt(null)
-        .build();
-
-      // Act
-      const serializedTask = task.toJSON();
-
-      // Assert
-      equal(serializedTask.id, task.id);
-      equal(serializedTask.description, task.description);
-      equal(serializedTask.status, task.status);
-      equal(new Date(serializedTask.createdAt) instanceof Date, true);
-      equal(serializedTask.updatedAt, null);
+      equal(new Date(serializedTask.createdAt).getSeconds(), new Date().getSeconds());
+      equal(new Date(serializedTask.updatedAt).getSeconds(), new Date().getSeconds());
     });
   });
 
@@ -246,8 +218,6 @@ describe('Task', () => {
       const task = new TaskBuilder()
         .withDescription('Task')
         .withStatus(TaskStatus.TODO)
-        .withCreatedAt(new Date('2025-01-01'))
-        .withUpdatedAt(new Date('2025-01-02'))
         .build();
       const serializedTask = task.toJSON();
 
@@ -264,17 +234,18 @@ describe('Task', () => {
 
     it('should deserialize a task from a plain object with missing properties', () => {
       // Arrange
-      const task = {};
+      const description = 'Task';
+      const task = { description };
 
       // Act
       const deserializedTask = Task.fromJSON(task);
 
       // Assert
       equal(typeof deserializedTask.id, 'number');
-      equal(deserializedTask.description, '');
+      equal(deserializedTask.description, description);
       equal(deserializedTask.status, TaskStatus.TODO);
       equal(deserializedTask.createdAt instanceof Date, true);
-      equal(deserializedTask.updatedAt, null);
+      equal(deserializedTask.updatedAt instanceof Date, true);
     });
   });
 });

@@ -1,28 +1,17 @@
-import { deepStrictEqual, strictEqual } from 'node:assert';
-import { describe, it, mock } from 'node:test';
+import { rejects } from 'node:assert';
+import { describe, it } from 'node:test';
 
 import { BaseEntity } from '../../shared/entities/base.entity.js';
-import { Utils } from '../../shared/utils.js';
 import { messages } from '../../shared/messages.js';
 
 describe('BaseEntity', () => {
   describe('new keyword', () => {
-    it('should throw an error if an instance of BaseEntity is created', () => {
-      // Arrange
-      const logErrorMock = mock.method(Utils, 'logErrorMsg', () => {});
-
-      // Act
-      new BaseEntity();
-
-      // Assert
-      strictEqual(logErrorMock.mock.calls.length, 1);
-      deepStrictEqual(
-        logErrorMock.mock.calls[0].arguments,
-        [messages.error.BASE_ENTITY_OBJECT_CREATION]
+    it('should throw an error if an instance of BaseEntity is created', async () => {
+      // Act & Arrange
+      await rejects(
+        async () => new BaseEntity(),
+        { message: messages.error.BASE_ENTITY_OBJECT_CREATION },
       );
-
-      // Teardown
-      logErrorMock.mock.restore();
     });
   });
 });

@@ -54,8 +54,6 @@ describe('Utils', () => {
     });
 
     it('should log an error message to the console and exit the process with status = -1', () => {
-      // Arrange
-
       // Act
       Utils.logErrorMsg(errorMsg, true);
 
@@ -67,8 +65,6 @@ describe('Utils', () => {
     });
 
     it('should log an error message to the console and don\'t exit the process', () => {
-      // Arrange
-
       // Act
       Utils.logErrorMsg(errorMsg, false);
 
@@ -116,8 +112,6 @@ describe('Utils', () => {
 
   describe('isTestEnvironment', () => {
     it('should return true as the test environment is set', () => {
-      // Arrange
-
       // Act
       const isTestEnv = Utils.isTestEnvironment();
 
