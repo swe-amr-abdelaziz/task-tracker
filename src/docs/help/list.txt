@@ -1,0 +1,14 @@
+Usage: task-cli list [status]
+
+Lists all tasks, or only tasks of a specific status
+
+Status:
+  todo          Show only tasks of todo status
+  in-progress   Show only tasks of in-progress status
+  done          Show only tasks of done status
+
+Note: [status] is optional. If not specified, show all tasks
+
+Example:
+  task-cli list
+  task-cli list done

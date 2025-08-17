@@ -1,0 +1,8 @@
+Usage: task-cli add [description]
+
+Adds a new task to the list
+
+[description] is the task description, this is required
+
+Example:
+  task-cli add "Buy groceries"

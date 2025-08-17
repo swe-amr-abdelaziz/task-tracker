@@ -1,0 +1,17 @@
+Usage: task-cli <command> [options]
+
+Commands:
+  list              Lists all tasks, or only tasks of a specific status
+  add               Adds a new task to the list
+  update            Updates a task's description
+  delete            Deletes a task from the list
+  mark-in-progress  Marks a task as in-progress
+  mark-done         Marks a task as done
+  help              Show help screen
+
+Run `task-cli help <command>` for more information on a command
+
+Example:
+  task-cli list
+  task-cli add "Buy groceries"
+  task-cli help delete

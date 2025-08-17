@@ -162,12 +162,14 @@ describe('TaskRouter', () => {
 
     it(`should throw an error if the command is invalid`, async () => {
       // Arrange
-      const args = ['invalid-command'];
+      const command = 'invalid-command';
+      const args = [command];
 
       // Act & Assert
+      const errorMessage = messages.error.INVALID_TASK_COMMAND.replace('{0}', command);
       await rejects(
         async () => TaskRouter.route(args),
-        { message: messages.error.INVALID_TASK_COMMAND },
+        { message: errorMessage },
       );
     });
   });

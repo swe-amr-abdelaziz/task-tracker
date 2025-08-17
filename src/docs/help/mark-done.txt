@@ -1,0 +1,8 @@
+Usage: task-cli mark-done [id]
+
+Marks a task as done
+
+[id] is the task id, this is required
+
+Example:
+  task-cli mark-done 1

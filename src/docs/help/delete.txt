@@ -1,0 +1,8 @@
+Usage: task-cli delete [id]
+
+Deletes a task from the list
+
+[id] is the task id, this is required
+
+Example:
+  task-cli delete 1

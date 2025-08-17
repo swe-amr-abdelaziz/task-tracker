@@ -1,0 +1,9 @@
+Usage: task-cli add [id] [description]
+
+Updates a task's description
+
+[id] is the task id, this is required
+[description] is the task description, this is required
+
+Example:
+  task-cli update 1 "Buy groceries and cook dinner"

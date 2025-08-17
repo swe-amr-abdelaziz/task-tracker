@@ -62,7 +62,8 @@ export class TaskRouter {
     const handler = TaskRouter.#commandHandlers[command];
 
     if (!handler) {
-      throw new Error(messages.error.INVALID_TASK_COMMAND);
+      const message = messages.error.INVALID_TASK_COMMAND.replace('{0}', command);
+      throw new Error(message);
     }
 
     const [_, ...rest] = args;
