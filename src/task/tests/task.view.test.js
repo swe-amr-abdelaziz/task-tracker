@@ -1,58 +1,31 @@
-import path from 'path';
-import { deepStrictEqual, equal, rejects } from 'node:assert';
 import { describe, it, mock } from 'node:test';
-import { promises as fs } from 'fs';
+import { equal } from 'node:assert';
 
 import { TaskCommand } from '../../shared/enums.js';
-import { TaskRouter } from '../task.router.js';
+import { TaskController } from '../task.controller.js';
 import { TaskView } from '../task.view.js';
-import { messages } from '../../shared/messages.js';
 
 describe('TaskView', () => {
   describe('help', () => {
-    it(`should read the help file for the given valid command`, () => {
+    it('should get help page from the controller and print it to the console', async () => {
       // Arrange
-      const readFileMock = mock.method(fs, 'readFile', () => {});
-      const pathJoinMock = mock.method(path, 'join', () => {});
-      const commands = [
-        TaskCommand.ADD,
-        TaskCommand.UPDATE,
-        TaskCommand.DELETE,
-        TaskCommand.MARK_IN_PROGRESS,
-        TaskCommand.MARK_DONE,
-        TaskCommand.LIST,
-        TaskCommand.HELP,
-        undefined,
-      ];
+      const expectedHelp = "help page text";
+      const helpMock = mock.method(TaskController, 'help', () => expectedHelp);
+      const consoleLogMock = mock.method(console, 'log', () => {});
+      const command = TaskCommand.LIST;
 
-      for (let index = 0; index < commands.length; index++) {
-        // Act
-        const command = commands[index];
-        TaskView.help(command);
+      // Act
+      await TaskView.help(command);
 
-        // Assert
-        equal(readFileMock.mock.callCount(), index + 1);
-        equal(pathJoinMock.mock.callCount(), index + 1);
-        const lastArgIndex = pathJoinMock.mock.calls[index].arguments.length - 1;
-        const expectedFilename = `${command ?? 'help'}.txt`;
-        equal(pathJoinMock.mock.calls[index].arguments[lastArgIndex], expectedFilename);
-      }
+      // Assert
+      equal(helpMock.mock.callCount(), 1);
+      equal(helpMock.mock.calls[0].arguments[0], command);
+      equal(consoleLogMock.mock.callCount(), 1);
+      equal(consoleLogMock.mock.calls[0].arguments[0], expectedHelp);
 
       // Teardown
-      readFileMock.mock.restore();
-      pathJoinMock.mock.restore();
-    });
-
-    it(`should throw an error if the command is invalid`, async () => {
-      // Arrange
-      const command = 'invalid-command';
-
-      // Act & Assert
-      const errorMessage = messages.error.INVALID_TASK_COMMAND.replace('{0}', command);
-      await rejects(
-        async () => TaskView.help(command),
-        { message: errorMessage },
-      );
+      helpMock.mock.restore();
+      consoleLogMock.mock.restore();
     });
   });
 });

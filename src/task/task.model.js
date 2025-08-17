@@ -143,6 +143,24 @@ export class TaskModel {
   }
 
   /**
+   * Reads the help page for the given command.
+   *
+   * @static
+   * @param {string} docsPath - The path to the help page file.
+   * @param {string} command - The command for which to read the help page.
+   * @returns {Promise<string>} The help page content.
+   */
+  static async readHelpPage(docsPath, command) {
+    try {
+      const helpPage = await fs.readFile(docsPath, DB_FILE_ENCODING);
+      return helpPage;
+    } catch (e) {
+      const message = messages.error.INVALID_TASK_COMMAND.replace('{0}', command);
+      throw new Error(message);
+    }
+  }
+
+  /**
    * Writes the in-memory tasks list to the database file.
    *
    * @static

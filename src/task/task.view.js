@@ -1,10 +1,13 @@
-import { promises as fs } from 'fs';
-import path from 'path';
-
-import { DB_FILE_ENCODING } from '../shared/enums.js';
+import { TaskController } from './task.controller.js';
 import { Utils } from '../shared/utils.js';
-import { messages } from '../shared/messages.js';
 
+/**
+ * TaskView is responsible for displaying results to the user.
+ *
+ * It delegates the actual work to the {@link TaskController} and formats
+ * the results for display.
+ * @class
+ */
 export class TaskView {
   static getTasksList(status) {}
 
@@ -18,20 +21,15 @@ export class TaskView {
 
   static deleteTask(id) {}
 
+  /**
+   * Displays the help page for the given command.
+   *
+   * @static
+   * @param {string} command - The command for which to display the help page.
+   * @returns {Promise<void>}
+   */
   static async help(command) {
-    try {
-      const docsPath = path.join(
-        Utils.dirname(import.meta.url),
-        '..',
-        'docs',
-        'help',
-        `${command ?? 'help'}.txt`,
-      );
-      const raw = await fs.readFile(docsPath, DB_FILE_ENCODING);
-      console.log(raw);
-    } catch (e) {
-      const message = messages.error.INVALID_TASK_COMMAND.replace('{0}', command);
-      throw new Error(message);
-    }
+    const helpPage = await TaskController.help(command);
+    console.log(helpPage);
   }
 }

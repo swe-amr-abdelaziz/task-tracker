@@ -3,10 +3,11 @@ import { afterEach, beforeEach, describe, it, mock } from 'node:test';
 import { deepEqual, equal, notEqual, rejects } from 'node:assert';
 import { promises as fs } from 'fs';
 
-import { DB_FILE_ENCODING, DB_FILENAME } from '../../shared/enums.js';
+import { DB_FILE_ENCODING, DB_FILENAME, TaskCommand } from '../../shared/enums.js';
 import { TaskBuilder } from '../task.builder.js';
 import { TaskModel } from '../task.model.js';
 import { TaskStatus } from '../task.entity.js';
+import { Utils } from '../../shared/utils.js';
 import { messages } from '../../shared/messages.js';
 
 describe('TaskModel', () => {
@@ -352,6 +353,64 @@ describe('TaskModel', () => {
 
       // Teardown
       writeChangesToDbMock.mock.restore();
+    });
+  });
+
+  describe('readHelpPage', () => {
+    it('should read the help page for the given command', async () => {
+      // Arrange
+      const readFileMock = mock.method(fs, 'readFile', () => {});
+      const commands = [
+        TaskCommand.ADD,
+        TaskCommand.UPDATE,
+        TaskCommand.DELETE,
+        TaskCommand.MARK_IN_PROGRESS,
+        TaskCommand.MARK_DONE,
+        TaskCommand.LIST,
+        TaskCommand.HELP,
+        undefined,
+      ];
+
+      for (let index = 0; index < commands.length; index++) {
+        // Act
+        const command = commands[index];
+        const docsPath = path.join(
+          Utils.dirname(import.meta.url),
+          '..',
+          '..',
+          'docs',
+          'help',
+          `${command ?? 'help'}.txt`,
+        );
+        TaskModel.readHelpPage(docsPath, command);
+
+        // Assert
+        equal(readFileMock.mock.callCount(), index + 1);
+        equal(readFileMock.mock.calls[index].arguments[0], docsPath);
+      }
+
+      // Teardown
+      readFileMock.mock.restore();
+    });
+
+    it('should throw an error if the command is invalid', async () => {
+      // Arrange
+      const command = 'invalid-command';
+      const docsPath = path.join(
+        Utils.dirname(import.meta.url),
+        '..',
+        '..',
+        'docs',
+        'help',
+        `${command}.txt`,
+      );
+
+      // Act & Assert
+      const errorMessage = messages.error.INVALID_TASK_COMMAND.replace('{0}', command);
+      await rejects(
+        async () => TaskModel.readHelpPage(docsPath, command),
+        { message: errorMessage },
+      );
     });
   });
 });
