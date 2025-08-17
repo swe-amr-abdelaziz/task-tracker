@@ -8,14 +8,20 @@ import { messages } from '../../shared/messages.js';
 describe('BaseEntity', () => {
   describe('new keyword', () => {
     it('should throw an error if an instance of BaseEntity is created', () => {
+      // Arrange
       const logErrorMock = mock.method(Utils, 'logErrorMsg', () => {});
+
+      // Act
       new BaseEntity();
 
+      // Assert
       strictEqual(logErrorMock.mock.calls.length, 1);
       deepStrictEqual(
         logErrorMock.mock.calls[0].arguments,
         [messages.error.BASE_ENTITY_OBJECT_CREATION]
       );
+
+      // Teardown
       logErrorMock.mock.restore();
     });
   });
