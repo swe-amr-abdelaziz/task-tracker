@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, it, mock } from 'node:test';
-import { deepStrictEqual, equal, ok } from 'node:assert';
+import { describe, it } from 'node:test';
+import { deepStrictEqual, ok } from 'node:assert';
 
 import { TestUtils } from '../test-utils.js';
 
