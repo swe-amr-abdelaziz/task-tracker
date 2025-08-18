@@ -6,11 +6,12 @@ import { messages } from '../../shared/messages.js';
 
 describe('BaseEntity', () => {
   describe('new keyword', () => {
-    it('should throw an error if an instance of BaseEntity is created', async () => {
-      // Act & Arrange
+    it('should prevent object creation of BaseEntity abstract class', async () => {
+      const errorMessage = messages.error.ABSTRACT_CLASS_OBJECT_CREATION.replace("{0}", "BaseEntity");
+
       await rejects(
         async () => new BaseEntity(),
-        { message: messages.error.BASE_ENTITY_OBJECT_CREATION },
+        { message: errorMessage },
       );
     });
   });

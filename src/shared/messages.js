@@ -1,6 +1,6 @@
 export const messages = {
   error: {
-    BASE_ENTITY_OBJECT_CREATION: 'Cannot instantiate abstract class BaseEntity directly.',
+    ABSTRACT_CLASS_OBJECT_CREATION: 'Cannot instantiate object of abstract class "{0}".',
     INVALID_TASK_COMMAND: '"{0}" command is not supported',
     INVALID_TASK_ID: 'Task id is invalid.',
     INVALID_TASK_STATUS: 'Task status is invalid.',

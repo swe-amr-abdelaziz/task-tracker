@@ -22,7 +22,8 @@ export class BaseEntity {
    */
   constructor() {
     if (new.target === BaseEntity) {
-      throw new Error(messages.error.BASE_ENTITY_OBJECT_CREATION);
+      const message = messages.error.ABSTRACT_CLASS_OBJECT_CREATION.replace("{0}", "BaseEntity")
+      throw new Error(message);
     }
     this.#generateID();
     this.#createdAt = new Date();
