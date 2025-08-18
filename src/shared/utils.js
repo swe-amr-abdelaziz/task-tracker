@@ -18,8 +18,8 @@ export class Utils {
    * Utils.getArgs(); // ["arg1", "arg2"]
    */
   static getArgs() {
-    const cliArgsStartIndex = 2;
-    return process.argv.slice(cliArgsStartIndex);
+    const userDefinedArgsStartIndex = 2;
+    return process.argv.slice(userDefinedArgsStartIndex);
   }
 
   /**

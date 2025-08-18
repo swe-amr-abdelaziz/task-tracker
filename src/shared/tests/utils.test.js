@@ -1,8 +1,9 @@
-import { afterEach, beforeEach, describe, it, mock } from 'node:test';
+import { after, afterEach, describe, it, mock } from 'node:test';
 import { deepStrictEqual, equal } from 'node:assert';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { TestUtils } from '../test-utils.js';
 import { Utils } from '../utils.js';
 
 describe('Utils', () => {
@@ -13,137 +14,119 @@ describe('Utils', () => {
       process.argv = originalArgv;
     });
 
-    it('should return cli arguments passed by the user - no arguments', () => {
-      // Arrange
-      process.argv = ["one", "two"];
+    it('should return an empty array if no arguments are provided', () => {
+      process.argv = TestUtils.generateRandomStringArray(2);
 
-      // Act
       const args = Utils.getArgs();
 
-      // Assert
       deepStrictEqual(args, []);
     });
 
-    it('should return cli arguments passed by the user - two arguments', () => {
-      // Arrange
-      process.argv = ["one", "two", "three", "four"];
+    it('should return cli arguments passed by the user', () => {
+      process.argv = TestUtils.generateRandomStringArray(5);
 
-      // Act
       const args = Utils.getArgs();
 
-      // Assert
-      deepStrictEqual(args, ["three", "four"]);
+      deepStrictEqual(args, process.argv.slice(2));
     });
   });
 
   describe('logErrorMsg', () => {
-    const errorMsg = 'Error Message';
-    const exitCode = -1;
-
-    let consoleErrorMock;
-    let processExitMock;
-
-    beforeEach(() => {
-      consoleErrorMock = mock.method(console, 'error', () => {});
-      processExitMock = mock.method(process, 'exit', () => {});
-    });
+    const consoleErrorMock = mock.method(console, 'error', () => {}).mock;
+    const processExitMock = mock.method(process, 'exit', () => {}).mock;
 
     afterEach(() => {
-      consoleErrorMock.mock.restore();
-      processExitMock.mock.restore();
+      consoleErrorMock.resetCalls();
+      processExitMock.resetCalls();
     });
 
-    it('should log an error message to the console and exit the process with status = -1', () => {
-      // Act
-      Utils.logErrorMsg(errorMsg, true);
-
-      // Assert
-      equal(consoleErrorMock.mock.callCount(), 1);
-      deepStrictEqual(consoleErrorMock.mock.calls[0].arguments, [errorMsg]);
-      equal(processExitMock.mock.callCount(), 1);
-      deepStrictEqual(processExitMock.mock.calls[0].arguments, [exitCode]);
+    after(() => {
+      mock.restoreAll();
     });
 
-    it('should log an error message to the console and don\'t exit the process', () => {
-      // Act
-      Utils.logErrorMsg(errorMsg, false);
+    it('should print the error message to the console', () => {
+      const errorMsg = TestUtils.generateRandomString();
+      const exitProcess = false;
 
-      // Assert
-      equal(consoleErrorMock.mock.callCount(), 1);
-      deepStrictEqual(consoleErrorMock.mock.calls[0].arguments, [errorMsg]);
-      equal(processExitMock.mock.callCount(), 0);
+      Utils.logErrorMsg(errorMsg, exitProcess);
+
+      equal(consoleErrorMock.callCount(), 1);
+      deepStrictEqual(consoleErrorMock.calls[0].arguments, [errorMsg]);
+    });
+
+    it('should exit the process if specified to do so', () => {
+      const errorMsg = TestUtils.generateRandomString();
+      const exitProcess = true;
+      const expectedExitCode = -1;
+
+      Utils.logErrorMsg(errorMsg, exitProcess);
+
+      equal(processExitMock.callCount(), 1);
+      deepStrictEqual(processExitMock.calls[0].arguments, [expectedExitCode]);
+    });
+
+    it('should not exit the process if specified not to do so', () => {
+      const errorMsg = TestUtils.generateRandomString();
+      const exitProcess = false;
+
+      Utils.logErrorMsg(errorMsg, exitProcess);
+
+      equal(processExitMock.callCount(), 0);
     });
   });
 
   describe('isValidDate', () => {
     it('should return true for a valid date', () => {
-      // Arrange
       const date = new Date();
 
-      // Act
       const isValidDate = Utils.isValidDate(date);
 
-      // Assert
       equal(isValidDate, true);
     });
 
-    it('should return false for an invalid date - test case 1', () => {
-      // Arrange
+    it('should return false for date in a string format', () => {
       const date = "2025-08-15";
 
-      // Act
       const isValidDate = Utils.isValidDate(date);
 
-      // Assert
       equal(isValidDate, false);
     });
 
-    it('should return false for an invalid date - test case 2', () => {
-      // Arrange
+    it('should return false for an invalid date instance', () => {
       const date = new Date("invalid");
 
-      // Act
       const isValidDate = Utils.isValidDate(date);
 
-      // Assert
       equal(isValidDate, false);
     });
   });
 
   describe('isTestEnvironment', () => {
-    it('should return true as the test environment is set', () => {
-      // Act
+    it('should return true as the test environment is already set', () => {
       const isTestEnv = Utils.isTestEnvironment();
 
-      // Assert
       equal(isTestEnv, true);
     });
   });
 
-  describe('__filename', () => {
-    it('should return the current file path with filename', () => {
-      // Arrange
+  describe('filename', () => {
+    it('should return the current file name with its absolute path', () => {
       const metaUrl = import.meta.url;
       const expectedFilename = fileURLToPath(metaUrl);
 
-      // Act
       const actualFilename = Utils.filename(metaUrl);
 
-      // Assert
       equal(actualFilename, expectedFilename);
     });
   });
 
-  describe('__dirname', () => {
-    it('should return the current file directory', () => {
-      // Arrange
+  describe('dirname', () => {
+    it('should return the current file directory as an absolute path', () => {
       const metaUrl = import.meta.url;
       const expectedDirname = dirname(fileURLToPath(metaUrl));
 
-      // Act
       const actualDirname = Utils.dirname(metaUrl);
 
-      // Assert
       equal(actualDirname, expectedDirname);
     });
   });
