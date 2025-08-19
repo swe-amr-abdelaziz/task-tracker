@@ -7,6 +7,7 @@ import { DB_FILE_ENCODING, DB_FILENAME, TaskCommand } from '../../shared/enums.j
 import { TaskBuilder } from '../task.builder.js';
 import { TaskModel } from '../task.model.js';
 import { TaskStatus } from '../task.entity.js';
+import { TestUtils } from '../../shared/test-utils.js';
 import { Utils } from '../../shared/utils.js';
 import { messages } from '../../shared/messages.js';
 
@@ -26,15 +27,15 @@ describe('TaskModel', () => {
 
   const tasks = [
     new TaskBuilder()
-      .withDescription('Task 1')
+      .withDescription(TestUtils.generateRandomString())
       .withStatus(TaskStatus.TODO)
       .build(),
     new TaskBuilder()
-      .withDescription('Task 2')
+      .withDescription(TestUtils.generateRandomString())
       .withStatus(TaskStatus.IN_PROGRESS)
       .build(),
     new TaskBuilder()
-      .withDescription('Task 3')
+      .withDescription(TestUtils.generateRandomString())
       .withStatus(TaskStatus.DONE)
       .build(),
   ];
@@ -49,43 +50,33 @@ describe('TaskModel', () => {
 
   describe('populateData', () => {
     it('should should create a new database file if the file does not exist', async () => {
-      // Arrange
       await fs.rm(dbPath, { force: true });
 
-      // Act
       const tasks = await TaskModel.populateData();
 
-      // Assert
       equal(tasks.length, 0);
       deepEqual(tasks, []);
     });
 
     it('should populate the database with data if the file exists with empty tasks', async () => {
-      // Arrange
       await createDbFile([]);
 
-      // Act
       const tasks = await TaskModel.populateData();
 
-      // Assert
       equal(tasks.length, 0);
       deepEqual(tasks, []);
     });
 
     it('should populate the database with data if the file exists with some tasks', async () => {
-      // Arrange
       await createDbFile(tasks);
 
-      // Act
       const expected = await TaskModel.populateData();
 
-      // Assert
-      equal(expected.length, 3);
+      equal(expected.length, tasks.length);
       deepEqual(expected, tasks);
     });
 
     it('should throw an error if unexpected error occurs', async () => {
-      // Arrange
       const tasksStringified = '[{]';
       await fs.writeFile(
         dbPath,
@@ -93,7 +84,6 @@ describe('TaskModel', () => {
         DB_FILE_ENCODING,
       );
 
-      // Act & Assert
       await rejects(
         async () => await TaskModel.populateData(),
         { message: messages.error.READ_DB_FAILED },
@@ -103,52 +93,35 @@ describe('TaskModel', () => {
 
   describe('getTasksList', () => {
     it('should return all tasks if status is not provided', () => {
-      // Arrange
-      let allTasks;
+      const allTasks = TaskModel.getTasksList();
 
-      // Act
-      allTasks = TaskModel.getTasksList();
-
-      // Assert
-      equal(allTasks.length, 3);
+      equal(allTasks.length, tasks.length);
       deepEqual(allTasks, tasks);
     });
 
     it('should return tasks with `todo` status', () => {
-      // Arrange
-      let todoTasks;
       const status = TaskStatus.TODO;
 
-      // Act
-      todoTasks = TaskModel.getTasksList(status);
+      const todoTasks = TaskModel.getTasksList(status);
 
-      // Assert
       equal(todoTasks.length, 1);
       deepEqual(tasks[0], todoTasks[0]);
     });
 
     it('should return tasks with `in-progress` status', () => {
-      // Arrange
-      let todoTasks;
       const status = TaskStatus.IN_PROGRESS;
 
-      // Act
-      todoTasks = TaskModel.getTasksList(status);
+      const todoTasks = TaskModel.getTasksList(status);
 
-      // Assert
       equal(todoTasks.length, 1);
       deepEqual(tasks[1], todoTasks[0]);
     });
 
     it('should return tasks with `done` status', () => {
-      // Arrange
-      let todoTasks;
       const status = TaskStatus.DONE;
 
-      // Act
-      todoTasks = TaskModel.getTasksList(status);
+      const todoTasks = TaskModel.getTasksList(status);
 
-      // Assert
       equal(todoTasks.length, 1);
       deepEqual(tasks[2], todoTasks[0]);
     });
@@ -156,40 +129,31 @@ describe('TaskModel', () => {
 
   describe('getTaskById', () => {
     it('should return a task by id if it exists', () => {
-      // Arrange
       const expected = tasks[0];
 
-      // Act
       const actual = TaskModel.getTaskById(expected.id);
 
-      // Assert
       deepEqual(actual, expected);
     });
 
     it('should return undefined if the task does not exist', () => {
-      // Arrange
       const id = -1;
 
-      // Act
       const task = TaskModel.getTaskById(id);
 
-      // Assert
       deepEqual(task, undefined);
     });
   });
 
   describe('addTask', () => {
     it('should add a new task to the database', async () => {
-      // Arrange
       const oldTasks = [...TaskModel.getTasksList()];
-      const description = 'New Task';
+      const description = TestUtils.generateRandomString();
 
-      // Act
       await TaskModel.addTask(description);
       const newTasks = TaskModel.getTasksList();
       const insertedTask = newTasks[newTasks.length - 1];
 
-      // Assert
       equal(newTasks.length, oldTasks.length + 1);
       equal(insertedTask.description, description);
       equal(insertedTask.status, TaskStatus.TODO);
@@ -198,61 +162,48 @@ describe('TaskModel', () => {
     });
 
     it('should write changes to the database', async () => {
-      // Arrange
-      const writeChangesToDbMock = mock.method(TaskModel, '_writeChangesToDb', () => {});
-      const description = 'New Task';
+      const writeChangesToDbMock = mock.method(TaskModel, '_writeChangesToDb', () => {}).mock;
+      const description = TestUtils.generateRandomString();
 
-      // Act
       await TaskModel.addTask(description);
 
-      // Assert
-      equal(writeChangesToDbMock.mock.calls.length, 1);
+      equal(writeChangesToDbMock.calls.length, 1);
 
-      // Teardown
-      writeChangesToDbMock.mock.restore();
+      writeChangesToDbMock.restore();
     });
   });
 
   describe('updateTaskDescription', () => {
     it('should update the description of a task if it exists', async () => {
-      // Arrange
       const taskIndex = 0;
       const task = TaskModel.getTasksList()[taskIndex];
       const oldDescription = task.description;
-      const newDescription = 'New Task';
+      const newDescription = TestUtils.generateRandomString();
 
-      // Act
       await TaskModel.updateTaskDescription(task.id, newDescription);
       const newTask = TaskModel.getTasksList()[taskIndex];
 
-      // Assert
       notEqual(newTask.description, oldDescription);
       equal(newTask.description, newDescription);
     });
 
     it('should write changes to the database if the task exists', async () => {
-      // Arrange
       const writeChangesToDbMock = mock.method(TaskModel, '_writeChangesToDb', () => {});
       const task = TaskModel.getTasksList()[0];
-      const description = 'New Task';
+      const description = TestUtils.generateRandomString();
 
-      // Act
       await TaskModel.updateTaskDescription(task.id, description);
 
-      // Assert
       equal(writeChangesToDbMock.mock.calls.length, 1);
 
-      // Teardown
       writeChangesToDbMock.mock.restore();
     });
 
     it('should not write changes to the database if the task doesn\'t exist', async () => {
-      // Arrange
       const writeChangesToDbMock = mock.method(TaskModel, '_writeChangesToDb', () => {});
       const id = -1;
-      const description = 'New Task';
+      const description = TestUtils.generateRandomString();
 
-      // Act
       await TaskModel.updateTaskDescription(id, description);
 
       equal(writeChangesToDbMock.mock.calls.length, 0);
@@ -262,103 +213,80 @@ describe('TaskModel', () => {
 
   describe('updateTaskStatus', () => {
     it('should update the status of a task if it exists', async () => {
-      // Arrange
       const taskIndex = 0;
       const task = TaskModel.getTasksList()[taskIndex];
       const oldStatus = task.status;
       const newStatus = TaskStatus.IN_PROGRESS;
 
-      // Act
       await TaskModel.updateTaskStatus(task.id, newStatus);
       const newTask = TaskModel.getTasksList()[taskIndex];
 
-      // Assert
       notEqual(newTask.status, oldStatus);
       equal(newTask.status, newStatus);
     });
 
     it('should write changes to the database if the task exists', async () => {
-      // Arrange
       const writeChangesToDbMock = mock.method(TaskModel, '_writeChangesToDb', () => {});
       const task = TaskModel.getTasksList()[0];
 
-      // Act
       await TaskModel.updateTaskStatus(task.id, TaskStatus.IN_PROGRESS);
 
-      // Assert
       equal(writeChangesToDbMock.mock.calls.length, 1);
 
-      // Teardown
       writeChangesToDbMock.mock.restore();
     });
 
     it('should not write changes to the database if the task doesn\'t exist', async () => {
-      // Arrange
       const writeChangesToDbMock = mock.method(TaskModel, '_writeChangesToDb', () => {});
       const id = -1;
 
-      // Act
       await TaskModel.updateTaskStatus(id, TaskStatus.IN_PROGRESS);
 
-      // Assert
       equal(writeChangesToDbMock.mock.calls.length, 0);
 
-      // Teardown
       writeChangesToDbMock.mock.restore();
     });
   });
 
   describe('deleteTask', () => {
     it('should delete a task if it exists', async () => {
-      // Arrange
       const taskIndex = 0;
       const deletedTask = TaskModel.getTasksList()[taskIndex];
       const oldTasksCount = TaskModel.getTasksList().length;
 
-      // Act
       await TaskModel.deleteTask(deletedTask.id);
       const newTasksCount = TaskModel.getTasksList().length;
 
-      // Assert
       equal(newTasksCount, oldTasksCount - 1);
       const task = TaskModel.getTaskById(deletedTask.id);
       equal(task, undefined);
     });
 
     it('should write changes to the database if the task is found', async () => {
-      // Arrange
       const writeChangesToDbMock = mock.method(TaskModel, '_writeChangesToDb', () => {});
       const task = TaskModel.getTasksList()[0];
 
-      // Act
       await TaskModel.deleteTask(task.id);
 
-      // Assert
       equal(writeChangesToDbMock.mock.calls.length, 1);
 
-      // Teardown
       writeChangesToDbMock.mock.restore();
     });
 
     it('should not write changes to the database if the task is not found', async () => {
-      // Arrange
       const writeChangesToDbMock = mock.method(TaskModel, '_writeChangesToDb', () => {});
       const id = -1;
 
-      // Act
       await TaskModel.deleteTask(id);
 
-      // Assert
       equal(writeChangesToDbMock.mock.calls.length, 0);
 
-      // Teardown
       writeChangesToDbMock.mock.restore();
     });
   });
 
   describe('readHelpPage', () => {
     it('should read the help page for the given command', async () => {
-      // Arrange
       const readFileMock = mock.method(fs, 'readFile', () => {});
       const commands = [
         TaskCommand.ADD,
@@ -372,7 +300,6 @@ describe('TaskModel', () => {
       ];
 
       for (let index = 0; index < commands.length; index++) {
-        // Act
         const command = commands[index];
         const docsPath = path.join(
           Utils.dirname(import.meta.url),
@@ -384,18 +311,15 @@ describe('TaskModel', () => {
         );
         TaskModel.readHelpPage(docsPath, command);
 
-        // Assert
         equal(readFileMock.mock.callCount(), index + 1);
         equal(readFileMock.mock.calls[index].arguments[0], docsPath);
       }
 
-      // Teardown
       readFileMock.mock.restore();
     });
 
     it('should throw an error if the command is invalid', async () => {
-      // Arrange
-      const command = 'invalid-command';
+      const command = TestUtils.generateRandomString(10);
       const docsPath = path.join(
         Utils.dirname(import.meta.url),
         '..',
@@ -405,7 +329,6 @@ describe('TaskModel', () => {
         `${command}.txt`,
       );
 
-      // Act & Assert
       const errorMessage = messages.error.INVALID_TASK_COMMAND.replace('{0}', command);
       await rejects(
         async () => TaskModel.readHelpPage(docsPath, command),

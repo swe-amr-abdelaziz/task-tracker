@@ -1,5 +1,8 @@
 import { randomInt } from "node:crypto";
 
+import { MAX_INT32 } from "./enums.js";
+import { messages } from "./messages.js";
+
 /**
  * Utility class providing helper methods for unit tests.
  * @class
@@ -14,6 +17,9 @@ export class TestUtils {
    * @returns {string} A random string of ASCII characters.
    */
   static generateRandomString(minLength, maxLength) {
+    if (minLength > maxLength)
+      throw new Error(messages.error.INVALID_MIN_MAX_LENGTH_RANGE);
+
     if (minLength === undefined)
       minLength = 8;
     if (maxLength === undefined)
@@ -55,6 +61,26 @@ export class TestUtils {
       randomStringArray.push(TestUtils.generateRandomString(minStringLength, maxStringLength));
     }
     return randomStringArray;
+  }
+
+  /**
+   * Generates a random integer within a specified range.
+   *
+   * @static
+   * @param {number} minValue
+   * @param {number} maxValue
+   * @returns {number} A random integer between minValue and maxValue (inclusive).
+   */
+  static generateRandomInt(minValue, maxValue) {
+    if (minValue > maxValue)
+      throw new Error(messages.error.INVALID_MIN_MAX_VALUE_RANGE);
+
+    if (minValue === undefined)
+      minValue = 0;
+    if (maxValue === undefined)
+      maxValue = MAX_INT32;
+
+    return randomInt(minValue, maxValue + 1);
   }
 
   /**

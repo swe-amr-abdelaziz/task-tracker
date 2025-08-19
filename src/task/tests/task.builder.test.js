@@ -1,57 +1,52 @@
-import { equal } from 'node:assert';
+import { equal, ok } from 'node:assert';
 import { describe, it } from 'node:test';
 
+import { Task, TaskStatus } from '../task.entity.js';
 import { TaskBuilder } from '../task.builder.js';
-import { TaskStatus } from '../task.entity.js';
+import { TestUtils } from '../../shared/test-utils.js';
 
 describe('TaskBuilder', () => {
   describe('description', () => {
     it('should create a task with the default description', () => {
-      // Arrange
-      let task;
+      const description = "Task";
 
-      // Act
-      task = new TaskBuilder().build();
+      const task = new TaskBuilder().build();
 
-      // Assert
-      equal(task.description, "Task");
+      equal(task.description, description);
     });
 
     it('should set the description', () => {
-      // Arrange
-      let task;
-      const description = "New Description";
+      const description = TestUtils.generateRandomString();
 
-      // Act
-      task = new TaskBuilder().withDescription(description).build();
+      const task = new TaskBuilder().withDescription(description).build();
 
-      // Assert
       equal(task.description, description);
     });
   });
 
   describe('status', () => {
     it('should create a task with the default status', () => {
-      // Arrange
-      let task;
+      const status = TaskStatus.TODO;
 
-      // Act
-      task = new TaskBuilder().build();
+      const task = new TaskBuilder().build();
 
-      // Assert
-      equal(task.status, TaskStatus.TODO);
+      equal(task.status, status);
     });
 
     it('should set the status', () => {
-      // Arrange
-      let task;
       const status = TaskStatus.IN_PROGRESS;
 
-      // Act
-      task = new TaskBuilder().withStatus(status).build();
+      const task = new TaskBuilder().withStatus(status).build();
 
-      // Assert
       equal(task.status, status);
+    });
+  });
+
+  describe('build', () => {
+    it('should return an instance of Task class', () => {
+      const task = new TaskBuilder().build();
+
+      ok(task instanceof Task, true);
     });
   });
 });

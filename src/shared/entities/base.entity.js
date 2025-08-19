@@ -1,5 +1,5 @@
-import { messages } from "../messages.js";
 import { Utils } from "../utils.js";
+import { messages } from "../messages.js";
 
 /**
  * Represents a base entity with an id, creation date, and update date.

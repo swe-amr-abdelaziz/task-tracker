@@ -19,14 +19,26 @@ export class TaskController {
    * @returns {Promise<string>} The help page content.
    */
   static async help(command) {
+    const docsPath = TaskController.#getHelpPagePath(command);
+    return TaskModel.readHelpPage(docsPath, command);
+  }
+
+  /**
+   * Constructs the path to the help page for a given command.
+   *
+   * @static
+   * @private
+   * @param {string} command - The command for which to read the help page.
+   * @returns {string} The path to the help page file.
+   */
+  static #getHelpPagePath(command) {
     const filename = `${command ?? 'help'}.txt`
-    const docsPath = path.join(
+    return path.join(
       Utils.dirname(import.meta.url),
       '..',
       'docs',
       'help',
       filename,
     );
-    return TaskModel.readHelpPage(docsPath, command);
   }
 }

@@ -1,5 +1,4 @@
 import { BaseEntity } from "../shared/entities/base.entity.js";
-import { Utils } from "../shared/utils.js";
 import { messages } from "../shared/messages.js";
 
 /**

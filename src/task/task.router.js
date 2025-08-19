@@ -43,7 +43,7 @@ export class TaskRouter {
    *   is expected to be a {@link TaskCommand}. The remaining elements
    *   are passed to the handler.
    *
-   * @returns {void}
+   * @returns {Promise<void>}
    *
    * @example
    * ```ts
@@ -57,7 +57,7 @@ export class TaskRouter {
    * // Logs an error: INVALID_TASK_COMMAND
    * ```
    */
-  static route(args) {
+  static async route(args) {
     const command = args[0] ?? TaskCommand.HELP;
     const handler = TaskRouter.#commandHandlers[command];
 
@@ -67,6 +67,6 @@ export class TaskRouter {
     }
 
     const [_, ...rest] = args;
-    handler(...rest);
+    await handler(...rest);
   }
 }
