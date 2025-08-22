@@ -8,6 +8,10 @@ import { TaskModel } from '../task.model.js';
 import { TestUtils } from '../../shared/test-utils.js';
 
 describe('TaskController', () => {
+  after(() => {
+    mock.restoreAll();
+  });
+
   describe('help', () => {
     const expectedPath = TestUtils.generateRandomString();
     const expectedHelpPage = TestUtils.generateRandomString();
@@ -28,10 +32,6 @@ describe('TaskController', () => {
     afterEach(() => {
       pathJoinMock.resetCalls();
       readHelpPageMock.resetCalls();
-    });
-
-    after(() => {
-      mock.restoreAll();
     });
 
     it('should construct the "docsPath"', async () => {

@@ -319,7 +319,7 @@ describe('TaskModel', () => {
     });
 
     it('should throw an error if the command is invalid', async () => {
-      const command = TestUtils.generateRandomString(10);
+      const command = TestUtils.generateRandomString({ minLength: 10 });
       const docsPath = path.join(
         Utils.dirname(import.meta.url),
         '..',

@@ -16,7 +16,7 @@ describe('TaskBuilder', () => {
     });
 
     it('should set the description', () => {
-      const description = TestUtils.generateRandomString();
+      const description = TestUtils.generateRandomString({ excludeSpecialCharacters: true });
 
       const task = new TaskBuilder().withDescription(description).build();
 

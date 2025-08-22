@@ -1,6 +1,8 @@
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 
+import { ConsoleStringBuilder } from './console-string.builder.js';
+
 /**
  * Utility class providing helper methods for various tasks.
  * @class
@@ -23,6 +25,19 @@ export class Utils {
   }
 
   /**
+   * Logs a success message to the console.
+   *
+   * @static
+   * @param {string} message - The success message to display.
+   *
+   * @example
+   * Utils.logSuccessMsg("Task added successfully");
+   */
+  static logSuccessMsg(message) {
+    ConsoleStringBuilder.create().successMsg(message).log();
+  }
+
+  /**
    * Logs an error message to the console, and optionally exits the process.
    *
    * @static
@@ -35,7 +50,7 @@ export class Utils {
    * Utils.logErrorMsg("Invalid input", false); // Logs message, does not exit
    */
   static logErrorMsg(message, exit = true) {
-    console.error(message);
+    ConsoleStringBuilder.create().errorMsg(message).error();
     if (exit) {
       process.exit(-1);
     }

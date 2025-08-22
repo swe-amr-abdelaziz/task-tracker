@@ -12,30 +12,40 @@ export class TestUtils {
    * Generates a random string of ASCII characters.
    *
    * @static
-   * @param {number} [minLength=8] - The minimum length of the generated string.
-   * @param {number} [maxLength=minLength] - The maximum length of the generated string.
+   * @param {object} [options={}] - An object containing options for generating the string.
+   * @param {number} [options.minLength=8] - The minimum length of the generated string.
+   * @param {number} [options.maxLength=minLength] - The maximum length of the generated string.
+   * @param {boolean} [options.excludeSmallLetters=false] - Whether to exclude small letters from the generated string.
+   * @param {boolean} [options.excludeCapitalLetters=false] - Whether to exclude capital letters from the generated string.
+   * @param {boolean} [options.excludeNumbers=false] - Whether to exclude numbers from the generated string.
+   * @param {boolean} [options.excludeSpecialCharacters=false] - Whether to exclude special characters from the generated string.
    * @returns {string} A random string of ASCII characters.
    */
-  static generateRandomString(minLength, maxLength) {
-    if (minLength > maxLength)
+  static generateRandomString(options = {}) {
+    if (options.minLength > options.maxLength)
       throw new Error(messages.error.INVALID_MIN_MAX_LENGTH_RANGE);
 
-    if (minLength === undefined)
-      minLength = 8;
-    if (maxLength === undefined)
-      maxLength = minLength;
+    if (options.minLength === undefined)
+      options.minLength = 8;
+    if (options.maxLength === undefined)
+      options.maxLength = options.minLength;
 
     const smallLetters = TestUtils.#getCharactersRange('a', 26);
     const capitalLetters = TestUtils.#getCharactersRange('A', 26);
     const numbers = TestUtils.#getCharactersRange('0', 10);
     const specialCharacters = TestUtils.#getCharactersRange('!', 10);
 
-    const charset = smallLetters
-      .concat(capitalLetters)
-      .concat(numbers)
-      .concat(specialCharacters);
+    const charset = [];
+    if (!options?.excludeSmallLetters)
+      charset.push(...smallLetters);
+    if (!options?.excludeCapitalLetters)
+      charset.push(...capitalLetters);
+    if (!options?.excludeNumbers)
+      charset.push(...numbers);
+    if (!options?.excludeSpecialCharacters)
+      charset.push(...specialCharacters);
 
-    const randomStringLength = randomInt(minLength, maxLength + 1);
+    const randomStringLength = randomInt(options.minLength, options.maxLength + 1);
     const stringBuilder = [];
 
     Array.from({ length: randomStringLength }).forEach(() => {
@@ -50,15 +60,20 @@ export class TestUtils {
    *
    * @static
    * @param {number} [arrayLength=0] - The number of strings to generate.
-   * @param {number} [minStringLength=8] - The minimum length of each generated string.
-   * @param {number} [maxStringLength=minStringLength] - The maximum length of each generated string.
+   * @param {object} [options] - An object containing options for generating the string.
+   * @param {number} [options.minLength=8] - The minimum length of the generated string.
+   * @param {number} [options.maxLength=minLength] - The maximum length of the generated string.
+   * @param {boolean} [options.excludeSmallLetters=false] - Whether to exclude small letters from the generated string.
+   * @param {boolean} [options.excludeCapitalLetters=false] - Whether to exclude capital letters from the generated string.
+   * @param {boolean} [options.excludeNumbers=false] - Whether to exclude numbers from the generated string.
+   * @param {boolean} [options.excludeSpecialCharacters=false] - Whether to exclude special characters from the generated string.
    * @returns {string[]} An array of random strings of ASCII characters.
    */
-  static generateRandomStringArray(arrayLength, minStringLength, maxStringLength) {
+  static generateRandomStringArray(arrayLength, options) {
     const randomStringArray = [];
     const length = arrayLength ?? 0;
     for (let i = 0; i < length; i++) {
-      randomStringArray.push(TestUtils.generateRandomString(minStringLength, maxStringLength));
+      randomStringArray.push(TestUtils.generateRandomString(options));
     }
     return randomStringArray;
   }

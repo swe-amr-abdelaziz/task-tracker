@@ -97,7 +97,7 @@ describe('Task', () => {
     });
 
     it('should throw an error message if an invalid status is provided', async () => {
-      const status = TestUtils.generateRandomString(10);
+      const status = TestUtils.generateRandomString({ minLength: 10 });
 
       await rejects(
         async () => new TaskBuilder().withStatus(status).build(),

@@ -8,11 +8,11 @@ import { TestUtils } from '../../shared/test-utils.js';
 import { messages } from '../../shared/messages.js';
 
 describe('TaskRouter', () => {
-  describe('route', () => {
-    afterEach(() => {
-      mock.restoreAll();
-    });
+  afterEach(() => {
+    mock.restoreAll();
+  });
 
+  describe('route', () => {
     it(`should call the 'addTask' method if the command is '${TaskCommand.ADD}'`, () => {
       const addTaskMock = mock.method(TaskView, 'addTask', () => {});
       const args = [TaskCommand.ADD];
@@ -118,7 +118,7 @@ describe('TaskRouter', () => {
     });
 
     it('should throw an error if the command is invalid', async () => {
-      const command = TestUtils.generateRandomString(10);
+      const command = TestUtils.generateRandomString({ minLength: 10 });
       const args = [command];
 
       const errorMessage = messages.error.INVALID_TASK_COMMAND.replace('{0}', command);

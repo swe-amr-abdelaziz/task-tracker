@@ -211,7 +211,7 @@ describe('TaskValidator', () => {
 
     it('should throw an error if the status is invalid', async () => {
       const dto = {
-        status: TestUtils.generateRandomString(10),
+        status: TestUtils.generateRandomString({ minLength: 10 }),
       };
 
       await rejects(

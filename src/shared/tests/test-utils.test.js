@@ -27,20 +27,22 @@ describe('TestUtils', () => {
     const allowedCharset = buildAllowedCharset();
 
     it('should return a random string within the specified length bounds', () => {
-      const minLength = 5;
-      const maxLength = 10;
+      const options = { minLength: 5, maxLength: 10 };
 
-      const str = TestUtils.generateRandomString(minLength, maxLength);
+      const str = TestUtils.generateRandomString(options);
 
-      ok(str.length >= minLength && str.length <= maxLength, `String length ${str.length} is not within bounds`);
+      ok(
+        str.length >= options.minLength && str.length <= options.maxLength,
+        `String length ${str.length} is not within bounds`,
+      );
     });
 
-    it('should return a random string of exact length when passing one length', () => {
-      const length = 5;
+    it('should return a random string of exact length when passing minimum length only', () => {
+      const options = { minLength: 5 };
 
-      const str = TestUtils.generateRandomString(length);
+      const str = TestUtils.generateRandomString(options);
 
-      ok(str.length === length, `String length ${str.length} not equal to ${length}`);
+      ok(str.length === options.minLength, `String length ${str.length} not equal to ${options.minLength}`);
     });
 
     it('should set min and max lengths to 8 characters if not provided', () => {
@@ -52,11 +54,10 @@ describe('TestUtils', () => {
     });
 
     it('should throw an error if min length is greater than max length', async () => {
-      const minLength = 10;
-      const maxLength = 5;
+      const options = { minLength: 10, maxLength: 5 };
 
       await rejects(
-        async () => TestUtils.generateRandomString(minLength, maxLength),
+        async () => TestUtils.generateRandomString(options),
         { message: messages.error.INVALID_MIN_MAX_LENGTH_RANGE },
       );
     });
@@ -71,11 +72,11 @@ describe('TestUtils', () => {
 
     it('should produce varied results across multiple calls', () => {
       const runs = 10;
-      const length = 12;
+      const options = { minLength: 12 };
       const set = new Set();
 
       for (let i = 0; i < runs; i++) {
-        set.add(TestUtils.generateRandomString(length));
+        set.add(TestUtils.generateRandomString(options));
       }
 
       ok(set.size > 1, 'expected variation across multiple generated strings');
@@ -157,26 +158,25 @@ describe('TestUtils', () => {
 
     it('should return an array of random strings with specified string lengths', () => {
       const arrLength = 5;
-      const stringLength = 12;
+      const options = { minLength: 12 };
 
-      const arr = TestUtils.generateRandomStringArray(arrLength, stringLength);
+      const arr = TestUtils.generateRandomStringArray(arrLength, options);
 
       ok(arr.length === arrLength);
       for (const str of arr) {
-        ok(str.length === stringLength);
+        ok(str.length === options.minLength);
       }
     });
 
     it('should return an array of random strings with specified string length bounds', () => {
       const arrLength = 5;
-      const stringMinLength = 8;
-      const stringMaxLength = 16;
+      const options = { minLength: 8, maxLength: 16 };
 
-      const arr = TestUtils.generateRandomStringArray(arrLength, stringMinLength, stringMaxLength);
+      const arr = TestUtils.generateRandomStringArray(arrLength, options);
 
       ok(arr.length === arrLength);
       for (const str of arr) {
-        ok(str.length >= stringMinLength && str.length <= stringMaxLength);
+        ok(str.length >= options.minLength && str.length <= options.maxLength);
       }
     });
   });

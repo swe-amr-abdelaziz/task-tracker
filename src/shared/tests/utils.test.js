@@ -5,8 +5,23 @@ import { fileURLToPath } from 'node:url';
 
 import { TestUtils } from '../test-utils.js';
 import { Utils } from '../utils.js';
+import { ConsoleStringBuilder } from '../console-string.builder.js';
 
 describe('Utils', () => {
+  const processExitFn = mock.method(process, 'exit', () => {});
+  const errorFn = mock.fn();
+  const errorMsgFn = mock.fn(() => ({ error: errorFn }));
+  const logFn = mock.fn();
+  const successMsgFn = mock.fn(() => ({ log: logFn }));
+  const createFn = mock.method(ConsoleStringBuilder, 'create', () => ({
+    errorMsg: errorMsgFn,
+    successMsg: successMsgFn,
+  }));
+
+  after(() => {
+    mock.restoreAll();
+  });
+
   describe('getArgs', () => {
     const originalArgv = process.argv;
 
@@ -31,27 +46,42 @@ describe('Utils', () => {
     });
   });
 
-  describe('logErrorMsg', () => {
-    const consoleErrorMock = mock.method(console, 'error', () => {}).mock;
-    const processExitMock = mock.method(process, 'exit', () => {}).mock;
-
+  describe('logSuccessMsg', () => {
     afterEach(() => {
-      consoleErrorMock.resetCalls();
-      processExitMock.resetCalls();
+      logFn.mock.resetCalls();
+      successMsgFn.mock.resetCalls();
+      createFn.mock.resetCalls();
     });
 
-    after(() => {
-      mock.restoreAll();
+    it('should print the success message to the console', () => {
+      const fakeMessage = TestUtils.generateRandomString();
+
+      Utils.logSuccessMsg(fakeMessage);
+
+      equal(createFn.mock.callCount(), 1);
+      equal(successMsgFn.mock.callCount(), 1);
+      equal(successMsgFn.mock.calls[0].arguments[0], fakeMessage);
+      equal(logFn.mock.callCount(), 1);
+    });
+  });
+
+  describe('logErrorMsg', () => {
+    afterEach(() => {
+      errorFn.mock.resetCalls();
+      errorMsgFn.mock.resetCalls();
+      createFn.mock.resetCalls();
+      processExitFn.mock.resetCalls();
     });
 
     it('should print the error message to the console', () => {
-      const errorMsg = TestUtils.generateRandomString();
-      const exitProcess = false;
+      const fakeMessage = TestUtils.generateRandomString();
 
-      Utils.logErrorMsg(errorMsg, exitProcess);
+      Utils.logErrorMsg(fakeMessage);
 
-      equal(consoleErrorMock.callCount(), 1);
-      deepStrictEqual(consoleErrorMock.calls[0].arguments, [errorMsg]);
+      equal(createFn.mock.callCount(), 1);
+      equal(errorMsgFn.mock.callCount(), 1);
+      equal(errorMsgFn.mock.calls[0].arguments[0], fakeMessage);
+      equal(errorFn.mock.callCount(), 1);
     });
 
     it('should exit the process if specified to do so', () => {
@@ -61,8 +91,8 @@ describe('Utils', () => {
 
       Utils.logErrorMsg(errorMsg, exitProcess);
 
-      equal(processExitMock.callCount(), 1);
-      deepStrictEqual(processExitMock.calls[0].arguments, [expectedExitCode]);
+      equal(processExitFn.mock.callCount(), 1);
+      deepStrictEqual(processExitFn.mock.calls[0].arguments, [expectedExitCode]);
     });
 
     it('should not exit the process if specified not to do so', () => {
@@ -71,7 +101,7 @@ describe('Utils', () => {
 
       Utils.logErrorMsg(errorMsg, exitProcess);
 
-      equal(processExitMock.callCount(), 0);
+      equal(processExitFn.mock.callCount(), 0);
     });
   });
 
