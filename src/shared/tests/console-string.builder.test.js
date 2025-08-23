@@ -6,6 +6,25 @@ import { ConsoleStringBuilder } from '../console-string.builder.js';
 import { TestUtils } from '../test-utils.js';
 
 describe('ConsoleStringBuilder', () => {
+  describe('plainText', () => {
+    it('should return the plain text of the builder', () => {
+      const builder = ConsoleStringBuilder.create();
+      const text = TestUtils.generateRandomString({ excludeSpecialCharacters: true });
+      builder
+        .bold()
+        .text(text)
+        .italic()
+        .spaces()
+        .underline()
+        .text(text)
+        .dim();
+
+      const result = builder.plainText;
+
+      equal(result, `${text} ${text}`);
+    });
+  });
+
   describe('text', () => {
     it('should add text to the buffer', () => {
       const builder = ConsoleStringBuilder.create();
@@ -321,14 +340,50 @@ describe('ConsoleStringBuilder', () => {
     });
   });
 
-  describe('length', () => {
+  describe('textLength', () => {
+    it('should return 0 if the buffer is empty', () => {
+      const builder = ConsoleStringBuilder.create();
+
+      equal(builder.textLength(), 0);
+    });
+
+    it('should return the length of the text in the buffer', () => {
+      const builder = ConsoleStringBuilder.create();
+      const length = TestUtils.generateRandomInt(1, 10);
+      const text = TestUtils.generateRandomString({ minLength: length });
+
+      builder.text(text).text(text).text(text);
+
+      equal(builder.textLength(), length * 3);
+    });
+
+    it('should take into account the added spaces', () => {
+      const builder = ConsoleStringBuilder.create();
+      const spacesCount = TestUtils.generateRandomInt(1, 10);
+
+      builder.spaces(spacesCount);
+
+      equal(builder.textLength(), spacesCount);
+    });
+
+    it('should return 0 after clearing the buffer', () => {
+      const builder = ConsoleStringBuilder.create();
+      const text = TestUtils.generateRandomString();
+      builder.text(text);
+      builder.clear();
+
+      equal(builder.textLength(), 0);
+    });
+  });
+
+  describe('bufferLength', () => {
     it('should return the length of the buffer', () => {
       const builder = ConsoleStringBuilder.create();
       const text = TestUtils.generateRandomString();
 
       builder.text(text).text(text).text(text);
 
-      equal(builder.length(), 3);
+      equal(builder.bufferLength(), 3);
     });
   });
 

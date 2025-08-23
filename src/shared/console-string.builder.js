@@ -17,10 +17,19 @@ import { AnsiCodes } from './enums.js';
  */
 export class ConsoleStringBuilder {
   #buffer = [];
+  #plainText = '';
   #autoReset = true;
 
   constructor() {
     this.#buffer = [];
+    this.#plainText = '';
+  }
+
+  /**
+   * @returns {string} The plain text of the builder
+   */
+  get plainText() {
+    return this.#plainText;
   }
 
   /**
@@ -30,6 +39,7 @@ export class ConsoleStringBuilder {
    */
   text(text) {
     this.#buffer.push(text);
+    this.#plainText += text;
     return this;
   }
 
@@ -58,7 +68,9 @@ export class ConsoleStringBuilder {
    * @returns {ConsoleStringBuilder} - Builder instance for chaining
    */
   spaces(count = 1) {
-    this.#buffer.push(' '.repeat(count));
+    const spaces = ' '.repeat(count);
+    this.#buffer.push(spaces);
+    this.#plainText += spaces;
     return this;
   }
 
@@ -214,14 +226,23 @@ export class ConsoleStringBuilder {
    */
   clear() {
     this.#buffer = [];
+    this.#plainText = '';
     return this;
+  }
+
+  /**
+   * Get the current text length
+   * @returns {number} - Buffer length
+   */
+  textLength() {
+    return this.#plainText.length;
   }
 
   /**
    * Get the current buffer length
    * @returns {number} - Buffer length
    */
-  length() {
+  bufferLength() {
     return this.#buffer.length;
   }
 

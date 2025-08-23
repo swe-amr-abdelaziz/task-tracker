@@ -14,6 +14,39 @@ export const TaskCommand = Object.freeze({
   HELP: 'help',
 });
 
+export const TableBorder = Object.freeze({
+  // Top
+  TOP_LEFT: '╭',
+  TOP_CENTER: '┬',
+  TOP_RIGHT: '╮',
+
+  // Center
+  CENTER_LEFT: '├',
+  CENTER_CENTER: '┼',
+  CENTER_RIGHT: '┤',
+
+  // Bottom
+  BOTTOM_LEFT: '╰',
+  BOTTOM_CENTER: '┴',
+  BOTTOM_RIGHT: '╯',
+
+  // Lines
+  HORIZONTAL: '─',
+  VERTICAL: '│',
+});
+
+export const HorizontalAlignment = Object.freeze({
+  LEFT: 'LEFT',
+  CENTER: 'CENTER',
+  RIGHT: 'RIGHT',
+});
+
+export const VerticalAlignment = Object.freeze({
+  TOP: 'TOP',
+  CENTER: 'CENTER',
+  BOTTOM: 'BOTTOM',
+});
+
 export const AnsiCodes = Object.freeze({
   // Reset
   RESET: '\x1b[0m',
