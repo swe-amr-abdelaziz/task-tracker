@@ -1,9 +1,17 @@
-import { equal, notEqual, notStrictEqual, ok, rejects, strictEqual } from 'node:assert';
-import { beforeEach, describe, it } from 'node:test';
+import {
+  doesNotMatch,
+  equal,
+  match,
+  notEqual,
+  ok,
+  rejects,
+  strictEqual,
+} from 'node:assert';
+import { describe, it } from 'node:test';
 
+import { AnsiCodes, HorizontalAlignment, TableBorder, VerticalAlignment } from '../../enums.js';
 import { ConsoleStringBuilder } from '../../console-string.builder.js';
 import { ContentCell, SeparatorCell, TableCell } from '../../responsive-table/table-cell.js';
-import { HorizontalAlignment, TableBorder, VerticalAlignment } from '../../enums.js';
 import { TestUtils } from '../../test-utils.js';
 import { messages } from '../../../shared/messages.js';
 
@@ -371,47 +379,89 @@ describe('ContentCell', () => {
 
   describe('content', () => {
     it('should return the content of the cell', () => {
-      const content = ConsoleStringBuilder.create();
-      const options = { content };
+      const width = TestUtils.generateRandomInt(1, 10);
+      const content = TestUtils.generateRandomString({ minLength: width });
+      const options = { content, width };
 
       const cell = new ContentCell(options);
 
-      strictEqual(cell.content, content);
+      strictEqual(cell.content.plainText, content);
     });
 
     it('should set the content of the cell', () => {
-      const content = ConsoleStringBuilder.create();
-      const options = { content };
-      const newContent = ConsoleStringBuilder.create();
+      const width = TestUtils.generateRandomInt(1, 10);
+      const content = TestUtils.generateRandomString({ minLength: width });
+      const options = { content, width };
+      const newContent = TestUtils.generateRandomString({ minLength: width });
       const cell = new ContentCell(options);
 
       cell.content = newContent;
 
-      notStrictEqual(cell.content, options.content);
-      strictEqual(cell.content, newContent);
+      notEqual(cell.content.plainText, options.content);
+      equal(cell.content.plainText, newContent);
     });
 
-    it('should set a default content of the cell to ConsoleStringBuilder.create() if not provided', () => {
+    it('should set a default content of the cell to an empty string if not provided', () => {
       const cell = new ContentCell();
 
       ok(cell.content instanceof ConsoleStringBuilder);
+      equal(cell.content.plainText, '');
     });
 
-    it('should throw an error if the content is not instance of ConsoleStringBuilder', async () => {
-      const options = { content: TestUtils.generateRandomString() };
+    it('should set the style to green color and bold if the cell is a header cell', () => {
+      const width = TestUtils.generateRandomInt(1, 10);
+      const content = TestUtils.generateRandomString({ minLength: width });
+      const options = {
+        width,
+        content,
+        isHeader: true,
+      };
 
-      await rejects(
-        async () => new ContentCell(options),
-        { message: messages.error.INVALID_TABLE_CELL_CONTENT },
-      );
+      const cell = new ContentCell(options);
+      const expected = cell.content.build();
+
+      const green = AnsiCodes.FG.GREEN.replace('[', '\\[');
+      const bold = AnsiCodes.BOLD.replace('[', '\\[');
+      match(expected, new RegExp(green));
+      match(expected, new RegExp(bold));
+    });
+
+    it('should set the style to magenta color if the cell content is of type number', () => {
+      const width = TestUtils.generateRandomInt(1, 10);
+      const content = TestUtils.generateRandomInt(1, 9);
+      const options = {
+        width,
+        content,
+      };
+
+      const cell = new ContentCell(options);
+      const expected = cell.content.build();
+
+      const magenta = AnsiCodes.FG.MAGENTA.replace('[', '\\[');
+      match(expected, new RegExp(magenta));
+    });
+
+    it('should set the style to yellow color by default', () => {
+      const width = TestUtils.generateRandomInt(1, 10);
+      const content = TestUtils.generateRandomString({ minLength: width });
+      const options = {
+        width,
+        content,
+      };
+
+      const cell = new ContentCell(options);
+      const expected = cell.content.build();
+
+      const yellow = AnsiCodes.FG.YELLOW.replace('[', '\\[');
+      match(expected, new RegExp(yellow));
     });
 
     it('should throw an error if the content length is greater than the cell width', async () => {
       const width = TestUtils.generateRandomInt(1, 10);
-      const text = TestUtils.generateRandomString({ minLength: width + 1 });
+      const content = TestUtils.generateRandomString({ minLength: width + 1 });
       const options = {
         width,
-        content: ConsoleStringBuilder.create().text(text),
+        content,
       };
 
       await rejects(
@@ -422,52 +472,63 @@ describe('ContentCell', () => {
   });
 
   describe('toString', () => {
+    const width = TestUtils.generateRandomInt(1, 10);
+    const text = TestUtils.generateRandomString({ minLength: width });
+
     let options = {
-      width: 5,
+      width,
       paddingLeft: 1,
       paddingRight: 1,
       xPosition: HorizontalAlignment.LEFT,
-      content: ConsoleStringBuilder.create(),
+      content: text,
     };
-
-    beforeEach(() => {
-      options.content.clear();
-    });
 
     it('should return the left content cell', () => {
       options.xPosition = HorizontalAlignment.LEFT;
-      const text = TestUtils.generateRandomString({ minLength: options.width });
-      const expected = `${TableBorder.VERTICAL} ${text} ${TableBorder.VERTICAL}`;
       const cell = new ContentCell(options);
-      cell.content.text(text).autoReset(false);
+      const expected = `${TableBorder.VERTICAL} ${text} ${TableBorder.VERTICAL}`;
 
-      const actual = cell.toString();
+      const actual = cell.toString(false);
 
       equal(actual, expected);
     });
 
     it('should return the center content cell', () => {
       options.xPosition = HorizontalAlignment.CENTER;
-      const text = TestUtils.generateRandomString({ minLength: options.width });
-      const expected = ` ${text} ${TableBorder.VERTICAL}`;
       const cell = new ContentCell(options);
-      cell.content.text(text).autoReset(false);
+      const expected = ` ${text} ${TableBorder.VERTICAL}`;
 
-      const actual = cell.toString();
+      const actual = cell.toString(false);
 
       equal(actual, expected);
     });
 
     it('should return the right content cell', () => {
       options.xPosition = HorizontalAlignment.RIGHT;
-      const text = TestUtils.generateRandomString({ minLength: options.width });
-      const expected = ` ${text} ${TableBorder.VERTICAL}`;
       const cell = new ContentCell(options);
-      cell.content.text(text).autoReset(false);
+      const expected = ` ${text} ${TableBorder.VERTICAL}`;
+
+      const actual = cell.toString(false);
+
+      equal(actual, expected);
+    });
+
+    it('should return the content with style by default', () => {
+      const cell = new ContentCell(options);
 
       const actual = cell.toString();
 
-      equal(actual, expected);
+      const yellow = AnsiCodes.FG.YELLOW.replace('[', '\\[');
+      match(actual, new RegExp(yellow));
+    });
+
+    it('should return the content without style if withStyle is set to false', () => {
+      const cell = new ContentCell(options);
+
+      const actual = cell.toString(false);
+
+      const yellow = AnsiCodes.FG.YELLOW.replace('[', '\\[');
+      doesNotMatch(actual, new RegExp(yellow));
     });
   });
 });

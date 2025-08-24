@@ -154,6 +154,8 @@ export class SeparatorCell extends TableCell {
   }
 
   /**
+   * Generates the left corner of the separator cell.
+   *
    * @returns {string} The left corner of the separator cell.
    * @private
    */
@@ -166,6 +168,8 @@ export class SeparatorCell extends TableCell {
   }
 
   /**
+   * Generates the right corner of the separator cell.
+   *
    * @returns {string} The right corner of the separator cell.
    * @private
    */
@@ -179,6 +183,7 @@ export class SeparatorCell extends TableCell {
 
 export class ContentCell extends TableCell {
   #content;
+  #isHeader;
 
   /**
    * @param {object} [options={}] = The options for the table cell.
@@ -187,54 +192,88 @@ export class ContentCell extends TableCell {
    * @param {number} [options.paddingRight=0] - The right padding of the cell.
    * @param {HorizontalAlignment} [options.xPosition=HorizontalAlignment.CENTER] -
    *   The horizontal position of the cell relative to the table.
-   * @param {ConsoleStringBuilder} [options.content=ConsoleStringBuilder.create()] - The text content of the cell.
+   * @param {unknown} [options.content=''] - The text content of the cell.
+   * @param {boolean} [options.isHeader=false] - Whether the cell is a header cell.
    */
   constructor(options = {}) {
     super(options);
-    this.content = options.content ?? ConsoleStringBuilder.create();
+    this.#isHeader = options.isHeader ?? false;
+    this.content = options.content ?? '';
   }
 
   /**
-   * @returns {ConsoleStringBuilder} The text content of the cell.
+   * @returns {ConsoleStringBuilder} The content of the cell as ConsoleStringBuilder instance.
    */
   get content() {
     return this.#content;
   }
 
   /**
-   * @param {ConsoleStringBuilder} content - The new text content of the cell.
+   * @param {unknown} content - The new text content of the cell.
    */
   set content(content) {
-    if (!(content instanceof ConsoleStringBuilder)) {
-      throw new Error(messages.error.INVALID_TABLE_CELL_CONTENT);
-    }
-    if (content.textLength() > this.width) {
-      throw new Error(messages.error.CELL_CONTENT_EXCEEDS_CELL_WIDTH);
-    }
-    this.#content = content;
+    this.#validateContent(content);
+    const builder = ConsoleStringBuilder.create();
+    this.#setStyle(builder, content);
+    this.#content = builder.text(content.toString());
   }
 
   /**
+   * @param {boolean} [withStyle=true] - Whether to include the console style in the string representation.
    * @returns {string} The string representation of the content cell.
    */
-  toString() {
-    const content = this.#generateContent();
+  toString(withStyle = true) {
+    const content = this.#generateContent(withStyle);
     const leftBorder = this.#generateLeftCorner();
     const rightBorder = this.#generateRightCorner();
     return leftBorder + content + rightBorder;
   }
 
   /**
-   * @returns {string} The content (text) of the cell.
+   * Validates the content of the cell.
+   *
+   * @param {unknown} content - The content to validate.
    * @private
    */
-  #generateContent() {
-    const paddingLeft = ' '.repeat(this.paddingLeft);
-    const paddingRight = ' '.repeat(this.paddingRight);
-    return paddingLeft + this.content.build() + paddingRight;
+  #validateContent(content) {
+    if (content.toString().length > this.width) {
+      throw new Error(messages.error.CELL_CONTENT_EXCEEDS_CELL_WIDTH);
+    }
   }
 
   /**
+   * Sets the style for the content of the cell based on its content type.
+   *
+   * @param {ConsoleStringBuilder} builder - The builder to set the style for.
+   * @private
+   */
+  #setStyle(builder, content) {
+    if (this.#isHeader) {
+      builder.green().bold();
+    } else if (typeof content === 'number') {
+      builder.magenta();
+    } else {
+      builder.yellow();
+    }
+  }
+
+  /**
+   * Generates the content of the cell.
+   *
+   * @param {boolean} [withStyle] - Whether to include the console style in the string representation.
+   * @returns {string} The content (text) of the cell.
+   * @private
+   */
+  #generateContent(withStyle) {
+    const content = withStyle ? this.content.build() : this.content.plainText;
+    const paddingLeft = ' '.repeat(this.paddingLeft);
+    const paddingRight = ' '.repeat(this.paddingRight);
+    return paddingLeft + content + paddingRight;
+  }
+
+  /**
+   * Generates the left corner of the content cell.
+   *
    * @returns {string} The left corner of the content cell.
    * @private
    */
@@ -245,6 +284,8 @@ export class ContentCell extends TableCell {
   }
 
   /**
+   * Generates the right corner of the content cell.
+   *
    * @returns {string} The right corner of the content cell.
    * @private
    */
