@@ -4,6 +4,7 @@ import { messages } from "../messages.js";
 /**
  * Represents a base entity with an id, creation date, and update date.
  * @class
+ * @abstract
  */
 export class BaseEntity {
   _id;

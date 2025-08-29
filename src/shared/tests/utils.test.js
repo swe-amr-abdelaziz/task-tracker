@@ -1,11 +1,13 @@
 import { after, afterEach, describe, it, mock } from 'node:test';
-import { deepStrictEqual, equal } from 'node:assert';
+import { deepStrictEqual, equal, rejects } from 'node:assert';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { AnsiCodes } from '../enums.js';
+import { ConsoleStringBuilder } from '../console-string.builder.js';
 import { TestUtils } from '../test-utils.js';
 import { Utils } from '../utils.js';
-import { ConsoleStringBuilder } from '../console-string.builder.js';
+import { messages } from '../messages.js';
 
 describe('Utils', () => {
   const processExitFn = mock.method(process, 'exit', () => {});
@@ -158,6 +160,164 @@ describe('Utils', () => {
       const actualDirname = Utils.dirname(metaUrl);
 
       equal(actualDirname, expectedDirname);
+    });
+  });
+
+  describe('getBufferSplit', () => {
+    describe('(strings)', () => {
+      it('returns original buffer and empty string when length <= splitSize', () => {
+        const inputBuffer = TestUtils.generateRandomString({ minLength: 10 });
+        const splitSize = inputBuffer.length;
+
+        const [buffer, remaining] = Utils.getBufferSplit(inputBuffer, splitSize);
+
+        equal(buffer, inputBuffer);
+        equal(remaining, '');
+      });
+
+      it('returns an empty string for left when splitIndex is 0', () => {
+        const inputBuffer = TestUtils.generateRandomString({ minLength: 10 });
+        const splitSize = 0;
+
+        const [buffer, remaining] = Utils.getBufferSplit(inputBuffer, splitSize);
+
+        equal(buffer, '');
+        equal(remaining, inputBuffer);
+      });
+
+      it('splits at splitSize when no whitespace exists before splitSize', () => {
+        const inputBuffer = 'InputBuffer';
+        const splitSize = 5;
+
+        const [buffer, remaining] = Utils.getBufferSplit(inputBuffer, splitSize);
+
+        equal(buffer, 'Input');
+        equal(remaining, 'Buffer');
+      });
+
+      it('splits at last space before splitSize', () => {
+        const inputBuffer = 'InputBuffer with whitespace';
+        const splitSize = 15;
+
+        const [buffer, remaining] = Utils.getBufferSplit(inputBuffer, splitSize);
+
+        equal(buffer, 'InputBuffer');
+        equal(remaining, 'with whitespace');
+      });
+
+      it('splits at last newline before splitSize', () => {
+        const inputBuffer = 'InputBuffer\nwith whitespace';
+        const splitSize = 15;
+
+        const [buffer, remaining] = Utils.getBufferSplit(inputBuffer, splitSize);
+
+        equal(buffer, 'InputBuffer');
+        equal(remaining, 'with whitespace');
+      });
+
+      it('splits at last tab before splitSize', () => {
+        const inputBuffer = 'InputBuffer\twith whitespace';
+        const splitSize = 15;
+
+        const [buffer, remaining] = Utils.getBufferSplit(inputBuffer, splitSize);
+
+        equal(buffer, 'InputBuffer');
+        equal(remaining, 'with whitespace');
+      });
+    });
+
+    describe('(numbers)', () => {
+      it('returns original number and an empty string when length <= splitSize', () => {
+        const inputBuffer = 12345;
+        const splitSize = inputBuffer.toString().length;
+
+        const [buffer, remaining] = Utils.getBufferSplit(inputBuffer, splitSize);
+
+        equal(buffer, inputBuffer);
+        equal(remaining, '');
+      });
+
+      it('splits number at splitSize into two numbers', () => {
+        const inputBuffer = 123456789;
+        const splitSize = 5;
+
+        const [buffer, remaining] = Utils.getBufferSplit(inputBuffer, splitSize);
+
+        equal(buffer, 12345);
+        equal(remaining, 6789);
+      });
+
+      it('returns an empty string for left when splitIndex is 0', () => {
+        const inputBuffer = 12345;
+        const splitSize = 0;
+
+        const [buffer, remaining] = Utils.getBufferSplit(inputBuffer, splitSize);
+
+        equal(buffer, '');
+        equal(remaining, inputBuffer);
+      });
+
+      it('handles negative sign and decimals (converts back to numbers)', () => {
+        const inputBuffer = -12345.678;
+        const splitSize = 6;
+
+        const [buffer, remaining] = Utils.getBufferSplit(inputBuffer, splitSize);
+
+        deepStrictEqual([buffer, remaining], [-12345, 0.678]);
+      });
+    });
+
+    describe('(edge validations)', () => {
+      it('should throw a TypeError when splitSize is not a number', async () => {
+        const inputBuffer = TestUtils.generateRandomString();
+        const splitSize = 'not a number';
+
+        await rejects(
+          async () => Utils.getBufferSplit(inputBuffer, splitSize),
+          {
+            name: 'TypeError',
+            message: messages.error.INVALID_SPLIT_SIZE_TYPE,
+          },
+        );
+      });
+
+      it('should throw a RangeError when splitSize is not a number', async () => {
+        const inputBuffer = TestUtils.generateRandomString();
+        const splitSize = -1;
+
+        await rejects(
+          async () => Utils.getBufferSplit(inputBuffer, splitSize),
+          {
+            name: 'RangeError',
+            message: messages.error.INVALID_SPLIT_SIZE_RANGE,
+          },
+        );
+      });
+    });
+  });
+
+  describe('clearAnsiSequences', () => {
+    it('should return the same string if no ANSI sequences are present', () => {
+      const input = TestUtils.generateRandomString();
+
+      const actual = Utils.clearAnsiSequences(input);
+      const expected = input;
+
+      equal(actual, expected);
+    });
+
+    it('should remove ANSI sequences from a string', () => {
+      const ansiSequences = Object.values(AnsiCodes).map(
+        (item) => typeof item === 'object' ? Object.values(item) : item,
+      ).flat();
+      const str1 = TestUtils.generateRandomString();
+      const str2 = TestUtils.generateRandomString();
+      const input = str1 + ansiSequences.join('') + str2;
+
+      const actual = Utils.clearAnsiSequences(input);
+      const expected = str1 + str2;
+
+      equal(actual, expected);
     });
   });
 });

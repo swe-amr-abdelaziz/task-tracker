@@ -207,6 +207,63 @@ describe('TableCell', () => {
       );
     });
   });
+
+  describe('singleColumn', () => {
+    it('should return singleColumn of the cell', () => {
+      const options = { singleColumn: true };
+
+      const cell = new TestTableCell(options);
+
+      equal(cell.singleColumn, options.singleColumn);
+    });
+
+    it('should set singleColumn of the cell', () => {
+      const options = { singleColumn: true };
+      const newSingleColumn = false;
+      const cell = new TestTableCell(options);
+
+      cell.singleColumn = newSingleColumn;
+
+      notEqual(cell.singleColumn, options.singleColumn);
+      equal(cell.singleColumn, newSingleColumn);
+    });
+
+    it('should set the default singleColumn of the cell to false if not provided', () => {
+      const defaultSingleColumn = false;
+
+      const cell = new TestTableCell();
+
+      equal(cell.singleColumn, defaultSingleColumn);
+    });
+
+    it('should throw an error if singleColumn value is not a boolean', async () => {
+      const options = { singleColumn: TestUtils.generateRandomString() };
+
+      await rejects(
+        async () => new TestTableCell(options),
+        { message: messages.error.INVALID_TABLE_CELL_SINGLE_COLUMN },
+      );
+    });
+  });
+
+  describe('clone', () => {
+    it('should clone the TableCell instance', () => {
+      const options = {
+        width: TestUtils.generateRandomInt(),
+        paddingLeft: TestUtils.generateRandomInt(),
+        paddingRight: TestUtils.generateRandomInt(),
+        xPosition: HorizontalAlignment.CENTER,
+      };
+      const cell = new TestTableCell(options);
+
+      const clone = cell.clone();
+
+      equal(clone.width, cell.width);
+      equal(clone.paddingLeft, cell.paddingLeft);
+      equal(clone.paddingRight, cell.paddingRight);
+      equal(clone.xPosition, cell.xPosition);
+    });
+  });
 });
 
 describe('SeparatorCell', () => {
@@ -363,6 +420,40 @@ describe('SeparatorCell', () => {
 
       equalCellSeparator(cell.toString(), TableBorder.BOTTOM_RIGHT);
     });
+
+    it('should return the correct separator for a single column table', () => {
+      options.yPosition = VerticalAlignment.BOTTOM;
+      options.xPosition = HorizontalAlignment.LEFT;
+      options.singleColumn = true;
+
+      const cell = new SeparatorCell(options);
+      const leftCorner = cell.toString()[0];
+      const rightCorner = cell.toString()[cell.toString().length - 1];
+
+      equal(leftCorner, TableBorder.BOTTOM_LEFT);
+      equal(rightCorner, TableBorder.BOTTOM_RIGHT);
+    });
+  });
+
+  describe('clone', () => {
+    it('should clone the SeparatorCell instance', () => {
+      const options = {
+        width: TestUtils.generateRandomInt(),
+        paddingLeft: TestUtils.generateRandomInt(),
+        paddingRight: TestUtils.generateRandomInt(),
+        xPosition: HorizontalAlignment.CENTER,
+        yPosition: VerticalAlignment.CENTER,
+      };
+      const cell = new SeparatorCell(options);
+
+      const clone = cell.clone();
+
+      equal(clone.width, cell.width);
+      equal(clone.paddingLeft, cell.paddingLeft);
+      equal(clone.paddingRight, cell.paddingRight);
+      equal(clone.xPosition, cell.xPosition);
+      equal(clone.yPosition, cell.yPosition);
+    });
   });
 });
 
@@ -471,6 +562,44 @@ describe('ContentCell', () => {
     });
   });
 
+  describe('textAlign', () => {
+    it('should return the textAlign of the cell', () => {
+      const options = { textAlign: HorizontalAlignment.CENTER };
+
+      const cell = new ContentCell(options);
+
+      equal(cell.textAlign, options.textAlign);
+    });
+
+    it('should set the textAlign of the cell', () => {
+      const options = { textAlign: HorizontalAlignment.CENTER };
+      const newTextAlign = HorizontalAlignment.RIGHT;
+      const cell = new ContentCell(options);
+
+      cell.textAlign = newTextAlign;
+
+      notEqual(cell.textAlign, options.textAlign);
+      equal(cell.textAlign, newTextAlign);
+    });
+
+    it('should set the default textAlign of the cell to HorizontalAlignment.LEFT if not provided', () => {
+      const defaultTextAlign = HorizontalAlignment.LEFT;
+
+      const cell = new ContentCell();
+
+      equal(cell.textAlign, defaultTextAlign);
+    });
+
+    it('should throw an error if the textAlign is not a valid horizontal position', async () => {
+      const options = { textAlign: VerticalAlignment.TOP };
+
+      await rejects(
+        async () => new ContentCell(options),
+        { message: messages.error.INVALID_TABLE_CELL_TEXT_ALIGN },
+      );
+    });
+  });
+
   describe('toString', () => {
     const width = TestUtils.generateRandomInt(1, 10);
     const text = TestUtils.generateRandomString({ minLength: width });
@@ -481,6 +610,9 @@ describe('ContentCell', () => {
       paddingRight: 1,
       xPosition: HorizontalAlignment.LEFT,
       content: text,
+      textAlign: HorizontalAlignment.LEFT,
+      isHeader: false,
+      singleColumn: false,
     };
 
     it('should return the left content cell', () => {
@@ -529,6 +661,123 @@ describe('ContentCell', () => {
 
       const yellow = AnsiCodes.FG.YELLOW.replace('[', '\\[');
       doesNotMatch(actual, new RegExp(yellow));
+    });
+
+    function buildExpectedCellText(cell, width, contentWidth, alignment) {
+      const totalWhitespace = width - contentWidth;
+
+      let leftWhitespace = 0;
+      let rightWhitespace = 0;
+
+      if (alignment === HorizontalAlignment.LEFT) {
+        rightWhitespace = totalWhitespace;
+      } else if (alignment === HorizontalAlignment.RIGHT) {
+        leftWhitespace = totalWhitespace;
+      } else if (alignment === HorizontalAlignment.CENTER) {
+        leftWhitespace = Math.floor(totalWhitespace / 2);
+        rightWhitespace = totalWhitespace - leftWhitespace;
+      }
+
+      const inner = ' '.repeat(leftWhitespace) + cell.content.plainText + ' '.repeat(rightWhitespace);
+
+      return TableBorder.VERTICAL + ' ' + inner + ' ' + TableBorder.VERTICAL;
+    }
+
+    it('should return the content with whitespace - left aligned', () => {
+      options.xPosition = HorizontalAlignment.LEFT;
+      options.textAlign = HorizontalAlignment.LEFT;
+      options.width = TestUtils.generateRandomInt(10, 20);
+      const contentWidth = Math.floor(options.width / 2);
+      options.content = TestUtils.generateRandomString({
+        minLength: contentWidth,
+      });
+      const cell = new ContentCell(options);
+
+      const actual = cell.toString(false);
+      const expected = buildExpectedCellText(cell, options.width, contentWidth, options.textAlign);
+
+      equal(actual, expected);
+    });
+
+    it('should return the content with whitespace - right aligned', () => {
+      options.xPosition = HorizontalAlignment.LEFT;
+      options.textAlign = HorizontalAlignment.RIGHT;
+      options.width = TestUtils.generateRandomInt(10, 20);
+      const contentWidth = Math.floor(options.width / 2);
+      options.content = TestUtils.generateRandomString({
+        minLength: contentWidth,
+      });
+      const cell = new ContentCell(options);
+
+      const actual = cell.toString(false);
+      const expected = buildExpectedCellText(cell, options.width, contentWidth, options.textAlign);
+
+      equal(actual, expected);
+    });
+
+    it('should return the content with whitespace - center aligned - even amount of whitespace', () => {
+      options.xPosition = HorizontalAlignment.LEFT;
+      options.textAlign = HorizontalAlignment.CENTER;
+      options.width = 20;
+      const contentWidth = 10;
+      options.content = TestUtils.generateRandomString({
+        minLength: contentWidth,
+      });
+      const cell = new ContentCell(options);
+
+      const actual = cell.toString(false);
+      const expected = buildExpectedCellText(cell, options.width, contentWidth, options.textAlign);
+
+      equal(actual, expected);
+    });
+
+    it('should return the content with whitespace - center aligned - odd amount of whitespace', () => {
+      options.xPosition = HorizontalAlignment.LEFT;
+      options.textAlign = HorizontalAlignment.CENTER;
+      options.width = 19;
+      const contentWidth = 10;
+      options.content = TestUtils.generateRandomString({
+        minLength: contentWidth,
+      });
+      const cell = new ContentCell(options);
+
+      const actual = cell.toString(false);
+      const expected = buildExpectedCellText(cell, options.width, contentWidth, options.textAlign);
+
+      equal(actual, expected);
+    });
+
+    it('should return the correct content for a single column table', () => {
+      options.xPosition = HorizontalAlignment.LEFT;
+      options.singleColumn = true;
+
+      const cell = new ContentCell(options);
+      const leftCorner = cell.toString()[0];
+      const rightCorner = cell.toString()[cell.toString().length - 1];
+
+      equal(leftCorner, TableBorder.VERTICAL);
+      equal(rightCorner, TableBorder.VERTICAL);
+    });
+  });
+
+  describe('clone', () => {
+    it('should clone the ContentCell instance', () => {
+      const options = {
+        width: TestUtils.generateRandomInt(),
+        paddingLeft: TestUtils.generateRandomInt(),
+        paddingRight: TestUtils.generateRandomInt(),
+        xPosition: HorizontalAlignment.CENTER,
+        content: TestUtils.generateRandomString(),
+      };
+      const cell = new ContentCell(options);
+
+      const clone = cell.clone();
+
+      equal(clone.width, cell.width);
+      equal(clone.paddingLeft, cell.paddingLeft);
+      equal(clone.paddingRight, cell.paddingRight);
+      equal(clone.xPosition, cell.xPosition);
+      equal(clone.content, cell.content);
     });
   });
 });

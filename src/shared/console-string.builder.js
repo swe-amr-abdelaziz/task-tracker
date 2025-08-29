@@ -3,6 +3,7 @@ import { AnsiCodes } from './enums.js';
 /**
  * Builder class for creating formatted console strings with ANSI escape codes.
  * Uses the builder pattern for fluent method chaining.
+ * @class
  *
  * @example
  * const message = new ConsoleStringBuilder()

@@ -2,6 +2,7 @@ import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 import { ConsoleStringBuilder } from './console-string.builder.js';
+import { messages } from './messages.js';
 
 /**
  * Utility class providing helper methods for various tasks.
@@ -112,5 +113,70 @@ export class Utils {
    */
   static dirname(metaUrl) {
     return dirname(Utils.filename(metaUrl));
+  }
+
+  /**
+   * Split a string-like buffer into two parts. Splitting logic always works
+   * on the string representation (prefers last whitespace before splitSize).
+   *
+   * If the original `buffer` was a number, the returned tuple will contain
+   * numbers (or null). Otherwise it returns strings (or null).
+   *
+   * @param {string|number|*} buffer - The string-like buffer to split.
+   * @param {number} splitSize - The size to start splitting at.
+   * @returns {[string|number, string|number]} A tuple containing the split parts.
+   */
+  static getBufferSplit(buffer, splitSize) {
+    if (typeof splitSize !== 'number' || Number.isNaN(splitSize)) {
+      throw new TypeError(messages.error.INVALID_SPLIT_SIZE_TYPE);
+    }
+    if (splitSize < 0) {
+      throw new RangeError(messages.error.INVALID_SPLIT_SIZE_RANGE);
+    }
+
+    const wasNumber = typeof buffer === 'number';
+    const str = String(buffer);
+
+    if (str.length <= splitSize && splitSize !== 0) {
+      const wholeBuffer = wasNumber ? buffer : str;
+      return [wholeBuffer, ''];
+    }
+
+    // Find last whitespace within [0, splitSize]
+    let splitIndex = splitSize;
+    const head = str.slice(0, splitSize);
+    for (let i = head.length - 1; i >= 0; i--) {
+      const isWhitespace = /\s/.test(head[i]);
+      if (isWhitespace) {
+        splitIndex = i;
+        break;
+      }
+    }
+
+    let leftStr = str.substring(0, splitIndex).trimEnd();
+    let rightStr = str.substring(splitIndex).trimStart();
+
+    if (wasNumber) {
+      leftStr = Number(leftStr);
+      rightStr = Number(rightStr);
+    }
+
+    return [leftStr, rightStr];
+  }
+
+  /**
+   * Removes ANSI escape sequences (color/style codes) from a string.
+   *
+   * @static
+   * @param {string} str - The input string potentially containing ANSI sequences.
+   * @returns {string} The cleaned string with ANSI sequences removed.
+   *
+   * @example
+   * Utils.clearAnsiSequences("\x1b[31mHello\x1b[0m");
+   * // => "Hello"
+   */
+  static clearAnsiSequences(str) {
+    const ansiRegex = /\x1B\[[0-9;]*m/g;
+    return str.replace(ansiRegex, '');
   }
 }

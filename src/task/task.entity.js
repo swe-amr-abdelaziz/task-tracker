@@ -4,6 +4,7 @@ import { messages } from "../shared/messages.js";
 /**
  * Represents a task with a description, status, and base entity members.
  * @class
+ * @extends BaseEntity
  */
 export class Task extends BaseEntity {
   #description;
