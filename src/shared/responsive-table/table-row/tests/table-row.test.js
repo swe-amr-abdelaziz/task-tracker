@@ -1,11 +1,11 @@
 import { equal, rejects } from 'node:assert';
 import { after, afterEach, describe, it, mock } from 'node:test';
 
-import { ContentRow, SeparatorRow, TableRow } from '../../responsive-table/table-row.js';
-import { TableBorder, VerticalAlignment } from '../../enums.js';
-import { TestUtils } from '../../test-utils.js';
-import { Utils } from '../../utils.js';
-import { messages } from '../../../shared/messages.js';
+import { ContentRow, SeparatorRow, TableRow } from '../table-row.js';
+import { TableBorder, VerticalAlignment } from '../../../enums.js';
+import { TestUtils } from '../../../test-utils.js';
+import { Utils } from '../../../utils.js';
+import { messages } from '../../../messages.js';
 
 class TestTableRow extends TableRow {}
 

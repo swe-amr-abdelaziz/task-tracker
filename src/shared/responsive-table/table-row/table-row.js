@@ -1,7 +1,7 @@
-import { ContentCell, SeparatorCell } from "./table-cell.js";
-import { HorizontalAlignment, VerticalAlignment } from "../enums.js";
-import { Utils } from "../utils.js";
-import { messages } from "../messages.js";
+import { ContentCell, SeparatorCell } from '../table-cell/table-cell.js';
+import { HorizontalAlignment, VerticalAlignment } from '../../enums.js';
+import { Utils } from '../../utils.js';
+import { messages } from '../../messages.js';
 
 /**
  * Represents a row in a table with visual properties.
@@ -11,7 +11,7 @@ import { messages } from "../messages.js";
 export class TableRow {
   constructor() {
     if (new.target === TableRow) {
-      const message = messages.error.ABSTRACT_CLASS_OBJECT_CREATION.replace("{0}", "TableRow");
+      const message = messages.error.ABSTRACT_CLASS_OBJECT_CREATION.replace('{0}', 'TableRow');
       throw new Error(message);
     }
   }
