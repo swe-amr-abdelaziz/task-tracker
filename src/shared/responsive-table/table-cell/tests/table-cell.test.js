@@ -7,13 +7,14 @@ import {
   rejects,
   strictEqual,
 } from 'node:assert';
-import { describe, it } from 'node:test';
+import { describe, it, mock } from 'node:test';
 
-import { AnsiCodes, HorizontalAlignment, TableBorder, VerticalAlignment } from '../../enums.js';
-import { ConsoleStringBuilder } from '../../console-string.builder.js';
-import { ContentCell, SeparatorCell, TableCell } from '../../responsive-table/table-cell.js';
-import { TestUtils } from '../../test-utils.js';
-import { messages } from '../../../shared/messages.js';
+import { AnsiCodes, HorizontalAlignment, TableBorder, VerticalAlignment } from '../../../enums.js';
+import { ConsoleStringBuilder } from '../../../console-string.builder.js';
+import { ContentCell, SeparatorCell, TableCell } from '../table-cell.js';
+import { TableCellValidator } from '../internals/table-cell.validator.js';
+import { TestUtils } from '../../../test-utils.js';
+import { messages } from '../../../messages.js';
 
 class TestTableCell extends TableCell {
   constructor(options) {
@@ -60,22 +61,16 @@ describe('TableCell', () => {
       equal(cell.width, defaultWidth);
     });
 
-    it('should throw an error if the width is not a number', async () => {
-      const options = { width: TestUtils.generateRandomString() };
+    it('should validate the width of the cell', async () => {
+      const options = { width: TestUtils.generateRandomInt() };
+      const validateWidthFn = mock.method(TableCellValidator, 'validateWidth');
 
-      await rejects(
-        async () => new TestTableCell(options),
-        { message: messages.error.INVALID_TABLE_CELL_WIDTH },
-      );
-    })
+      new TestTableCell(options);
 
-    it('should throw an error if the width is negative', async () => {
-      const options = { width: -1 };
+      equal(validateWidthFn.mock.callCount(), 1);
+      equal(validateWidthFn.mock.calls[0].arguments[0], options.width);
 
-      await rejects(
-        async () => new TestTableCell(options),
-        { message: messages.error.NEGATIVE_TABLE_CELL_WIDTH },
-      );
+      validateWidthFn.mock.restore();
     });
   });
 
@@ -106,22 +101,16 @@ describe('TableCell', () => {
       equal(cell.paddingLeft, defaultPaddingLeft);
     });
 
-    it('should throw an error if the left padding is not a number', async () => {
-      const options = { paddingLeft: TestUtils.generateRandomString() };
+    it('should validate the left padding of the cell', async () => {
+      const options = { paddingLeft: TestUtils.generateRandomInt() };
+      const validatePaddingLeftFn = mock.method(TableCellValidator, 'validatePaddingLeft');
 
-      await rejects(
-        async () => new TestTableCell(options),
-        { message: messages.error.INVALID_TABLE_CELL_PADDING_LEFT },
-      );
-    })
+      new TestTableCell(options);
 
-    it('should throw an error if the left padding is negative', async () => {
-      const options = { paddingLeft: -1 };
+      equal(validatePaddingLeftFn.mock.callCount(), 1);
+      equal(validatePaddingLeftFn.mock.calls[0].arguments[0], options.paddingLeft);
 
-      await rejects(
-        async () => new TestTableCell(options),
-        { message: messages.error.NEGATIVE_TABLE_CELL_PADDING_LEFT },
-      );
+      validatePaddingLeftFn.mock.restore();
     });
   });
 
@@ -152,22 +141,16 @@ describe('TableCell', () => {
       equal(cell.paddingRight, defaultPaddingRight);
     });
 
-    it('should throw an error if the right padding is not a number', async () => {
-      const options = { paddingRight: TestUtils.generateRandomString() };
+    it('should validate the right padding of the cell', async () => {
+      const options = { paddingRight: TestUtils.generateRandomInt() };
+      const validatePaddingRightFn = mock.method(TableCellValidator, 'validatePaddingRight');
 
-      await rejects(
-        async () => new TestTableCell(options),
-        { message: messages.error.INVALID_TABLE_CELL_PADDING_RIGHT },
-      );
-    })
+      new TestTableCell(options);
 
-    it('should throw an error if the right padding is negative', async () => {
-      const options = { paddingRight: -1 };
+      equal(validatePaddingRightFn.mock.callCount(), 1);
+      equal(validatePaddingRightFn.mock.calls[0].arguments[0], options.paddingRight);
 
-      await rejects(
-        async () => new TestTableCell(options),
-        { message: messages.error.NEGATIVE_TABLE_CELL_PADDING_RIGHT },
-      );
+      validatePaddingRightFn.mock.restore();
     });
   });
 
@@ -198,13 +181,16 @@ describe('TableCell', () => {
       equal(cell.xPosition, defaultXPosition);
     });
 
-    it('should throw an error if the xPosition is not a valid horizontal position', async () => {
-      const options = { xPosition: VerticalAlignment.TOP };
+    it('should validate xPosition of the cell', async () => {
+      const options = { xPosition: HorizontalAlignment.CENTER };
+      const validateXPositionFn = mock.method(TableCellValidator, 'validateXPosition');
 
-      await rejects(
-        async () => new TestTableCell(options),
-        { message: messages.error.INVALID_TABLE_CELL_X_POSITION },
-      );
+      new TestTableCell(options);
+
+      equal(validateXPositionFn.mock.callCount(), 1);
+      equal(validateXPositionFn.mock.calls[0].arguments[0], options.xPosition);
+
+      validateXPositionFn.mock.restore();
     });
   });
 
@@ -236,13 +222,16 @@ describe('TableCell', () => {
       equal(cell.singleColumn, defaultSingleColumn);
     });
 
-    it('should throw an error if singleColumn value is not a boolean', async () => {
-      const options = { singleColumn: TestUtils.generateRandomString() };
+    it('should validate singleColumn of the cell', async () => {
+      const options = { singleColumn: true };
+      const validateSingleColumnFn = mock.method(TableCellValidator, 'validateSingleColumn');
 
-      await rejects(
-        async () => new TestTableCell(options),
-        { message: messages.error.INVALID_TABLE_CELL_SINGLE_COLUMN },
-      );
+      new TestTableCell(options);
+
+      equal(validateSingleColumnFn.mock.callCount(), 1);
+      equal(validateSingleColumnFn.mock.calls[0].arguments[0], options.singleColumn);
+
+      validateSingleColumnFn.mock.restore();
     });
   });
 
@@ -305,13 +294,16 @@ describe('SeparatorCell', () => {
       equal(cell.yPosition, defaultYPosition);
     });
 
-    it('should throw an error if the yPosition is not a valid vertical position', async () => {
-      const options = { yPosition: HorizontalAlignment.LEFT };
+    it('should validate the yPosition of the cell', async () => {
+      const options = { yPosition: VerticalAlignment.CENTER };
+      const validateYPositionFn = mock.method(TableCellValidator, 'validateYPosition');
 
-      await rejects(
-        async () => new SeparatorCell(options),
-        { message: messages.error.INVALID_TABLE_CELL_Y_POSITION },
-      );
+      new SeparatorCell(options);
+
+      equal(validateYPositionFn.mock.callCount(), 1);
+      equal(validateYPositionFn.mock.calls[0].arguments[0], options.yPosition);
+
+      validateYPositionFn.mock.restore();
     });
   });
 
@@ -322,106 +314,10 @@ describe('SeparatorCell', () => {
       paddingRight: 1,
       xPosition: HorizontalAlignment.LEFT,
       yPosition: VerticalAlignment.TOP,
+      singleColumn: false,
     };
 
-    const cellWidth = options.width + options.paddingLeft + options.paddingRight;
-
-    const equalCellSeparator = (cellStr, rightCorner) => {
-      equal(
-        cellStr.slice(0, -1),
-        TableBorder.HORIZONTAL.repeat(cellWidth),
-      );
-      equal(
-        cellStr[cellStr.length - 1],
-        rightCorner,
-      );
-    }
-
-    it('should return the top left separator', () => {
-      options.yPosition = VerticalAlignment.TOP;
-      options.xPosition = HorizontalAlignment.LEFT;
-
-      const cell = new SeparatorCell(options);
-
-      equal(cell.toString()[0], TableBorder.TOP_LEFT);
-      equalCellSeparator(cell.toString().slice(1), TableBorder.TOP_CENTER);
-    });
-
-    it('should return the top center separator', () => {
-      options.yPosition = VerticalAlignment.TOP;
-      options.xPosition = HorizontalAlignment.CENTER;
-
-      const cell = new SeparatorCell(options);
-
-      equalCellSeparator(cell.toString(), TableBorder.TOP_CENTER);
-    });
-
-    it('should return the top right separator', () => {
-      options.yPosition = VerticalAlignment.TOP;
-      options.xPosition = HorizontalAlignment.RIGHT;
-
-      const cell = new SeparatorCell(options);
-
-      equalCellSeparator(cell.toString(), TableBorder.TOP_RIGHT);
-    });
-
-    it('should return the center left separator', () => {
-      options.yPosition = VerticalAlignment.CENTER;
-      options.xPosition = HorizontalAlignment.LEFT;
-
-      const cell = new SeparatorCell(options);
-
-      equal(cell.toString()[0], TableBorder.CENTER_LEFT);
-      equalCellSeparator(cell.toString().slice(1), TableBorder.CENTER_CENTER);
-    });
-
-    it('should return the center center separator', () => {
-      options.yPosition = VerticalAlignment.CENTER;
-      options.xPosition = HorizontalAlignment.CENTER;
-
-      const cell = new SeparatorCell(options);
-
-      equalCellSeparator(cell.toString(), TableBorder.CENTER_CENTER);
-    });
-
-    it('should return the center right separator', () => {
-      options.yPosition = VerticalAlignment.CENTER;
-      options.xPosition = HorizontalAlignment.RIGHT;
-
-      const cell = new SeparatorCell(options);
-
-      equalCellSeparator(cell.toString(), TableBorder.CENTER_RIGHT);
-    });
-
-    it('should return the bottom left separator', () => {
-      options.yPosition = VerticalAlignment.BOTTOM;
-      options.xPosition = HorizontalAlignment.LEFT;
-
-      const cell = new SeparatorCell(options);
-
-      equal(cell.toString()[0], TableBorder.BOTTOM_LEFT);
-      equalCellSeparator(cell.toString().slice(1), TableBorder.BOTTOM_CENTER);
-    });
-
-    it('should return the bottom center separator', () => {
-      options.yPosition = VerticalAlignment.BOTTOM;
-      options.xPosition = HorizontalAlignment.CENTER;
-
-      const cell = new SeparatorCell(options);
-
-      equalCellSeparator(cell.toString(), TableBorder.BOTTOM_CENTER);
-    });
-
-    it('should return the bottom right separator', () => {
-      options.yPosition = VerticalAlignment.BOTTOM;
-      options.xPosition = HorizontalAlignment.RIGHT;
-
-      const cell = new SeparatorCell(options);
-
-      equalCellSeparator(cell.toString(), TableBorder.BOTTOM_RIGHT);
-    });
-
-    it('should return the correct separator for a single column table', () => {
+    it('should build the separator cell', () => {
       options.yPosition = VerticalAlignment.BOTTOM;
       options.xPosition = HorizontalAlignment.LEFT;
       options.singleColumn = true;
@@ -547,18 +443,20 @@ describe('ContentCell', () => {
       match(expected, new RegExp(yellow));
     });
 
-    it('should throw an error if the content length is greater than the cell width', async () => {
+    it('should validate the content of the cell', async () => {
       const width = TestUtils.generateRandomInt(1, 10);
-      const content = TestUtils.generateRandomString({ minLength: width + 1 });
-      const options = {
-        width,
-        content,
-      };
+      const content = TestUtils.generateRandomString({ minLength: width });
+      const options = { width, content };
 
-      await rejects(
-        async () => new ContentCell(options),
-        { message: messages.error.CELL_CONTENT_EXCEEDS_CELL_WIDTH },
-      );
+      const validateContentFn = mock.method(TableCellValidator, 'validateContent');
+
+      new ContentCell(options);
+
+      equal(validateContentFn.mock.callCount(), 1);
+      equal(validateContentFn.mock.calls[0].arguments[0], content);
+      equal(validateContentFn.mock.calls[0].arguments[1], width);
+
+      validateContentFn.mock.restore();
     });
   });
 
@@ -590,13 +488,16 @@ describe('ContentCell', () => {
       equal(cell.textAlign, defaultTextAlign);
     });
 
-    it('should throw an error if the textAlign is not a valid horizontal position', async () => {
-      const options = { textAlign: VerticalAlignment.TOP };
+    it('should validate textAlign of the cell', async () => {
+      const options = { textAlign: HorizontalAlignment.CENTER };
+      const validateTextAlignFn = mock.method(TableCellValidator, 'validateTextAlign');
 
-      await rejects(
-        async () => new ContentCell(options),
-        { message: messages.error.INVALID_TABLE_CELL_TEXT_ALIGN },
-      );
+      new ContentCell(options);
+
+      equal(validateTextAlignFn.mock.callCount(), 1);
+      equal(validateTextAlignFn.mock.calls[0].arguments[0], options.textAlign);
+
+      validateTextAlignFn.mock.restore();
     });
   });
 
@@ -615,36 +516,6 @@ describe('ContentCell', () => {
       singleColumn: false,
     };
 
-    it('should return the left content cell', () => {
-      options.xPosition = HorizontalAlignment.LEFT;
-      const cell = new ContentCell(options);
-      const expected = `${TableBorder.VERTICAL} ${text} ${TableBorder.VERTICAL}`;
-
-      const actual = cell.toString(false);
-
-      equal(actual, expected);
-    });
-
-    it('should return the center content cell', () => {
-      options.xPosition = HorizontalAlignment.CENTER;
-      const cell = new ContentCell(options);
-      const expected = ` ${text} ${TableBorder.VERTICAL}`;
-
-      const actual = cell.toString(false);
-
-      equal(actual, expected);
-    });
-
-    it('should return the right content cell', () => {
-      options.xPosition = HorizontalAlignment.RIGHT;
-      const cell = new ContentCell(options);
-      const expected = ` ${text} ${TableBorder.VERTICAL}`;
-
-      const actual = cell.toString(false);
-
-      equal(actual, expected);
-    });
-
     it('should return the content with style by default', () => {
       const cell = new ContentCell(options);
 
@@ -661,90 +532,6 @@ describe('ContentCell', () => {
 
       const yellow = AnsiCodes.FG.YELLOW.replace('[', '\\[');
       doesNotMatch(actual, new RegExp(yellow));
-    });
-
-    function buildExpectedCellText(cell, width, contentWidth, alignment) {
-      const totalWhitespace = width - contentWidth;
-
-      let leftWhitespace = 0;
-      let rightWhitespace = 0;
-
-      if (alignment === HorizontalAlignment.LEFT) {
-        rightWhitespace = totalWhitespace;
-      } else if (alignment === HorizontalAlignment.RIGHT) {
-        leftWhitespace = totalWhitespace;
-      } else if (alignment === HorizontalAlignment.CENTER) {
-        leftWhitespace = Math.floor(totalWhitespace / 2);
-        rightWhitespace = totalWhitespace - leftWhitespace;
-      }
-
-      const inner = ' '.repeat(leftWhitespace) + cell.content.plainText + ' '.repeat(rightWhitespace);
-
-      return TableBorder.VERTICAL + ' ' + inner + ' ' + TableBorder.VERTICAL;
-    }
-
-    it('should return the content with whitespace - left aligned', () => {
-      options.xPosition = HorizontalAlignment.LEFT;
-      options.textAlign = HorizontalAlignment.LEFT;
-      options.width = TestUtils.generateRandomInt(10, 20);
-      const contentWidth = Math.floor(options.width / 2);
-      options.content = TestUtils.generateRandomString({
-        minLength: contentWidth,
-      });
-      const cell = new ContentCell(options);
-
-      const actual = cell.toString(false);
-      const expected = buildExpectedCellText(cell, options.width, contentWidth, options.textAlign);
-
-      equal(actual, expected);
-    });
-
-    it('should return the content with whitespace - right aligned', () => {
-      options.xPosition = HorizontalAlignment.LEFT;
-      options.textAlign = HorizontalAlignment.RIGHT;
-      options.width = TestUtils.generateRandomInt(10, 20);
-      const contentWidth = Math.floor(options.width / 2);
-      options.content = TestUtils.generateRandomString({
-        minLength: contentWidth,
-      });
-      const cell = new ContentCell(options);
-
-      const actual = cell.toString(false);
-      const expected = buildExpectedCellText(cell, options.width, contentWidth, options.textAlign);
-
-      equal(actual, expected);
-    });
-
-    it('should return the content with whitespace - center aligned - even amount of whitespace', () => {
-      options.xPosition = HorizontalAlignment.LEFT;
-      options.textAlign = HorizontalAlignment.CENTER;
-      options.width = 20;
-      const contentWidth = 10;
-      options.content = TestUtils.generateRandomString({
-        minLength: contentWidth,
-      });
-      const cell = new ContentCell(options);
-
-      const actual = cell.toString(false);
-      const expected = buildExpectedCellText(cell, options.width, contentWidth, options.textAlign);
-
-      equal(actual, expected);
-    });
-
-    it('should return the content with whitespace - center aligned - odd amount of whitespace', () => {
-      options.xPosition = HorizontalAlignment.LEFT;
-      options.textAlign = HorizontalAlignment.CENTER;
-      options.width = 19;
-      const contentWidth = 10;
-      options.content = TestUtils.generateRandomString({
-        minLength: contentWidth,
-      });
-      const cell = new ContentCell(options);
-
-      const actual = cell.toString(false);
-      const expected = buildExpectedCellText(cell, options.width, contentWidth, options.textAlign);
-
-      equal(actual, expected);
     });
 
     it('should return the correct content for a single column table', () => {

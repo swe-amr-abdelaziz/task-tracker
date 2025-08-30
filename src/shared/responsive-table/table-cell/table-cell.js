@@ -1,6 +1,9 @@
-import { ConsoleStringBuilder } from "../console-string.builder.js";
-import { HorizontalAlignment, TableBorder, VerticalAlignment } from "../enums.js";
-import { messages } from "../messages.js";
+import { ConsoleStringBuilder } from '../../console-string.builder.js';
+import { ContentCellBuilder, SeparatorCellBuilder } from './internals/table-cell.builder.js';
+import { ContentCellStyler } from './internals/table-cell.styler.js';
+import { HorizontalAlignment, VerticalAlignment } from '../../enums.js';
+import { TableCellValidator } from './internals/table-cell.validator.js';
+import { messages } from '../../messages.js';
 
 /**
  * Represents a cell in a table with visual properties.
@@ -46,12 +49,7 @@ export class TableCell {
    * @param {number} width - The new width of the cell.
    */
   set width(width) {
-    if (typeof width !== 'number') {
-      throw new Error(messages.error.INVALID_TABLE_CELL_WIDTH);
-    }
-    if (width < 0) {
-      throw new Error(messages.error.NEGATIVE_TABLE_CELL_WIDTH);
-    }
+    TableCellValidator.validateWidth(width);
     this.#width = width;
   }
 
@@ -66,12 +64,7 @@ export class TableCell {
    * @param {number} paddingLeft - The new left padding of the cell.
    */
   set paddingLeft(paddingLeft) {
-    if (typeof paddingLeft !== 'number') {
-      throw new Error(messages.error.INVALID_TABLE_CELL_PADDING_LEFT);
-    }
-    if (paddingLeft < 0) {
-      throw new Error(messages.error.NEGATIVE_TABLE_CELL_PADDING_LEFT);
-    }
+    TableCellValidator.validatePaddingLeft(paddingLeft);
     this.#paddingLeft = paddingLeft;
   }
 
@@ -86,12 +79,7 @@ export class TableCell {
    * @param {number} paddingRight - The new right padding of the cell.
    */
   set paddingRight(paddingRight) {
-    if (typeof paddingRight !== 'number') {
-      throw new Error(messages.error.INVALID_TABLE_CELL_PADDING_RIGHT);
-    }
-    if (paddingRight < 0) {
-      throw new Error(messages.error.NEGATIVE_TABLE_CELL_PADDING_RIGHT);
-    }
+    TableCellValidator.validatePaddingRight(paddingRight);
     this.#paddingRight = paddingRight;
   }
 
@@ -106,10 +94,7 @@ export class TableCell {
    * @param {HorizontalAlignment} xPosition - The new horizontal position of the cell relative to the table.
    */
   set xPosition(xPosition) {
-    const validPositions = Object.keys(HorizontalAlignment);
-    if (!validPositions.includes(xPosition)) {
-      throw new Error(messages.error.INVALID_TABLE_CELL_X_POSITION);
-    }
+    TableCellValidator.validateXPosition(xPosition);
     this.#xPosition = xPosition;
   }
 
@@ -124,9 +109,7 @@ export class TableCell {
    * @param {boolean} singleColumn - Whether the table contains only one column.
    */
   set singleColumn(singleColumn) {
-    if (typeof singleColumn !== 'boolean') {
-      throw new Error(messages.error.INVALID_TABLE_CELL_SINGLE_COLUMN);
-    }
+    TableCellValidator.validateSingleColumn(singleColumn);
     this.#singleColumn = singleColumn;
   }
 
@@ -179,10 +162,7 @@ export class SeparatorCell extends TableCell {
    * @param {VerticalAlignment} yPosition - The new vertical position of the cell relative to the table.
    */
   set yPosition(yPosition) {
-    const validPositions = Object.keys(VerticalAlignment);
-    if (!validPositions.includes(yPosition)) {
-      throw new Error(messages.error.INVALID_TABLE_CELL_Y_POSITION);
-    }
+    TableCellValidator.validateYPosition(yPosition);
     this.#yPosition = yPosition;
   }
 
@@ -190,11 +170,15 @@ export class SeparatorCell extends TableCell {
    * @returns {string} The string representation of the separator cell.
    */
   toString() {
-    const leftBorder = this.#generateLeftCorner();
-    const rightBorder = this.#generateRightCorner();
-    const cellWidth = this.width + this.paddingLeft + this.paddingRight;
-    const midBorder = TableBorder.HORIZONTAL.repeat(cellWidth);
-    return leftBorder + midBorder + rightBorder;
+    const builder = new SeparatorCellBuilder({
+       width: this.width,
+       paddingLeft: this.paddingLeft,
+       paddingRight: this.paddingRight,
+       xPosition: this.xPosition,
+       yPosition: this.yPosition,
+       singleColumn: this.singleColumn,
+    });
+    return builder.build();
   }
 
   /**
@@ -205,36 +189,6 @@ export class SeparatorCell extends TableCell {
       ...super.clone(),
       yPosition: this.yPosition,
     };
-  }
-
-  /**
-   * Generates the left corner of the separator cell.
-   *
-   * @returns {string} The left corner of the separator cell.
-   * @private
-   */
-  #generateLeftCorner() {
-    if (this.xPosition === HorizontalAlignment.LEFT) {
-      const key = `${this.yPosition}_${this.xPosition}`
-      return TableBorder[key];
-    }
-    return '';
-  }
-
-  /**
-   * Generates the right corner of the separator cell.
-   *
-   * @returns {string} The right corner of the separator cell.
-   * @private
-   */
-  #generateRightCorner() {
-    const isLastColumn =
-      this.xPosition === HorizontalAlignment.RIGHT ||
-        this.singleColumn;
-    const key = isLastColumn
-      ? `${this.yPosition}_RIGHT`
-      : `${this.yPosition}_CENTER`;
-    return TableBorder[key];
   }
 }
 
@@ -247,11 +201,6 @@ export class ContentCell extends TableCell {
   #content;
   #isHeader;
   #textAlign;
-  #whitespaceLeft = '';
-  #whitespaceRight = '';
-
-  // TODO: Add feature of print extra spaces after content, if width is greater than content
-  // TODO: Text alignment for content
 
   /**
    * @param {object} [options={}] = The options for the table cell.
@@ -284,21 +233,23 @@ export class ContentCell extends TableCell {
    * @param {unknown} content - The new text content of the cell.
    */
   set content(content) {
-    this.#validateContent(content);
-    const builder = ConsoleStringBuilder.create();
-    this.#setStyle(builder, content);
-    this.#content = builder.text(content.toString());
+    TableCellValidator.validateContent(content, this.width);
+    const styler = new ContentCellStyler({ content, isHeader: this.#isHeader });
+    this.#content = styler.build();
   }
 
+  /**
+   * @returns {HorizontalAlignment} The horizontal alignment of the text content of the cell.
+   */
   get textAlign() {
     return this.#textAlign;
   }
 
+  /**
+   * @param {HorizontalAlignment} textAlign - The new horizontal alignment of the text content of the cell.
+   */
   set textAlign(textAlign) {
-    const validPositions = Object.keys(HorizontalAlignment);
-    if (!validPositions.includes(textAlign)) {
-      throw new Error(messages.error.INVALID_TABLE_CELL_TEXT_ALIGN);
-    }
+    TableCellValidator.validateTextAlign(textAlign);
     this.#textAlign = textAlign;
   }
 
@@ -307,11 +258,16 @@ export class ContentCell extends TableCell {
    * @returns {string} The string representation of the content cell.
    */
   toString(withStyle = true) {
-    let content = this.#generateContent(withStyle);
-    content = this.#whitespaceLeft + content + this.#whitespaceRight;
-    const leftBorder = this.#generateLeftCorner();
-    const rightBorder = this.#generateRightCorner();
-    return leftBorder + content + rightBorder;
+    const builder = new ContentCellBuilder({
+      width: this.width,
+      content: this.content,
+      paddingLeft: this.paddingLeft,
+      paddingRight: this.paddingRight,
+      xPosition: this.xPosition,
+      textAlign: this.textAlign,
+      withStyle,
+    });
+    return builder.build();
   }
 
   /**
@@ -322,96 +278,5 @@ export class ContentCell extends TableCell {
       ...super.clone(),
       content: this.content,
     };
-  }
-
-  /**
-   * Validates the content of the cell.
-   *
-   * @param {unknown} content - The content to validate.
-   * @private
-   */
-  #validateContent(content) {
-    if (content.toString().length > this.width) {
-      throw new Error(messages.error.CELL_CONTENT_EXCEEDS_CELL_WIDTH);
-    }
-  }
-
-  /**
-   * Sets the style for the content of the cell based on its content type.
-   *
-   * @param {ConsoleStringBuilder} builder - The builder to set the style for.
-   * @private
-   */
-  #setStyle(builder, content) {
-    if (this.#isHeader) {
-      builder.green().bold();
-    } else if (typeof content === 'number') {
-      builder.magenta();
-    } else {
-      builder.yellow();
-    }
-  }
-
-  /**
-   * Generates the content of the cell.
-   *
-   * @param {boolean} [withStyle] - Whether to include the console style in the string representation.
-   * @returns {string} The content (text) of the cell.
-   * @private
-   */
-  #generateContent(withStyle) {
-    this.#addWhitespaceToContent();
-    const content = withStyle ? this.content.build() : this.content.plainText;
-    const paddingLeft = ' '.repeat(this.paddingLeft);
-    const paddingRight = ' '.repeat(this.paddingRight);
-    return paddingLeft + content + paddingRight;
-  }
-
-  /**
-   * Generates the left corner of the content cell.
-   *
-   * @returns {string} The left corner of the content cell.
-   * @private
-   */
-  #generateLeftCorner() {
-    return this.xPosition === HorizontalAlignment.LEFT
-      ? TableBorder.VERTICAL
-      : '';
-  }
-
-  /**
-   * Generates the right corner of the content cell.
-   *
-   * @returns {string} The right corner of the content cell.
-   * @private
-   */
-  #generateRightCorner() {
-    return TableBorder.VERTICAL;
-  }
-
-  /**
-   * Adds whitespace to the content of the cell if the cell width is greater than the content width.
-   * Takes into account the text alignment of the content.
-   *
-   * @returns {string} The content with whitespace added.
-   * @private
-   */
-  #addWhitespaceToContent() {
-    const whitespaceCount = this.width - this.content.textLength();
-    const whitespace = ' '.repeat(whitespaceCount);
-
-    switch (this.#textAlign) {
-      case HorizontalAlignment.LEFT:
-        this.#whitespaceRight = whitespace;
-        break;
-      case HorizontalAlignment.RIGHT:
-        this.#whitespaceLeft = whitespace;
-        break;
-      case HorizontalAlignment.CENTER:
-        const halfWhitespaceCount = Math.floor(whitespaceCount / 2);
-        this.#whitespaceLeft = ' '.repeat(halfWhitespaceCount);
-        this.#whitespaceRight = ' '.repeat(whitespaceCount - halfWhitespaceCount);
-        break;
-    }
   }
 }
