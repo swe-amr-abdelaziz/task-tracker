@@ -1,8 +1,9 @@
 import { equal, rejects } from 'node:assert';
-import { after, afterEach, describe, it, mock } from 'node:test';
+import { after, afterEach, beforeEach, describe, it, mock } from 'node:test';
 
 import { ContentRow, SeparatorRow, TableRow } from '../table-row.js';
 import { TableBorder, VerticalAlignment } from '../../../enums.js';
+import { TableRowValidator } from '../internals/table-row.validator.js';
 import { TestUtils } from '../../../test-utils.js';
 import { Utils } from '../../../utils.js';
 import { messages } from '../../../messages.js';
@@ -36,6 +37,24 @@ const consoleLogFn = mock.method(console, 'log', () => {});
 describe('SeparatorRow', () => {
   afterEach(() => {
     consoleLogFn.mock.resetCalls();
+  });
+
+  describe('constructor', () => {
+    it('should validate cellsWidths', () => {
+      const validateCellsWidthsFn = mock.method(
+        TableRowValidator,
+        'validateCellsWidths',
+        () => {},
+      );
+      const cellsWidths = [];
+
+      new SeparatorRow({ cellsWidths });
+
+      equal(validateCellsWidthsFn.mock.callCount(), 1);
+      equal(validateCellsWidthsFn.mock.calls[0].arguments[0], cellsWidths);
+
+      validateCellsWidthsFn.mock.restore();
+    });
   });
 
   describe('print', () => {
@@ -118,11 +137,11 @@ describe('SeparatorRow', () => {
     });
 
     it('should set default options values if not provided', () => {
-      const row = new SeparatorRow();
+      const row = new SeparatorRow({ cellsWidths: [1] });
 
       row.print();
 
-      equal(consoleLogFn.mock.callCount(), 0);
+      equal(consoleLogFn.mock.callCount(), 1);
     });
   });
 });
@@ -136,7 +155,58 @@ describe('ContentRow', () => {
     consoleLogFn.mock.restore();
   });
 
+  describe('constructor', () => {
+    const validateCellsWidthsFn = mock.method(
+      TableRowValidator,
+      'validateCellsWidths',
+      () => {},
+    );
+    const validateCellsBufferFn = mock.method(
+      TableRowValidator,
+      'validateCellsBuffer',
+      () => {},
+    );
+
+    beforeEach(() => {
+      validateCellsWidthsFn.mock.resetCalls();
+      validateCellsBufferFn.mock.resetCalls();
+    });
+
+    after(() => {
+      validateCellsWidthsFn.mock.restore();
+      validateCellsBufferFn.mock.restore();
+    });
+
+    it('should validate cellsWidths', () => {
+      const widths = [];
+
+      new ContentRow({ widths });
+
+      equal(validateCellsWidthsFn.mock.callCount(), 1);
+      equal(validateCellsWidthsFn.mock.calls[0].arguments[0], widths);
+    });
+
+    it('should validate cellsBuffer', () => {
+      const widths = [];
+      const buffer = [];
+
+      new ContentRow({ widths, buffer });
+
+      equal(validateCellsBufferFn.mock.callCount(), 1);
+      equal(validateCellsBufferFn.mock.calls[0].arguments[0], buffer);
+      equal(validateCellsBufferFn.mock.calls[0].arguments[1], widths);
+    });
+  });
+
   describe('print', () => {
+    beforeEach(() => {
+      consoleLogFn.mock.resetCalls();
+    });
+
+    after(() => {
+      consoleLogFn.mock.restore();
+    });
+
     it('should print content row to the console', () => {
       const widths = [5, 10, 15];
       const buffer = [
@@ -232,14 +302,6 @@ describe('ContentRow', () => {
       equal(actualRow1, expectedRow1);
       equal(actualRow2, expectedRow2);
       equal(actualRow3, expectedRow3);
-    });
-
-    it('should set default options values if not provided', () => {
-      const row = new ContentRow();
-
-      row.print();
-
-      equal(consoleLogFn.mock.callCount(), 0);
     });
   });
 });
