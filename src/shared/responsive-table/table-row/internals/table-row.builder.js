@@ -84,26 +84,34 @@ export class SeparatorRowBuilder {
  * @class
  */
 export class ContentRowBuilder {
-  #widths;
-  #buffer;
+  #cells;
   #paddingLeft;
   #paddingRight;
   #isHeader;
+  #isSmallViewPort;
+
+  /**
+   * @typedef {Object} CellOptions - The options for the table cell.
+   * @property {number} width - The width of the table cell.
+   * @property {unknown} buffer - The content of the table cell.
+   * @property {HorizontalAlignment} [textAlign=HorizontalAlignment.LEFT]
+   *   - The text alignment of the table cell.
+   */
 
   /**
    * @param {object} options - The options for the content row.
-   * @param {number[]} options.widths - The widths of the cells in the row.
-   * @param {unknown[]} options.buffer - The contents of the cells in the row.
+   * @param {CellOptions[]} options.cells - The options of the cells in the row.
    * @param {number} options.cellPaddingLeft - The left padding of each cell.
    * @param {number} options.cellPaddingRight - The right padding of each cell.
    * @param {boolean} options.isHeader - Whether the row is a header row.
+   * @param {boolean} options.isSmallViewPort - Whether the table is in small view port mode.
    */
   constructor(options) {
-    this.#widths = options.widths;
-    this.#buffer = options.buffer;
+    this.#cells = options.cells;
     this.#paddingLeft = options.cellPaddingLeft;
     this.#paddingRight = options.cellPaddingRight;
     this.#isHeader = options.isHeader;
+    this.#isSmallViewPort = options.isSmallViewPort;
   }
 
   /**
@@ -120,7 +128,9 @@ export class ContentRowBuilder {
    * @returns {boolean} Whether the buffer has any content left.
    */
   hasBuffer() {
-    return this.#buffer.some((item) => `${item}`.length > 0);
+    return this.#cells
+      .map((cell) => cell.buffer)
+      .some((buffer) => `${buffer}`.length > 0);
   }
 
   /**
@@ -129,23 +139,24 @@ export class ContentRowBuilder {
    * @private
    */
   #buildCells() {
-    return this.#buffer.map((content, index) => {
-      const width = this.#widths[index];
-      const [buffer, remaining] = Utils.getBufferSplit(content, width);
-      this.#buffer[index] = remaining;
-      const cell = new ContentCell({
-        width,
+    return this.#cells.map((cell, index) => {
+      const isHeader = this.#isHeader || (this.#isSmallViewPort && index === 0);
+      const [buffer, remaining] = Utils.getBufferSplit(cell.buffer, cell.width);
+      cell.buffer = remaining;
+      const contentCell = new ContentCell({
+        width: cell.width,
         paddingLeft: this.#paddingLeft,
         paddingRight: this.#paddingRight,
         xPosition: this.#getCellXPosition(
           index,
-          this.#buffer.length - 1,
+          this.#cells.length - 1,
         ),
         content: buffer,
-        isHeader: this.#isHeader,
-        singleColumn: this.#buffer.length === 1,
+        textAlign: cell.textAlign ?? HorizontalAlignment.LEFT,
+        isHeader,
+        singleColumn: this.#cells.length === 1,
       })
-      return cell;
+      return contentCell;
     });
   }
 

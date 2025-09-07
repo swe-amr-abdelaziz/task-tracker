@@ -1,6 +1,6 @@
 import { ContentRowBuilder, SeparatorRowBuilder } from './internals/table-row.builder.js';
+import { PADDING_DEFAULT, VerticalAlignment } from '../../enums.js';
 import { TableRowValidator } from './internals/table-row.validator.js';
-import { VerticalAlignment } from '../../enums.js';
 import { messages } from '../../messages.js';
 
 /**
@@ -20,7 +20,7 @@ export class TableRow {
    * Prints the row to the console.
    * @abstract
    */
-  print() {
+  build() {
     throw new Error(messages.error.ABSTRACT_METHOD_CALL);
   }
 }
@@ -36,8 +36,8 @@ export class SeparatorRow extends TableRow {
   /**
    * @param {object} [options] - The options for the separator row.
    * @param {number[]} [options.cellsWidths] - The widths of the cells in the row.
-   * @param {number} [options.cellPaddingLeft=0] - The left padding of each cell.
-   * @param {number} [options.cellPaddingRight=0] - The right padding of each cell.
+   * @param {number} [options.cellPaddingLeft=1] - The left padding of each cell.
+   * @param {number} [options.cellPaddingRight=1] - The right padding of each cell.
    * @param {VerticalAlignment} [options.yPosition=VerticalAlignment.CENTER] -
    *   The vertical position of the row relative to the table.
    */
@@ -46,19 +46,18 @@ export class SeparatorRow extends TableRow {
     TableRowValidator.validateCellsWidths(options.cellsWidths);
     this.#builder = new SeparatorRowBuilder({
       cellsWidths: options.cellsWidths,
-      cellPaddingLeft: options.cellPaddingLeft ?? 0,
-      cellPaddingRight: options.cellPaddingRight ?? 0,
+      cellPaddingLeft: options.cellPaddingLeft ?? PADDING_DEFAULT,
+      cellPaddingRight: options.cellPaddingRight ?? PADDING_DEFAULT,
       yPosition: options.yPosition ?? VerticalAlignment.CENTER,
     });
   }
 
   /**
-   * Prints the separator row to the console.
+   * @returns {string} The separator row as a string.
    * @override
    */
-  print() {
-    const row = this.#builder.build();
-    console.log(row);
+  build() {
+    return this.#builder.build();
   }
 }
 
@@ -71,34 +70,44 @@ export class ContentRow extends TableRow {
   #builder;
 
   /**
+   * @typedef {Object} CellOptions - The options for the table cell.
+   * @property {number} width - The width of the table cell.
+   * @property {unknown} buffer - The content of the table cell.
+   * @property {HorizontalAlignment} textAlign - The text alignment of the table cell.
+   */
+
+  /**
    * @param {object} [options] - The options for the content row.
-   * @param {number[]} [options.widths] - The widths of the cells in the row.
-   * @param {unknown[]} [options.buffer] - The contents of the cells in the row.
-   * @param {number} [options.cellPaddingLeft=0] - The left padding of each cell.
-   * @param {number} [options.cellPaddingRight=0] - The right padding of each cell.
+   * @param {CellOptions[]} [options.cells] - The options of the cells in the row.
+   * @param {number} [options.cellPaddingLeft=1] - The left padding of each cell.
+   * @param {number} [options.cellPaddingRight=1] - The right padding of each cell.
    * @param {boolean} [options.isHeader=false] - Whether the row is a header row.
+   * @param {boolean} [options.isSmallViewPort=false] - Whether the table is in small view port mode.
    */
   constructor(options) {
     super();
-    TableRowValidator.validateCellsWidths(options.widths);
-    TableRowValidator.validateCellsBuffer(options.buffer, options.widths);
+    TableRowValidator.validateCellsOptions(options.cells);
     this.#builder = new ContentRowBuilder({
-      widths: options.widths,
-      buffer: options.buffer,
-      cellPaddingLeft: options.cellPaddingLeft ?? 0,
-      cellPaddingRight: options.cellPaddingRight ?? 0,
+      cells: options.cells,
+      cellPaddingLeft: options.cellPaddingLeft ?? PADDING_DEFAULT,
+      cellPaddingRight: options.cellPaddingRight ?? PADDING_DEFAULT,
       isHeader: options.isHeader ?? false,
+      isSmallViewPort: options.isSmallViewPort ?? false,
     });
   }
 
   /**
-   * Prints the content row to the console.
+   * @returns {string} The content row as a string.
    * @override
    */
-  print() {
-    while (this.#builder.hasBuffer()) {
+  build() {
+    const buffer = [];
+    let firstIteration = true;
+    while (this.#builder.hasBuffer() || firstIteration) {
       const row = this.#builder.build();
-      console.log(row);
+      buffer.push(row);
+      firstIteration = false;
     }
+    return buffer.join('\n');
   }
 }

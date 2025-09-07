@@ -1,6 +1,7 @@
 import { doesNotReject, rejects } from 'node:assert';
 import { describe, it } from 'node:test';
 
+import { HorizontalAlignment } from '../../../../enums.js';
 import { TableRowValidator } from '../table-row.validator.js';
 import { TestUtils } from '../../../../test-utils.js';
 import { messages } from '../../../../messages.js';
@@ -40,69 +41,121 @@ describe('TableRowValidator', () => {
     });
   });
 
-  describe('validateCellsBuffer', () => {
-    const widths = [TestUtils.generateRandomInt(), TestUtils.generateRandomInt()];
+  describe('validateCellsOptions', () => {
+    function generateCells() {
+      return [
+        {
+          width: 5,
+          buffer: TestUtils.generateRandomString({ minLength: 5 }),
+          textAlign: HorizontalAlignment.LEFT,
+        },
+        {
+          width: 10,
+          buffer: TestUtils.generateRandomString({ minLength: 10 }),
+          textAlign: HorizontalAlignment.CENTER,
+        },
+        {
+          width: 15,
+          buffer: TestUtils.generateRandomString({ minLength: 15 }),
+          textAlign: HorizontalAlignment.RIGHT,
+        },
+      ];
+    }
 
-    it('should throw a TypeError if cellsBuffer is not an array', async () => {
-      const buffer = TestUtils.generateRandomString();
+    it('should throw a TypeError if cells is not an array', async () => {
+      const cells = TestUtils.generateRandomString();
 
       await rejects(
-        async () => TableRowValidator.validateCellsBuffer(buffer, widths),
+        async () => TableRowValidator.validateCellsOptions(cells),
         {
           name: 'TypeError',
-          message: messages.error.INVALID_TABLE_ROW_BUFFER_TYPE,
+          message: messages.error.INVALID_TABLE_ROW_CELLS_TYPE,
         },
       );
     });
 
-    it('should throw a RangeError if cellsBuffer is empty', async () => {
-      const buffer = [];
+    it('should throw a RangeError if cells array is empty', async () => {
+      const cells = [];
 
       await rejects(
-        async () => TableRowValidator.validateCellsBuffer(buffer, widths),
+        async () => TableRowValidator.validateCellsOptions(cells),
         {
           name: 'RangeError',
-          message: messages.error.REQUIRED_TABLE_DATA_ROWS_BUFFER,
+          message: messages.error.REQUIRED_TABLE_DATA_ROWS_CELLS,
         },
       );
     });
 
-    it('should throw a RangeError if cellsBuffer length is less than cellsWidths length', async () => {
-      const buffer = [TestUtils.generateRandomString()];
+    it('should throw a TypeError if buffer is not provided', async () => {
+      const cells = generateCells();
+      delete cells[0].buffer;
 
       await rejects(
-        async () => TableRowValidator.validateCellsBuffer(buffer, widths),
+        async () => TableRowValidator.validateCellsOptions(cells),
         {
-          name: 'RangeError',
-          message: messages.error.INVALID_TABLE_DATA_ROWS_BUFFER_LENGTH,
+          name: 'TypeError',
+          message: messages.error.REQUIRED_TABLE_ROW_BUFFER,
         },
       );
     });
 
-    it('should throw a RangeError if cellsBuffer length is greater than cellsWidths length', async () => {
-      const buffer = [
-        TestUtils.generateRandomString(),
-        TestUtils.generateRandomString(),
-        TestUtils.generateRandomString(),
-      ];
+    it('should throw a TypeError if width is not provided', async () => {
+      const cells = generateCells();
+      delete cells[0].width;
 
       await rejects(
-        async () => TableRowValidator.validateCellsBuffer(buffer, widths),
+        async () => TableRowValidator.validateCellsOptions(cells),
         {
-          name: 'RangeError',
-          message: messages.error.INVALID_TABLE_DATA_ROWS_BUFFER_LENGTH,
+          name: 'TypeError',
+          message: messages.error.REQUIRD_TABLE_ROW_WIDTH,
         },
       );
     });
 
-    it('should not throw any error if cellsBuffer length is equal to cellsWidths length', async () => {
-      const buffer = [
-        TestUtils.generateRandomString(),
-        TestUtils.generateRandomString(),
-      ];
+    it('should throw a TypeError if width is not a number', async () => {
+      const cells = generateCells();
+      cells[0].width = TestUtils.generateRandomString();
+
+      await rejects(
+        async () => TableRowValidator.validateCellsOptions(cells),
+        {
+          name: 'TypeError',
+          message: messages.error.INVALID_TABLE_ROW_WIDTH,
+        },
+      );
+    });
+
+    it('should throw a RangeError if width is negative', async () => {
+      const cells = generateCells();
+      cells[0].width = -1;
+
+      await rejects(
+        async () => TableRowValidator.validateCellsOptions(cells),
+        {
+          name: 'RangeError',
+          message: messages.error.INVALID_TABLE_ROW_WIDTH_RANGE,
+        },
+      );
+    });
+
+    it('should throw a TypeError if textAlign is not a valid horizontal alignment', async () => {
+      const cells = generateCells();
+      cells[0].textAlign = TestUtils.generateRandomString();
+
+      await rejects(
+        async () => TableRowValidator.validateCellsOptions(cells),
+        {
+          name: 'TypeError',
+          message: messages.error.INVALID_TABLE_ROW_TEXT_ALIGN,
+        },
+      );
+    });
+
+    it('should not throw any error if provided cells options are valid', async () => {
+      const cells = generateCells();
 
       await doesNotReject(
-        async () => TableRowValidator.validateCellsBuffer(buffer, widths),
+        async () => TableRowValidator.validateCellsOptions(cells),
       );
     });
   });
