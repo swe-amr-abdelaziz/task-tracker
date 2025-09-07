@@ -9,7 +9,7 @@ import {
 } from 'node:assert';
 import { describe, it, mock } from 'node:test';
 
-import { AnsiCodes, HorizontalAlignment, TableBorder, VerticalAlignment } from '../../../enums.js';
+import { AnsiCodes, HorizontalAlignment, PADDING_DEFAULT, TableBorder, VerticalAlignment } from '../../../enums.js';
 import { ConsoleStringBuilder } from '../../../console-string.builder.js';
 import { ContentCell, SeparatorCell, TableCell } from '../table-cell.js';
 import { TableCellValidator } from '../internals/table-cell.validator.js';
@@ -93,8 +93,8 @@ describe('TableCell', () => {
       equal(cell.paddingLeft, newPaddingLeft);
     });
 
-    it('should set the default left padding of the cell to 0 if not provided', () => {
-      const defaultPaddingLeft = 0;
+    it('should set the default left padding of the cell if not provided', () => {
+      const defaultPaddingLeft = PADDING_DEFAULT;
 
       const cell = new TestTableCell();
 
@@ -133,8 +133,8 @@ describe('TableCell', () => {
       equal(cell.paddingRight, newPaddingRight);
     });
 
-    it('should set the default right padding of the cell to 0 if not provided', () => {
-      const defaultPaddingRight = 0;
+    it('should set the default right padding of the cell if not provided', () => {
+      const defaultPaddingRight = PADDING_DEFAULT;
 
       const cell = new TestTableCell();
 

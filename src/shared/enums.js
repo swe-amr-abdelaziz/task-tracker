@@ -1,8 +1,8 @@
 export const DB_FILENAME = 'tasks.json';
-
 export const DB_FILE_ENCODING = 'utf-8';
 
 export const MAX_INT32 = 2 ** 31 - 1
+export const PADDING_DEFAULT = 1;
 
 export const TaskCommand = Object.freeze({
   ADD: 'add',

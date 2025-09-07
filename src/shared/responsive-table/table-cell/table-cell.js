@@ -1,7 +1,7 @@
 import { ConsoleStringBuilder } from '../../console-string.builder.js';
 import { ContentCellBuilder, SeparatorCellBuilder } from './internals/table-cell.builder.js';
 import { ContentCellStyler } from './internals/table-cell.styler.js';
-import { HorizontalAlignment, VerticalAlignment } from '../../enums.js';
+import { HorizontalAlignment, PADDING_DEFAULT, VerticalAlignment } from '../../enums.js';
 import { TableCellValidator } from './internals/table-cell.validator.js';
 import { messages } from '../../messages.js';
 
@@ -20,8 +20,8 @@ export class TableCell {
   /**
    * @param {object} [options={}] = The options for the table cell.
    * @param {number} [options.width=0] - The width of the cell.
-   * @param {number} [options.paddingLeft=0] - The left padding of the cell.
-   * @param {number} [options.paddingRight=0] - The right padding of the cell.
+   * @param {number} [options.paddingLeft=1] - The left padding of the cell.
+   * @param {number} [options.paddingRight=1] - The right padding of the cell.
    * @param {HorizontalAlignment} [options.xPosition=HorizontalAlignment.CENTER] -
    *   The horizontal position of the cell relative to the table.
    * @param {boolean} [options.singleColumn=false] - Whether the table contains only one column.
@@ -32,8 +32,8 @@ export class TableCell {
       throw new Error(message);
     }
     this.width = options.width ?? 0;
-    this.paddingLeft = options.paddingLeft ?? 0;
-    this.paddingRight = options.paddingRight ?? 0;
+    this.paddingLeft = options.paddingLeft ?? PADDING_DEFAULT;
+    this.paddingRight = options.paddingRight ?? PADDING_DEFAULT;
     this.xPosition = options.xPosition ?? HorizontalAlignment.CENTER;
     this.singleColumn = options.singleColumn ?? false;
   }
@@ -138,8 +138,8 @@ export class SeparatorCell extends TableCell {
   /**
    * @param {object} [options={}] = The options for the table cell.
    * @param {number} [options.width=0] - The width of the cell.
-   * @param {number} [options.paddingLeft=0] - The left padding of the cell.
-   * @param {number} [options.paddingRight=0] - The right padding of the cell.
+   * @param {number} [options.paddingLeft=1] - The left padding of the cell.
+   * @param {number} [options.paddingRight=1] - The right padding of the cell.
    * @param {HorizontalAlignment} [options.xPosition=HorizontalAlignment.CENTER] -
    *   The horizontal position of the cell relative to the table.
    * @param {VerticalAlignment} [options.yPosition=VerticalAlignment.CENTER] -
@@ -205,8 +205,8 @@ export class ContentCell extends TableCell {
   /**
    * @param {object} [options={}] = The options for the table cell.
    * @param {number} [options.width=0] - The width of the cell.
-   * @param {number} [options.paddingLeft=0] - The left padding of the cell.
-   * @param {number} [options.paddingRight=0] - The right padding of the cell.
+   * @param {number} [options.paddingLeft=1] - The left padding of the cell.
+   * @param {number} [options.paddingRight=1] - The right padding of the cell.
    * @param {HorizontalAlignment} [options.xPosition=HorizontalAlignment.CENTER] -
    *   The horizontal position of the cell relative to the table.
    * @param {unknown} [options.content=''] - The text content of the cell.
