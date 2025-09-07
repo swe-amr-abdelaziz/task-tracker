@@ -2,8 +2,9 @@ import { beforeEach, describe, it, mock } from 'node:test';
 import { equal, notEqual, rejects } from 'node:assert';
 import { setTimeout as sleep } from 'timers/promises';
 
-import { Task, TaskStatus } from '../task.entity.js';
+import { Task } from '../task.entity.js';
 import { TaskBuilder } from '../task.builder.js';
+import { TaskStatus } from '../../shared/enums.js';
 import { TestUtils } from '../../shared/test-utils.js';
 import { messages } from '../../shared/messages.js';
 

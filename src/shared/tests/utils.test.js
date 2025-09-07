@@ -117,7 +117,7 @@ describe('Utils', () => {
     });
 
     it('should return false for date in a string format', () => {
-      const date = "2025-08-15";
+      const date = '2025-08-15';
 
       const isValidDate = Utils.isValidDate(date);
 
@@ -125,7 +125,7 @@ describe('Utils', () => {
     });
 
     it('should return false for an invalid date instance', () => {
-      const date = new Date("invalid");
+      const date = new Date('invalid');
 
       const isValidDate = Utils.isValidDate(date);
 

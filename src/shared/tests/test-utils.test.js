@@ -1,9 +1,9 @@
 import { describe, it } from 'node:test';
 import { deepStrictEqual, ok, rejects } from 'node:assert';
 
-import { MAX_INT32 } from '../../shared/enums.js';
+import { MAX_INT32 } from '../enums.js';
 import { TestUtils } from '../test-utils.js';
-import { messages } from '../../shared/messages.js';
+import { messages } from '../messages.js';
 
 describe('TestUtils', () => {
   describe('generateRandomString', () => {

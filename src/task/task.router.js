@@ -1,6 +1,6 @@
-import { TaskCommand } from "../shared/enums.js";
-import { TaskView } from "./task.view.js";
-import { messages } from "../shared/messages.js";
+import { TaskCommand } from '../shared/enums.js';
+import { TaskView } from './task.view.js';
+import { messages } from '../shared/messages.js';
 
 /**
  * Routes CLI task commands to the appropriate {@link TaskView} handler methods.
@@ -10,8 +10,8 @@ import { messages } from "../shared/messages.js";
  *
  * Example:
  * ```ts
- * TaskRouter.route(["add", "My task name"]);
- * // Calls TaskView.addTask("My task name")
+ * TaskRouter.route(['add', 'My task name']);
+ * // Calls TaskView.addTask('My task name')
  * ```
  * @class
  */
@@ -47,13 +47,13 @@ export class TaskRouter {
    *
    * @example
    * ```ts
-   * TaskRouter.route(["add", "Buy groceries"]);
-   * // Calls TaskView.addTask("Buy groceries")
+   * TaskRouter.route(['add', 'Buy groceries']);
+   * // Calls TaskView.addTask('Buy groceries')
    *
-   * TaskRouter.route(["list"]);
+   * TaskRouter.route(['list']);
    * // Calls TaskView.getTasksList()
    *
-   * TaskRouter.route(["invalid"]);
+   * TaskRouter.route(['invalid']);
    * // Logs an error: INVALID_TASK_COMMAND
    * ```
    */

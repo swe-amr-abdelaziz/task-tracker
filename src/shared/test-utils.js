@@ -1,7 +1,7 @@
-import { randomInt } from "node:crypto";
+import { randomInt } from 'node:crypto';
 
-import { MAX_INT32 } from "./enums.js";
-import { messages } from "./messages.js";
+import { MAX_INT32 } from './enums.js';
+import { messages } from './messages.js';
 
 /**
  * Utility class providing helper methods for unit tests.

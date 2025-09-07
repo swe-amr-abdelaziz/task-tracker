@@ -4,6 +4,18 @@ export const DB_FILE_ENCODING = 'utf-8';
 export const MAX_INT32 = 2 ** 31 - 1
 export const PADDING_DEFAULT = 1;
 
+/**
+ * @enum {string} Valid task statuses.
+ */
+export const TaskStatus = Object.freeze({
+  TODO: 'todo',
+  IN_PROGRESS: 'in-progress',
+  DONE: 'done',
+});
+
+/**
+ * @enum {string} Task commands for the CLI.
+ */
 export const TaskCommand = Object.freeze({
   ADD: 'add',
   UPDATE: 'update',
@@ -14,6 +26,9 @@ export const TaskCommand = Object.freeze({
   HELP: 'help',
 });
 
+/**
+ * @enum {string} Table border characters used for the responsive table.
+ */
 export const TableBorder = Object.freeze({
   // Top
   TOP_LEFT: '╭',
@@ -35,18 +50,29 @@ export const TableBorder = Object.freeze({
   VERTICAL: '│',
 });
 
+/**
+ * @enum {string} Horizontal alignment options.
+ */
 export const HorizontalAlignment = Object.freeze({
   LEFT: 'LEFT',
   CENTER: 'CENTER',
   RIGHT: 'RIGHT',
 });
 
+export const TEXT_ALIGN_DEFAULT = HorizontalAlignment.LEFT;
+
+/**
+ * @enum {string} Vertical alignment options.
+ */
 export const VerticalAlignment = Object.freeze({
   TOP: 'TOP',
   CENTER: 'CENTER',
   BOTTOM: 'BOTTOM',
 });
 
+/**
+ * @enum {string} ANSI escape codes for styling text in the console.
+ */
 export const AnsiCodes = Object.freeze({
   // Reset
   RESET: '\x1b[0m',

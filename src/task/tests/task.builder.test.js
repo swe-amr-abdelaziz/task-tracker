@@ -1,14 +1,15 @@
 import { equal, ok } from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { Task, TaskStatus } from '../task.entity.js';
+import { Task } from '../task.entity.js';
 import { TaskBuilder } from '../task.builder.js';
+import { TaskStatus } from '../../shared/enums.js';
 import { TestUtils } from '../../shared/test-utils.js';
 
 describe('TaskBuilder', () => {
   describe('description', () => {
     it('should create a task with the default description', () => {
-      const description = "Task";
+      const description = 'Task';
 
       const task = new TaskBuilder().build();
 

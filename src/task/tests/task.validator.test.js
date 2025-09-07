@@ -1,7 +1,7 @@
 import { doesNotThrow, rejects } from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { TaskStatus } from '../task.entity.js';
+import { TaskStatus } from '../../shared/enums.js';
 import { TaskValidator } from '../task.validator.js';
 import { TestUtils } from '../../shared/test-utils.js';
 import { messages } from '../../shared/messages.js';

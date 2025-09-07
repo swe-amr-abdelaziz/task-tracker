@@ -1,5 +1,5 @@
-import { Utils } from "../utils.js";
-import { messages } from "../messages.js";
+import { Utils } from '../utils.js';
+import { messages } from '../messages.js';
 
 /**
  * Represents a base entity with an id, creation date, and update date.
@@ -23,7 +23,7 @@ export class BaseEntity {
    */
   constructor() {
     if (new.target === BaseEntity) {
-      const message = messages.error.ABSTRACT_CLASS_OBJECT_CREATION.replace("{0}", "BaseEntity")
+      const message = messages.error.ABSTRACT_CLASS_OBJECT_CREATION.replace('{0}', 'BaseEntity')
       throw new Error(message);
     }
     this.#generateID();

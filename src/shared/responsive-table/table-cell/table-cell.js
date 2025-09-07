@@ -28,7 +28,7 @@ export class TableCell {
    */
   constructor(options = {}) {
     if (new.target === TableCell) {
-      const message = messages.error.ABSTRACT_CLASS_OBJECT_CREATION.replace("{0}", "TableCell");
+      const message = messages.error.ABSTRACT_CLASS_OBJECT_CREATION.replace('{0}', 'TableCell');
       throw new Error(message);
     }
     this.width = options.width ?? 0;

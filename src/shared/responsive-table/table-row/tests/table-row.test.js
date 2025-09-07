@@ -13,7 +13,7 @@ class TestTableRow extends TableRow {}
 describe('TableRow', () => {
   describe('constructor', () => {
     it('should prevent object creation of TableRow abstract class', async () => {
-      const errorMessage = messages.error.ABSTRACT_CLASS_OBJECT_CREATION.replace("{0}", "TableRow");
+      const errorMessage = messages.error.ABSTRACT_CLASS_OBJECT_CREATION.replace('{0}', 'TableRow');
 
       await rejects(
         async () => new TableRow(),

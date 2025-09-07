@@ -1,5 +1,6 @@
-import { BaseEntity } from "../shared/entities/base.entity.js";
-import { messages } from "../shared/messages.js";
+import { BaseEntity } from '../shared/entities/base.entity.js';
+import { TaskStatus } from '../shared/enums.js';
+import { messages } from '../shared/messages.js';
 
 /**
  * Represents a task with a description, status, and base entity members.
@@ -104,14 +105,4 @@ export class Task extends BaseEntity {
   static setIdCount(_count) {
     BaseEntity.count = _count;
   }
-};
-
-
-/**
- * @enum {string} Valid task statuses.
- */
-export const TaskStatus = {
-  TODO: 'todo',
-  IN_PROGRESS: 'in-progress',
-  DONE: 'done',
 };

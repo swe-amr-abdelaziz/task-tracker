@@ -1,5 +1,5 @@
-import { TaskStatus } from "./task.entity.js";
-import { messages } from "../shared/messages.js";
+import { TaskStatus } from '../shared/enums.js';
+import { messages } from '../shared/messages.js';
 
 /**
  * Provides validation methods for task-related Data Transfer Objects (DTOs).
@@ -44,7 +44,7 @@ export class TaskValidator {
   }
 
   /**
-   * Validates the DTO used for marking a task as "in-progress".
+   * Validates the DTO used for marking a task as 'in-progress'.
    *
    * @static
    * @param {{ id: number|string }} dto - The DTO containing task id.
@@ -55,7 +55,7 @@ export class TaskValidator {
   }
 
   /**
-   * Validates the DTO used for marking a task as "done".
+   * Validates the DTO used for marking a task as 'done'.
    *
    * @static
    * @param {{ id: number|string }} dto - The DTO containing task id.

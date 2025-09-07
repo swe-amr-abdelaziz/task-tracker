@@ -18,7 +18,7 @@ export class Utils {
    *
    * @example
    * // Command: node main.js arg1 arg2
-   * Utils.getArgs(); // ["arg1", "arg2"]
+   * Utils.getArgs(); // ['arg1', 'arg2']
    */
   static getArgs() {
     const userDefinedArgsStartIndex = 2;
@@ -32,7 +32,7 @@ export class Utils {
    * @param {string} message - The success message to display.
    *
    * @example
-   * Utils.logSuccessMsg("Task added successfully");
+   * Utils.logSuccessMsg('Task added successfully');
    */
   static logSuccessMsg(message) {
     ConsoleStringBuilder.create().successMsg(message).log();
@@ -47,8 +47,8 @@ export class Utils {
    *                                If `true`, the process exits with status code `-1`.
    *
    * @example
-   * Utils.logErrorMsg("Invalid input");        // Logs message and exits
-   * Utils.logErrorMsg("Invalid input", false); // Logs message, does not exit
+   * Utils.logErrorMsg('Invalid input');        // Logs message and exits
+   * Utils.logErrorMsg('Invalid input', false); // Logs message, does not exit
    */
   static logErrorMsg(message, exit = true) {
     ConsoleStringBuilder.create().errorMsg(message).error();
@@ -66,8 +66,8 @@ export class Utils {
    *
    * @example
    * Utils.isValidDate(new Date());          // true
-   * Utils.isValidDate("2025-08-15");        // false
-   * Utils.isValidDate(new Date("invalid")); // false
+   * Utils.isValidDate('2025-08-15');        // false
+   * Utils.isValidDate(new Date('invalid')); // false
    */
   static isValidDate(date) {
     return date instanceof Date && !isNaN(date.getTime());
@@ -172,8 +172,8 @@ export class Utils {
    * @returns {string} The cleaned string with ANSI sequences removed.
    *
    * @example
-   * Utils.clearAnsiSequences("\x1b[31mHello\x1b[0m");
-   * // => "Hello"
+   * Utils.clearAnsiSequences('\x1b[31mHello\x1b[0m');
+   * // => 'Hello'
    */
   static clearAnsiSequences(str) {
     const ansiRegex = /\x1B\[[0-9;]*m/g;

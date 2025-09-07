@@ -1,8 +1,8 @@
 import path from 'path';
 import { promises as fs } from 'fs';
 
-import { DB_FILENAME, DB_FILE_ENCODING } from '../shared/enums.js';
-import { Task, TaskStatus } from './task.entity.js';
+import { DB_FILENAME, DB_FILE_ENCODING, TaskStatus } from '../shared/enums.js';
+import { Task } from './task.entity.js';
 import { TaskBuilder } from './task.builder.js';
 import { messages } from '../shared/messages.js';
 

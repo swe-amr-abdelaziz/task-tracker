@@ -3,10 +3,14 @@ import { afterEach, beforeEach, describe, it, mock } from 'node:test';
 import { deepEqual, equal, notEqual, rejects } from 'node:assert';
 import { promises as fs } from 'fs';
 
-import { DB_FILE_ENCODING, DB_FILENAME, TaskCommand } from '../../shared/enums.js';
+import {
+  DB_FILENAME,
+  DB_FILE_ENCODING,
+  TaskCommand,
+  TaskStatus,
+} from '../../shared/enums.js';
 import { TaskBuilder } from '../task.builder.js';
 import { TaskModel } from '../task.model.js';
-import { TaskStatus } from '../task.entity.js';
 import { TestUtils } from '../../shared/test-utils.js';
 import { Utils } from '../../shared/utils.js';
 import { messages } from '../../shared/messages.js';
