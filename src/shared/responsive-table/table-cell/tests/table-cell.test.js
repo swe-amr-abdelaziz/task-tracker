@@ -428,7 +428,7 @@ describe('ContentCell', () => {
       match(expected, new RegExp(magenta));
     });
 
-    it('should set the style to yellow color by default', () => {
+    it('should set the style to white color by default', () => {
       const width = TestUtils.generateRandomInt(1, 10);
       const content = TestUtils.generateRandomString({ minLength: width });
       const options = {
@@ -439,8 +439,8 @@ describe('ContentCell', () => {
       const cell = new ContentCell(options);
       const expected = cell.content.build();
 
-      const yellow = AnsiCodes.FG.YELLOW.replace('[', '\\[');
-      match(expected, new RegExp(yellow));
+      const white = AnsiCodes.FG.WHITE.replace('[', '\\[');
+      match(expected, new RegExp(white));
     });
 
     it('should validate the content of the cell', async () => {
@@ -521,8 +521,8 @@ describe('ContentCell', () => {
 
       const actual = cell.toString();
 
-      const yellow = AnsiCodes.FG.YELLOW.replace('[', '\\[');
-      match(actual, new RegExp(yellow));
+      const white = AnsiCodes.FG.WHITE.replace('[', '\\[');
+      match(actual, new RegExp(white));
     });
 
     it('should return the content without style if withStyle is set to false', () => {
@@ -530,8 +530,8 @@ describe('ContentCell', () => {
 
       const actual = cell.toString(false);
 
-      const yellow = AnsiCodes.FG.YELLOW.replace('[', '\\[');
-      doesNotMatch(actual, new RegExp(yellow));
+      const white = AnsiCodes.FG.WHITE.replace('[', '\\[');
+      doesNotMatch(actual, new RegExp(white));
     });
 
     it('should return the correct content for a single column table', () => {

@@ -46,15 +46,15 @@ describe('ContentCellStyler', () => {
       match(actual, new RegExp(magenta));
     });
 
-    it('should set the style to yellow color by default', () => {
+    it('should set the style to white color by default', () => {
       options.content = TestUtils.generateRandomString();
       const styler = new ContentCellStyler(options);
 
       const stringBuilder = styler.build();
       const actual = stringBuilder.build();
 
-      const yellow = AnsiCodes.FG.YELLOW.replace('[', '\\[');
-      match(actual, new RegExp(yellow));
+      const white = AnsiCodes.FG.WHITE.replace('[', '\\[');
+      match(actual, new RegExp(white));
     });
   });
 });

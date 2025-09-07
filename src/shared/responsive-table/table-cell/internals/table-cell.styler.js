@@ -39,7 +39,7 @@ export class ContentCellStyler {
     } else if (typeof this.#content === 'number') {
       builder.magenta();
     } else {
-      builder.yellow();
+      builder.white();
     }
   }
 }
