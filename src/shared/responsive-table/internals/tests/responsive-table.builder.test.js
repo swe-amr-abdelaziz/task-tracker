@@ -252,6 +252,60 @@ describe('ResponsiveTableBuilder', () => {
 
       match(actual, new RegExp(removeFirstLine(expected)));
     });
+
+    it('should render a table with a single row', () => {
+      const data = generateData();
+      const headerData = generateHeaderData().filter((header) => header.key === 'name');
+      const builder = new ResponsiveTableBuilder(data, headerData, tableOptions);
+      const layoutOptions = {
+        isSmallViewPort: false,
+        widths: [15],
+      };
+
+      const result = builder.build(layoutOptions);
+      const actual = Utils.clearAnsiSequences(result);
+      const expected = `
+╭─────────────────╮
+│    Full Name    │
+├─────────────────┤
+│ John Doe        │
+├─────────────────┤
+│ Jane Smith      │
+├─────────────────┤
+│ Alice Brown     │
+╰─────────────────╯`;
+
+      match(actual, new RegExp(removeFirstLine(expected)));
+    });
+
+    it('should render a table with a single row for small view port', () => {
+      const data = generateData();
+      const headerData = generateHeaderData().filter((header) => header.key === 'name');
+      const builder = new ResponsiveTableBuilder(data, headerData, tableOptions);
+      const layoutOptions = {
+        isSmallViewPort: true,
+        widths: [9, 11],
+      };
+
+      const result = builder.build(layoutOptions);
+      const actual = Utils.clearAnsiSequences(result);
+      const expected = `
+╭───────────┬─────────────╮
+│           │             │
+│ Full Name │ John Doe    │
+│           │             │
+├───────────┼─────────────┤
+│           │             │
+│ Full Name │ Jane Smith  │
+│           │             │
+├───────────┼─────────────┤
+│           │             │
+│ Full Name │ Alice Brown │
+│           │             │
+╰───────────┴─────────────╯`;
+
+      match(actual, new RegExp(removeFirstLine(expected)));
+    });
   });
 
 

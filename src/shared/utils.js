@@ -142,9 +142,9 @@ export class Utils {
       return [wholeBuffer, ''];
     }
 
-    // Find last whitespace within [0, splitSize]
+    // Find last whitespace within [0, splitSize + 1]
     let splitIndex = splitSize;
-    const head = str.slice(0, splitSize);
+    const head = str.slice(0, splitSize + 1);
     for (let i = head.length - 1; i >= 0; i--) {
       const isWhitespace = /\s/.test(head[i]);
       if (isWhitespace) {

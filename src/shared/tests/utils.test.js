@@ -185,8 +185,28 @@ describe('Utils', () => {
         equal(remaining, inputBuffer);
       });
 
+      it('returns an empty string for right when splitIndex equals string length', () => {
+        const inputBuffer = 'InputBuffer';
+        const splitSize = 11;
+
+        const [buffer, remaining] = Utils.getBufferSplit(inputBuffer, splitSize);
+
+        equal(buffer, inputBuffer);
+        equal(remaining, '');
+      });
+
       it('splits at splitSize when no whitespace exists before splitSize', () => {
         const inputBuffer = 'InputBuffer';
+        const splitSize = 5;
+
+        const [buffer, remaining] = Utils.getBufferSplit(inputBuffer, splitSize);
+
+        equal(buffer, 'Input');
+        equal(remaining, 'Buffer');
+      });
+
+      it('splits at the whitespace just after splitSize', () => {
+        const inputBuffer = 'Input Buffer';
         const splitSize = 5;
 
         const [buffer, remaining] = Utils.getBufferSplit(inputBuffer, splitSize);

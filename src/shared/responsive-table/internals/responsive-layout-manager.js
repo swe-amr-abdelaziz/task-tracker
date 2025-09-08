@@ -167,14 +167,17 @@ export class ResponsiveLayoutManager {
       return accWidth;
     }, 0);
 
-    let totalHeaderWidth = paddingLeft + headerWidth + paddingRight + this.#borderWidth;
-    totalHeaderWidth = Math.min(totalHeaderWidth, this.#currentViewPortWidth / 2);
+    const netColumnsWidth = this.#currentViewPortWidth
+      - paddingLeft * 2
+      - paddingRight * 2
+      - this.#borderWidth * 3;
 
-    const valueWidth = this.#currentViewPortWidth - totalHeaderWidth;
-    const netHeaderWidth = headerWidth - this.#borderWidth;
-    const netValueWidth = valueWidth - paddingLeft - paddingRight - this.#borderWidth;
+    if (netColumnsWidth < headerWidth * 2) {
+      headerWidth = Math.floor(netColumnsWidth / 2);
+    }
+    const valueWidth = netColumnsWidth - headerWidth;
 
-    this.#widths = [netHeaderWidth, netValueWidth];
+    this.#widths = [headerWidth, valueWidth];
   }
 
   /**
