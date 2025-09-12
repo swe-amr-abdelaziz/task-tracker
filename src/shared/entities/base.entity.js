@@ -2,24 +2,47 @@ import { Utils } from '../utils.js';
 import { messages } from '../messages.js';
 
 /**
- * Represents a base entity with an id, creation date, and update date.
- * @class
+ * Abstract base class for all entity objects in the system.
+ * Provides common functionality including unique ID generation, timestamps, and validation.
+ *
  * @abstract
+ * @throws {Error} Throws an error if instantiated directly (abstract class)
  */
 export class BaseEntity {
+  /**
+   * Unique identifier for the entity
+   * @type {number}
+   * @protected
+   */
   _id;
+
+  /**
+   * Timestamp when the entity was created
+   * @type {Date}
+   * @private
+   */
   #createdAt;
+
+  /**
+   * Timestamp when the entity was last updated
+   * @type {Date}
+   * @private
+   */
   #updatedAt;
 
   /**
-   * Represents the total count of objects of a base entity.
-   * Useful for keeping track of auto-increment id.
+   * Static counter used to generate unique IDs
+   * @type {number}
    * @static
    */
   static count = 0;
 
   /**
-   * Initializes members of the base entity.
+   * Creates a new BaseEntity instance.
+   * Automatically generates a unique ID and sets creation/update timestamps.
+   *
+   * @constructor
+   * @throws {Error} Throws an error if called directly on BaseEntity (abstract class)
    */
   constructor() {
     if (new.target === BaseEntity) {
@@ -32,29 +55,39 @@ export class BaseEntity {
   }
 
   /**
-   * @returns {number} The unique ID of the entity.
+   * Gets the unique identifier of the entity
+   *
+   * @readonly
+   * @type {number}
    */
   get id() {
     return this._id;
   }
 
   /**
-   * @returns {Date} The creation date of the entity.
+   * Gets the creation timestamp of the entity
+   *
+   * @readonly
+   * @type {Date}
    */
   get createdAt() {
     return this.#createdAt;
   }
 
   /**
-   * @returns {Date} The last update date of the entity.
+   * Gets the last update timestamp of the entity
+   *
+   * @readonly
+   * @type {Date}
    */
   get updatedAt() {
     return this.#updatedAt;
   }
 
   /**
-   * Update the `updatedAt` timestamp.
+   * Updates the {@link BaseEntity#updatedAt} timestamp to the current time.
    * Should be called whenever the entity is modified.
+   *
    * @protected
    */
   _touch() {
@@ -62,8 +95,9 @@ export class BaseEntity {
   }
 
   /**
-   * Restore the `createdAt` and `updatedAt` timestamps.
-   * Should be called whenever the entity is restored from a database.
+   * Restores the entity's {@link BaseEntity#createdAt} and {@link BaseEntity#updatedAt} timestamps.
+   * Should be called when rehydrating the entity from a data source.
+   *
    * @protected
    * @param {Date} createdAt - The creation timestamp.
    * @param {Date} updatedAt - The last updated timestamp.
@@ -74,7 +108,8 @@ export class BaseEntity {
   }
 
   /**
-   * Generates a unique ID to the entity.
+   * Generates and assigns a unique identifier to the entity.
+   *
    * @private
    */
   #generateID() {

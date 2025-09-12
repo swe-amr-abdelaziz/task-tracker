@@ -5,10 +5,17 @@ import { messages } from '../../messages.js';
 
 /**
  * Represents a row in a table with visual properties.
- * @class
+ *
  * @abstract
+ * @internal
  */
 export class TableRow {
+  /**
+   * Initialize the properties of the table row.
+   *
+   * @constructor
+   * @throws {Error} If called directly on TableRow (abstract class)
+   */
   constructor() {
     if (new.target === TableRow) {
       const message = messages.error.ABSTRACT_CLASS_OBJECT_CREATION.replace('{0}', 'TableRow');
@@ -18,6 +25,7 @@ export class TableRow {
 
   /**
    * Prints the row to the console.
+   *
    * @abstract
    */
   build() {
@@ -27,13 +35,21 @@ export class TableRow {
 
 /**
  * Represents a separator row in a table.
- * @class
+ *
  * @extends TableRow
  */
 export class SeparatorRow extends TableRow {
+  /**
+   * The builder instance for the separator row.
+   * @type {SeparatorRowBuilder}
+   * @private
+   */
   #builder;
 
   /**
+   * Creates a new SeparatorRow instance.
+   *
+   * @constructor
    * @param {object} [options] - The options for the separator row.
    * @param {number[]} [options.cellsWidths] - The widths of the cells in the row.
    * @param {number} [options.cellPaddingLeft=1] - The left padding of each cell.
@@ -53,8 +69,10 @@ export class SeparatorRow extends TableRow {
   }
 
   /**
-   * @returns {string} The separator row as a string.
+   * Builds the string representation of the separator row.
+   *
    * @override
+   * @returns {string} The separator row as a string.
    */
   build() {
     return this.#builder.build();
@@ -63,10 +81,15 @@ export class SeparatorRow extends TableRow {
 
 /**
  * Represents a content row in a table.
- * @class
+ *
  * @extends TableRow
  */
 export class ContentRow extends TableRow {
+  /**
+   * The builder instance for the content row.
+   * @type {ContentRowBuilder}
+   * @private
+   */
   #builder;
 
   /**
@@ -77,6 +100,9 @@ export class ContentRow extends TableRow {
    */
 
   /**
+   * Creates a new ContentRow instance.
+   *
+   * @constructor
    * @param {object} [options] - The options for the content row.
    * @param {CellOptions[]} [options.cells] - The options of the cells in the row.
    * @param {number} [options.cellPaddingLeft=1] - The left padding of each cell.
@@ -97,8 +123,10 @@ export class ContentRow extends TableRow {
   }
 
   /**
-   * @returns {string} The content row as a string.
+   * Builds the string representation of the content row.
+   *
    * @override
+   * @returns {string} The content row as a string.
    */
   build() {
     const buffer = [];

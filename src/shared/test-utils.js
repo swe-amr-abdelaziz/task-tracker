@@ -5,7 +5,6 @@ import { messages } from './messages.js';
 
 /**
  * Utility class providing helper methods for unit tests.
- * @class
  */
 export class TestUtils {
   /**
@@ -102,6 +101,7 @@ export class TestUtils {
    * Generates a range of ASCII characters.
    *
    * @static
+   * @private
    * @param {string} startChar - The first character in the range.
    * @param {number} length - The number of characters in the range.
    * @returns {string[]} An array of sequential ASCII characters.

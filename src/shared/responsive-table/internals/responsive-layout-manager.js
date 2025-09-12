@@ -1,15 +1,59 @@
+import { HorizontalAlignment } from '../../enums.js';
+
 /**
- * Responsive table layout manager class.
- * Manages and calculates the layout of a responsive table.
- * @class
+ * Manages and calculates responsive table layouts
+ * (e.g., column widths for normal and small viewports).
+ *
+ * @internal
  */
 export class ResponsiveLayoutManager {
+  /**
+   * The data to be displayed in the table.
+   * @type {object[]}
+   * @private
+   */
   #data;
+
+  /**
+   * The list of header labels to be used in the table.
+   * @type {TableHeader[]}
+   * @private
+   */
   #headerData;
+
+  /**
+   * The options of the table.
+   * @type {TableOptions}
+   * @private
+   */
   #tableOptions;
+
+  /**
+   * The last updated view port width.
+   * @type {number}
+   * @private
+   */
   #lastViewPortWidth;
+
+  /**
+   * Whether the table is in small view port mode.
+   * @type {boolean}
+   * @private
+   */
   #isSmallViewPort;
+
+  /**
+   * The widths of each column.
+   * @type {number[]}
+   * @private
+   */
   #widths;
+
+  /**
+   * The width of the each border between cells.
+   * @type {number}
+   * @private
+   */
   #borderWidth = 1;
 
   /**
@@ -29,6 +73,9 @@ export class ResponsiveLayoutManager {
   */
 
  /**
+  * Creates a new ResponsiveLayoutManager instance.
+  *
+  * @constructor
   * @param {object[]} data - The table data.
   * @param {TableHeader[]} headerData - The list of header labels.
   * @param {TableOptions} options - The options for the table.
@@ -46,7 +93,10 @@ export class ResponsiveLayoutManager {
    */
 
   /**
-   * @returns {LayoutOptions} The layout options for the responsive table.
+   * Gets the layout options for the responsive table.
+   *
+   * @readonly
+   * @type {LayoutOptions}
    */
   get layoutOptions() {
     const didScreenWidthChange = this.#lastViewPortWidth !== this.#currentViewPortWidth;
@@ -63,8 +113,11 @@ export class ResponsiveLayoutManager {
   }
 
   /**
-   * @returns {number} The current view port width of the console.
+   * Gets the current view port width of the console.
+   *
+   * @readonly
    * @private
+   * @type {number}
    */
   get #currentViewPortWidth() {
     return (process && process.stdout && Number(process.stdout.columns)) || 80;
@@ -72,6 +125,7 @@ export class ResponsiveLayoutManager {
 
   /**
    * Updates the cell widths based on the current view port width.
+   *
    * @private
    */
   #updateCellWidths() {
@@ -81,6 +135,7 @@ export class ResponsiveLayoutManager {
 
   /**
    * Calculates the cell widths based on the current view port width.
+   *
    * @private
    */
   #calculateCellWidths() {
@@ -90,6 +145,7 @@ export class ResponsiveLayoutManager {
 
   /**
    * Calculates the header cell widths based on the current view port width.
+   *
    * @private
    */
   #calculateHeaderCellWidths() {
@@ -101,6 +157,7 @@ export class ResponsiveLayoutManager {
 
   /**
    * Calculates the width of each data cell in the table.
+   *
    * @private
    */
   #calculateDataCellWidths() {
@@ -118,6 +175,7 @@ export class ResponsiveLayoutManager {
 
   /**
    * Calculates whether the table is in small view port mode.
+   *
    * @private
    */
   #calculateIsSmallViewPort() {
@@ -126,10 +184,12 @@ export class ResponsiveLayoutManager {
   }
 
   /**
-   * Calculates the total width of the table.
-   * @param {boolean} forMinWidth - Whether to calculate the minimum width of the table.
-   * @returns {number} The total width of the table.
+   * Calculates the total width of the table for the given view port width.
+   * The width includes the border width and padding.
+   *
    * @private
+   * @param {boolean} forMinWidth - Whether to calculate the minimum width of the table.
+   * @returns {number} The total table width.
    */
   #calculateTableWidth(forMinWidth) {
     const firstBorderWidth = this.#borderWidth;
@@ -143,6 +203,7 @@ export class ResponsiveLayoutManager {
 
   /**
    * Calculates the final widths of the table cells.
+   *
    * @private
    */
   #calculateWidths() {
@@ -155,6 +216,7 @@ export class ResponsiveLayoutManager {
   /**
    * Calculates the final widths of the table cells for small view port mode.
    * Small view port mode consists of two columns: label and value.
+   *
    * @private
    */
   #calculateSmallViewPortWidths() {
@@ -182,6 +244,7 @@ export class ResponsiveLayoutManager {
 
   /**
    * Calculates the final widths of the table cells for normal view port mode.
+   *
    * @private
    */
   #calculateNormalViewPortWidths() {

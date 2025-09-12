@@ -5,12 +5,21 @@ import { Utils } from '../../../utils.js';
 /**
  * Responsive table separator row builder class.
  * Builds a separator row with responsive layout.
- * @class
+ *
+ * @internal
  */
 export class SeparatorRowBuilder {
+  /**
+   * The cells of the separator row.
+   * @type {SeparatorCell[]}
+   * @private
+   */
   #cells;
 
   /**
+   * Creates a new SeparatorRowBuilder instance.
+   *
+   * @constructor
    * @param {object} options - The options for the separator row.
    * @param {number[]} options.cellsWidths - The widths of the cells in the row.
    * @param {number} options.cellPaddingLeft - The left padding of each cell.
@@ -28,6 +37,8 @@ export class SeparatorRowBuilder {
   }
 
   /**
+   * Builds the string representation of the separator row.
+   *
    * @returns {string} The separator row as a string.
    */
   build() {
@@ -35,14 +46,15 @@ export class SeparatorRowBuilder {
   }
 
   /**
+   * Builds the internal cells of the separator row.
+   *
+   * @private
    * @param {object} options - The options for the separator row.
    * @param {number[]} options.cellsWidths - The widths of the cells in the row.
    * @param {number} options.cellPaddingLeft - The left padding of each cell.
    * @param {number} options.cellPaddingRight - The right padding of each cell.
    * @param {VerticalAlignment} [options.yPosition -
    *   The vertical position of the row relative to the table.
-   *
-   * @private
    */
   #buildCells(options) {
     this.#cells = options.cellsWidths.map((width, index) =>
@@ -61,12 +73,12 @@ export class SeparatorRowBuilder {
   }
 
   /**
-   * Gets the x position of a cell in the separator row.
+   * Gets the horizontal position of a cell in the separator row.
    *
+   * @private
    * @param {number} index - The index of the cell to get the x position for.
    * @param {number} lastIndex - The index of the last cell in the row.
-   * @returns {HorizontalAlignment} The x position of the cell.
-   * @private
+   * @returns {HorizontalAlignment} The horizontal position of the cell.
    */
   #getCellXPosition(index, lastIndex) {
     if (index === 0)
@@ -81,13 +93,43 @@ export class SeparatorRowBuilder {
 /**
  * Responsive table content row builder class.
  * Builds a content row with responsive layout.
- * @class
+ *
+ * @internal
  */
 export class ContentRowBuilder {
-  #cells;
+  /**
+   * The options of the cells in the row.
+   * @type {CellOptions[]}
+   * @private
+   */
+  #cellsOptions;
+
+  /**
+   * The left padding of the cell.
+   * @type {number}
+   * @private
+   */
   #paddingLeft;
+
+  /**
+   * The right padding of the cell.
+   * @type {number}
+   * @private
+   */
   #paddingRight;
+
+  /**
+   * Whether the row is a header row.
+   * @type {boolean}
+   * @private
+   */
   #isHeader;
+
+  /**
+   * Whether the table is in small view port mode.
+   * @type {boolean}
+   * @private
+   */
   #isSmallViewPort;
 
   /**
@@ -99,6 +141,9 @@ export class ContentRowBuilder {
    */
 
   /**
+   * Creates a new ContentRowBuilder instance.
+   *
+   * @constructor
    * @param {object} options - The options for the content row.
    * @param {CellOptions[]} options.cells - The options of the cells in the row.
    * @param {number} options.cellPaddingLeft - The left padding of each cell.
@@ -107,7 +152,7 @@ export class ContentRowBuilder {
    * @param {boolean} options.isSmallViewPort - Whether the table is in small view port mode.
    */
   constructor(options) {
-    this.#cells = options.cells;
+    this.#cellsOptions = options.cells;
     this.#paddingLeft = options.cellPaddingLeft;
     this.#paddingRight = options.cellPaddingRight;
     this.#isHeader = options.isHeader;
@@ -115,9 +160,10 @@ export class ContentRowBuilder {
   }
 
   /**
-   * @returns {string} the next content row to print.
-   * @override
-   */
+  * Builds the string representation of the content row.
+  *
+  * @returns {string} The next content row to print.
+  */
   build() {
     const cells = this.#buildCells();
     const row = cells.map((cell) => cell.toString()).join('');
@@ -125,21 +171,24 @@ export class ContentRowBuilder {
   }
 
   /**
+   * Checks if the buffer has any content left to print.
+   *
    * @returns {boolean} Whether the buffer has any content left.
    */
   hasBuffer() {
-    return this.#cells
+    return this.#cellsOptions
       .map((cell) => cell.buffer)
       .some((buffer) => `${buffer}`.length > 0);
   }
 
   /**
-   * Builds the cells for the table row.
+   * Builds the cells for the next content row to print.
    *
    * @private
+   * @returns {ContentCell[]} The next cells row.
    */
   #buildCells() {
-    return this.#cells.map((cell, index) => {
+    return this.#cellsOptions.map((cell, index) => {
       const isHeader = this.#isHeader || (this.#isSmallViewPort && index === 0);
       const [buffer, remaining] = Utils.getBufferSplit(cell.buffer, cell.width);
       cell.buffer = remaining;
@@ -149,24 +198,24 @@ export class ContentRowBuilder {
         paddingRight: this.#paddingRight,
         xPosition: this.#getCellXPosition(
           index,
-          this.#cells.length - 1,
+          this.#cellsOptions.length - 1,
         ),
         content: buffer,
         textAlign: cell.textAlign ?? HorizontalAlignment.LEFT,
         isHeader,
-        singleColumn: this.#cells.length === 1,
+        singleColumn: this.#cellsOptions.length === 1,
       })
       return contentCell;
     });
   }
 
   /**
-   * Gets the x position of a cell in the content row.
+   * Gets the horizontal position of a cell in the content row.
    *
+   * @private
    * @param {number} index - The index of the cell to get the x position for.
    * @param {number} lastIndex - The index of the last cell in the row.
-   * @returns {HorizontalAlignment} The x position of the cell.
-   * @private
+   * @returns {HorizontalAlignment} The horizontal position of the cell.
    */
   #getCellXPosition(index, lastIndex) {
     if (index === 0)

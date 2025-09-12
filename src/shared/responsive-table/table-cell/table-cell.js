@@ -7,17 +7,50 @@ import { messages } from '../../messages.js';
 
 /**
  * Represents a cell in a table with visual properties.
- * @class
+ *
  * @abstract
+ * @internal
  */
 export class TableCell {
+  /**
+   * The width of the cell.
+   * @type {number}
+   * @private
+   */
   #width;
+
+  /**
+   * The left padding of the cell.
+   * @type {number}
+   * @private
+   */
   #paddingLeft;
+
+  /**
+   * The right padding of the cell.
+   * @type {number}
+   * @private
+   */
   #paddingRight;
+
+  /**
+   * The horizontal position of the cell relative to the table.
+   * @type {HorizontalAlignment}
+   * @private
+   */
   #xPosition;
+
+  /**
+   * Whether the table contains only one column.
+   * @type {boolean}
+   * @private
+   */
   #singleColumn;
 
   /**
+   * Initializes the properties of the table cell.
+   *
+   * @constructor
    * @param {object} [options={}] = The options for the table cell.
    * @param {number} [options.width=0] - The width of the cell.
    * @param {number} [options.paddingLeft=1] - The left padding of the cell.
@@ -39,13 +72,17 @@ export class TableCell {
   }
 
   /**
-   * @returns {number} The width of the cell.
+   * Gets the width of the cell.
+   *
+   * @type {number}
    */
   get width() {
     return this.#width;
   }
 
   /**
+   * Sets and validates the width of the cell.
+   *
    * @param {number} width - The new width of the cell.
    */
   set width(width) {
@@ -54,13 +91,17 @@ export class TableCell {
   }
 
   /**
-   * @returns {number} The left padding of the cell.
+   * Gets the left padding of the cell.
+   *
+   * @type {number}
    */
   get paddingLeft() {
     return this.#paddingLeft;
   }
 
   /**
+   * Sets and validates the left padding of the cell.
+   *
    * @param {number} paddingLeft - The new left padding of the cell.
    */
   set paddingLeft(paddingLeft) {
@@ -69,13 +110,17 @@ export class TableCell {
   }
 
   /**
-   * @returns {number} The right padding of the cell.
+   * Gets the right padding of the cell.
+   *
+   * @type {number}
    */
   get paddingRight() {
     return this.#paddingRight;
   }
 
   /**
+   * Sets and validates the right padding of the cell.
+   *
    * @param {number} paddingRight - The new right padding of the cell.
    */
   set paddingRight(paddingRight) {
@@ -84,14 +129,18 @@ export class TableCell {
   }
 
   /**
-   * @returns {HorizontalAlignment} The horizontal position of the cell relative to the table.
+   * Gets the horizontal position of the cell relative to the table.
+   *
+   * @type {HorizontalAlignment}
    */
   get xPosition() {
     return this.#xPosition;
   }
 
   /**
-   * @param {HorizontalAlignment} xPosition - The new horizontal position of the cell relative to the table.
+   * Sets and validates the horizontal position of the cell relative to the table.
+   *
+   * @param {HorizontalAlignment} xPosition - The new horizontal position.
    */
   set xPosition(xPosition) {
     TableCellValidator.validateXPosition(xPosition);
@@ -99,13 +148,17 @@ export class TableCell {
   }
 
   /**
-   * @returns {boolean} Whether the table contains only one column.
+   * Gets whether the table contains only one column.
+   *
+   * @type {boolean}
    */
   get singleColumn() {
     return this.#singleColumn;
   }
 
   /**
+   * Sets and validates whether the table contains only one column.
+   *
    * @param {boolean} singleColumn - Whether the table contains only one column.
    */
   set singleColumn(singleColumn) {
@@ -113,8 +166,9 @@ export class TableCell {
     this.#singleColumn = singleColumn;
   }
 
-
   /**
+   * Creates a copy of the table cell properties.
+   *
    * @returns {TableCell} A copy of the table cell.
    */
   clone() {
@@ -129,13 +183,21 @@ export class TableCell {
 
 /**
  * Represents a separator cell in a table.
- * @class
+ *
  * @extends TableCell
  */
 export class SeparatorCell extends TableCell {
+  /**
+   * The vertical position of the cell relative to the table.
+   * @type {VerticalAlignment}
+   * @private
+   */
   #yPosition;
 
   /**
+   * Creates a new instance of the SeparatorCell class.
+   *
+   * @constructor
    * @param {object} [options={}] = The options for the table cell.
    * @param {number} [options.width=0] - The width of the cell.
    * @param {number} [options.paddingLeft=1] - The left padding of the cell.
@@ -152,14 +214,18 @@ export class SeparatorCell extends TableCell {
   }
 
   /**
-   * @returns {VerticalAlignment} The vertical position of the cell relative to the table.
+   * Gets the vertical position of the cell relative to the table.
+   *
+   * @type {VerticalAlignment}
    */
   get yPosition() {
     return this.#yPosition;
   }
 
   /**
-   * @param {VerticalAlignment} yPosition - The new vertical position of the cell relative to the table.
+   * Sets and validates the vertical position of the cell relative to the table.
+   *
+   * @param {VerticalAlignment} yPosition - The new vertical position of the cell.
    */
   set yPosition(yPosition) {
     TableCellValidator.validateYPosition(yPosition);
@@ -167,7 +233,9 @@ export class SeparatorCell extends TableCell {
   }
 
   /**
-   * @returns {string} The string representation of the separator cell.
+   * Gets the string representation of the separator cell.
+   *
+   * @returns {string} The separator cell as a string.
    */
   toString() {
     const builder = new SeparatorCellBuilder({
@@ -182,6 +250,8 @@ export class SeparatorCell extends TableCell {
   }
 
   /**
+   * Creates a copy of the separator cell properties.
+   *
    * @returns {SeparatorCell} A copy of the separator cell.
    */
   clone() {
@@ -194,15 +264,35 @@ export class SeparatorCell extends TableCell {
 
 /**
  * Represents a content cell in a table.
- * @class
+ *
  * @extends TableCell
  */
 export class ContentCell extends TableCell {
+  /**
+   * The ConsoleStringBuilder instance representing the cell content.
+   * @type {ConsoleStringBuilder}
+   * @private
+   */
   #content;
+
+  /**
+   * Whether the cell is a header cell.
+   * @type {boolean}
+   * @private
+   */
   #isHeader;
+
+  /**
+   * The text align property of the cell.
+   * @type {HorizontalAlignment}
+   * @private
+   */
   #textAlign;
 
   /**
+   * Creates a new ContentCell instance.
+   *
+   * @constructor
    * @param {object} [options={}] = The options for the table cell.
    * @param {number} [options.width=0] - The width of the cell.
    * @param {number} [options.paddingLeft=1] - The left padding of the cell.
@@ -223,14 +313,18 @@ export class ContentCell extends TableCell {
   }
 
   /**
-   * @returns {ConsoleStringBuilder} The content of the cell as ConsoleStringBuilder instance.
+   * Gets the content of the cell as ConsoleStringBuilder instance.
+   *
+   * @type {ConsoleStringBuilder}
    */
   get content() {
     return this.#content;
   }
 
   /**
-   * @param {unknown} content - The new text content of the cell.
+   * Sets and validates the content of the cell.
+   *
+   * @param {unknown} content - The new content of the cell.
    */
   set content(content) {
     TableCellValidator.validateContent(content, this.width);
@@ -239,14 +333,18 @@ export class ContentCell extends TableCell {
   }
 
   /**
-   * @returns {HorizontalAlignment} The horizontal alignment of the text content of the cell.
+   * Gets the horizontal alignment of the text content of the cell.
+   *
+   * @type {HorizontalAlignment}
    */
   get textAlign() {
     return this.#textAlign;
   }
 
   /**
-   * @param {HorizontalAlignment} textAlign - The new horizontal alignment of the text content of the cell.
+   * Sets and validates the horizontal alignment of the text content of the cell.
+   *
+   * @param {HorizontalAlignment} textAlign - The new horizontal alignment of the text content.
    */
   set textAlign(textAlign) {
     TableCellValidator.validateTextAlign(textAlign);
@@ -254,6 +352,8 @@ export class ContentCell extends TableCell {
   }
 
   /**
+   * Gets the string representation of the content cell.
+   *
    * @param {boolean} [withStyle=true] - Whether to include the console style in the string representation.
    * @returns {string} The string representation of the content cell.
    */
@@ -271,6 +371,8 @@ export class ContentCell extends TableCell {
   }
 
   /**
+   * Creates a copy of the content cell properties.
+   *
    * @returns {ContentCell} A copy of the separator cell.
    */
   clone() {

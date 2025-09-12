@@ -3,16 +3,17 @@ import { messages } from '../../../messages.js';
 
 /**
  * Validator class for table row properties.
- * @class
+ *
+ * @internal
  */
 export class TableRowValidator {
   /**
    * Validates the widths of a table row.
    *
+   * @static
    * @param {number[]} widths - The widths of the table row.
    * @throws {TypeError} If the widths is not an array.
    * @throws {RangeError} If the widths is empty.
-   * @static
    */
   static validateCellsWidths(widths) {
     if (!Array.isArray(widths)) {
@@ -26,11 +27,11 @@ export class TableRowValidator {
   /**
    * Validates the options of a table row.
    *
+   * @static
    * @param {CellOptions[]} cells - The options of the table row.
    * @throws {TypeError} If the cells is not an array.
    * @throws {RangeError} If the cells is empty.
    * @throws {TypeError} If the cell options are invalid.
-   * @static
    */
   static validateCellsOptions(cells) {
     if (!Array.isArray(cells))
@@ -43,13 +44,13 @@ export class TableRowValidator {
   /**
    * Validates the options of each cell in a table row.
    *
+   * @static
    * @param {CellOptions} cell - The options of the table cell.
    * @throws {TypeError} If the cell buffer is not defined.
    * @throws {TypeError} If the cell width is not defined.
    * @throws {TypeError} If the cell width is not a number.
    * @throws {RangeError} If the cell width is negative.
    * @throws {TypeError} If the cell textAlign is not a valid horizontal alignment.
-   * @static
    */
   static #validateCellOptions({ buffer, width, textAlign }) {
     if (buffer === undefined)

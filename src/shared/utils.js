@@ -6,7 +6,6 @@ import { messages } from './messages.js';
 
 /**
  * Utility class providing helper methods for various tasks.
- * @class
  */
 export class Utils {
   /**
@@ -122,9 +121,16 @@ export class Utils {
    * If the original `buffer` was a number, the returned tuple will contain
    * numbers (or null). Otherwise it returns strings (or null).
    *
+   * @static
    * @param {string|number|*} buffer - The string-like buffer to split.
    * @param {number} splitSize - The size to start splitting at.
    * @returns {[string|number, string|number]} A tuple containing the split parts.
+   *
+   * @example
+   * // Split a string at whitespace
+   * const [left, right] = Utils.getBufferSplit("Hello world, this is a test", 12);
+   * console.log(left);  // "Hello world,"
+   * console.log(right); // "this is a test"
    */
   static getBufferSplit(buffer, splitSize) {
     if (typeof splitSize !== 'number' || Number.isNaN(splitSize)) {

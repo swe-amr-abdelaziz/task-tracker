@@ -1,7 +1,25 @@
+/**
+ * The name of the database file.
+ * @type {string}
+ */
 export const DB_FILENAME = 'tasks.json';
+
+/**
+ * The encoding of the database file.
+ * @type {string}
+ */
 export const DB_FILE_ENCODING = 'utf-8';
 
+/**
+ * The maximum value of a 32-bit signed integer.
+ * @type {number}
+ */
 export const MAX_INT32 = 2 ** 31 - 1
+
+/**
+ * The default padding value for table cells.
+ * @type {number}
+ */
 export const PADDING_DEFAULT = 1;
 
 /**

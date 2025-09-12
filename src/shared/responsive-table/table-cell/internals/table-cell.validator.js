@@ -3,16 +3,17 @@ import { messages } from '../../../messages.js';
 
 /**
  * Validator class for table cell properties.
- * @class
+ *
+ * @internal
  */
 export class TableCellValidator {
   /**
    * Validates the width of a table cell.
    *
+   * @static
    * @param {number} width - The width of the table cell.
    * @throws {TypeError} If the width is not a number.
    * @throws {RangeError} If the width is negative.
-   * @static
    */
   static validateWidth(width) {
     if (typeof width !== 'number') {
@@ -26,10 +27,10 @@ export class TableCellValidator {
   /**
    * Validates the left padding of a table cell.
    *
+   * @static
    * @param {number} paddingLeft - The left padding of the table cell.
    * @throws {TypeError} If the paddingLeft is not a number.
    * @throws {RangeError} If the paddingLeft is negative.
-   * @static
    */
   static validatePaddingLeft(paddingLeft) {
     if (typeof paddingLeft !== 'number') {
@@ -43,10 +44,10 @@ export class TableCellValidator {
   /**
    * Validates the right padding of a table cell.
    *
+   * @static
    * @param {number} paddingRight - The right padding of the table cell.
    * @throws {TypeError} If the paddingRight is not a number.
    * @throws {RangeError} If the paddingRight is negative.
-   * @static
    */
   static validatePaddingRight(paddingRight) {
     if (typeof paddingRight !== 'number') {
@@ -60,9 +61,9 @@ export class TableCellValidator {
   /**
    * Validates the horizontal position of a table cell.
    *
+   * @static
    * @param {HorizontalAlignment} xPosition - The horizontal position of the table cell.
    * @throws {TypeError} If the xPosition is not a valid horizontal position.
-   * @static
    */
   static validateXPosition(xPosition) {
     const validPositions = Object.keys(HorizontalAlignment);
@@ -74,9 +75,9 @@ export class TableCellValidator {
   /**
    * Validates the vertical position of a table cell.
    *
+   * @static
    * @param {VerticalAlignment} yPosition - The vertical position of the table cell.
    * @throws {TypeError} If the yPosition is not a valid vertical position.
-   * @static
    */
   static validateYPosition(yPosition) {
     const validPositions = Object.keys(VerticalAlignment);
@@ -88,9 +89,9 @@ export class TableCellValidator {
   /**
    * Validates the single column property of a table cell.
    *
+   * @static
    * @param {boolean} singleColumn - The single column property of the table cell.
    * @throws {TypeError} If the singleColumn is not a boolean.
-   * @static
    */
   static validateSingleColumn(singleColumn) {
     if (typeof singleColumn !== 'boolean') {
@@ -101,10 +102,10 @@ export class TableCellValidator {
   /**
    * Validates the content of a table cell.
    *
+   * @static
    * @param {unknown} content - The content of the table cell.
    * @param {number} width - The width of the table cell.
    * @throws {RangeError} If the content length exceeds the cell width.
-   * @static
    */
   static validateContent(content, width) {
     TableCellValidator.validateWidth(width);
@@ -116,9 +117,9 @@ export class TableCellValidator {
   /**
    * Validates the text align property of a table cell.
    *
+   * @static
    * @param {HorizontalAlignment} textAlign - The text align property of the table cell.
    * @throws {TypeError} If the textAlign is not a valid horizontal position.
-   * @static
    */
   static validateTextAlign(textAlign) {
     const validPositions = Object.keys(HorizontalAlignment);

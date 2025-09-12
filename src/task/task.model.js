@@ -12,16 +12,27 @@ import { messages } from '../shared/messages.js';
  *
  * It supports CRUD operations (create, read, update, delete)
  * and ensures changes are written to disk.
- * @class
  */
 export class TaskModel {
-  /** @type {string} Absolute path of the database file */
+  /**
+   * The absolute path of the database file.
+   *
+   * @static
+   * @private
+   * @type {string}
+   */
   static #dbPath = path.join(
     process.cwd(),
     DB_FILENAME,
   );
 
-  /** @type {Task[]} In-memory list of tasks */
+  /**
+   * The in-memory list of tasks.
+   *
+   * @static
+   * @private
+   * @type {Task[]}
+   */
   static #tasks = [];
 
   /**
@@ -82,7 +93,6 @@ export class TaskModel {
    *
    * @static
    * @param {string} description - The description of the new task.
-   * @returns {Promise<void>}
    */
   static async addTask(description) {
     const task = new TaskBuilder()
@@ -99,7 +109,6 @@ export class TaskModel {
    * @static
    * @param {string} id - The unique identifier of the task.
    * @param {string} description - The new description for the task.
-   * @returns {Promise<void>}
    */
   static async updateTaskDescription(id, description) {
     const task = TaskModel.getTaskById(id);
@@ -115,7 +124,6 @@ export class TaskModel {
    * @static
    * @param {string} id - The unique identifier of the task.
    * @param {TaskStatus} status - The new status for the task.
-   * @returns {Promise<void>}
    */
   static async updateTaskStatus(id, status) {
     const task = TaskModel.getTaskById(id);
@@ -130,7 +138,6 @@ export class TaskModel {
    *
    * @static
    * @param {string} id - The unique identifier of the task to delete.
-   * @returns {Promise<void>}
    */
   static async deleteTask(id) {
     const tasksCount = TaskModel.#tasks.length;
@@ -165,7 +172,6 @@ export class TaskModel {
    *
    * @static
    * @private
-   * @returns {Promise<void>}
    */
   static async _writeChangesToDb() {
     const tasks = TaskModel.#tasks.map((task) => task.toJSON());

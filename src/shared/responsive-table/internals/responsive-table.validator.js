@@ -4,11 +4,13 @@ import { messages } from '../../messages.js';
 /**
  * Responsive table validator class.
  * Validates the data and header labels of a responsive table.
- * @class
+ *
+ * @internal
  */
 export class ResponsiveTableValidator {
   /**
    * Validates the data and header labels of a responsive table.
+   *
    * @static
    * @param {object[]} data - The table data.
    * @throws {Error} If data is not provided.
@@ -32,6 +34,7 @@ export class ResponsiveTableValidator {
 
   /**
    * Validates the header data of a responsive table.
+   *
    * @static
    * @param {object[]} headerData - The header data of the table.
    * @param {object[]} data - The data of the table.
@@ -63,6 +66,7 @@ export class ResponsiveTableValidator {
 
   /**
    * Validates the options of a responsive table.
+   *
    * @static
    * @param {TableOptions} options - The options of the table.
    * @throws {TypeError} If the options is not an object.
@@ -88,6 +92,7 @@ export class ResponsiveTableValidator {
 
   /**
    * Validates a single header data item of a responsive table.
+   *
    * @static
    * @private
    * @param {object} header - The header data item of the table.
@@ -120,6 +125,7 @@ export class ResponsiveTableValidator {
 
   /**
    * Validates the uniqueness of the keys of a responsive table header data.
+   *
    * @static
    * @private
    * @param {object[]} headerData - The header data of the table.

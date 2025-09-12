@@ -5,8 +5,6 @@ import { messages } from '../shared/messages.js';
  * Provides validation methods for task-related Data Transfer Objects (DTOs).
  * Each method checks the presence, type, and validity of properties
  * before they are processed by the controller or service layers.
- *
- * @class
  */
 export class TaskValidator {
   /**

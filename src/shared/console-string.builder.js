@@ -3,7 +3,6 @@ import { AnsiCodes } from './enums.js';
 /**
  * Builder class for creating formatted console strings with ANSI escape codes.
  * Uses the builder pattern for fluent method chaining.
- * @class
  *
  * @example
  * const message = new ConsoleStringBuilder()
@@ -17,17 +16,42 @@ import { AnsiCodes } from './enums.js';
  *   .build();
  */
 export class ConsoleStringBuilder {
+  /**
+   * The text buffer for the console string builder.
+   * @type {string[]}
+   * @private
+   */
   #buffer = [];
+
+  /**
+   * The plain text representation (without ANSI escape codes) of the console string builder.
+   * @type {string}
+   * @private
+   */
   #plainText = '';
+
+  /**
+   * Whether to automatically reset the ANSI escape codes at the end of the build.
+   * @type {boolean}
+   * @private
+   */
   #autoReset = true;
 
+  /**
+   * Creates a new ConsoleStringBuilder instance.
+   *
+   * @constructor
+   */
   constructor() {
     this.#buffer = [];
     this.#plainText = '';
   }
 
   /**
-   * @returns {string} The plain text of the builder
+   * Gets the plain text of the builder.
+   *
+   * @readonly
+   * @type {string}
    */
   get plainText() {
     return this.#plainText;
@@ -35,6 +59,7 @@ export class ConsoleStringBuilder {
 
   /**
    * Add text to the buffer
+   *
    * @param {string} text - Text to add
    * @returns {ConsoleStringBuilder} - Builder instance for chaining
    */
@@ -45,7 +70,8 @@ export class ConsoleStringBuilder {
   }
 
   /**
-   * Add a newline character
+   * Add a newline character to the buffer.
+   *
    * @returns {ConsoleStringBuilder} - Builder instance for chaining
    */
   newline() {
@@ -54,8 +80,9 @@ export class ConsoleStringBuilder {
   }
 
   /**
-   * Add multiple newlines
-   * @param {number} count - Number of newlines to add
+   * Add multiple newlines to the buffer.
+   *
+   * @param {number} [count=1] - Number of newlines to add
    * @returns {ConsoleStringBuilder} - Builder instance for chaining
    */
   newlines(count = 1) {
@@ -64,8 +91,9 @@ export class ConsoleStringBuilder {
   }
 
   /**
-   * Add spaces
-   * @param {number} count - Number of spaces to add
+   * Add spaces to the buffer.
+   *
+   * @param {number} [count=1] - Number of spaces to add
    * @returns {ConsoleStringBuilder} - Builder instance for chaining
    */
   spaces(count = 1) {
@@ -76,8 +104,9 @@ export class ConsoleStringBuilder {
   }
 
   /**
-   * Add tabs
-   * @param {number} count - Number of tabs to add
+   * Add tabs to the buffer.
+   *
+   * @param {number} [count=1] - Number of tabs to add
    * @returns {ConsoleStringBuilder} - Builder instance for chaining
    */
   tabs(count = 1) {
@@ -89,6 +118,7 @@ export class ConsoleStringBuilder {
 
   /**
    * Apply bold formatting
+   *
    * @returns {ConsoleStringBuilder} - Builder instance for chaining
    */
   bold() {
@@ -98,6 +128,7 @@ export class ConsoleStringBuilder {
 
   /**
    * Apply dim formatting
+   *
    * @returns {ConsoleStringBuilder} - Builder instance for chaining
    */
   dim() {
@@ -107,6 +138,7 @@ export class ConsoleStringBuilder {
 
   /**
    * Apply italic formatting
+   *
    * @returns {ConsoleStringBuilder} - Builder instance for chaining
    */
   italic() {
@@ -116,6 +148,7 @@ export class ConsoleStringBuilder {
 
   /**
    * Apply underline formatting
+   *
    * @returns {ConsoleStringBuilder} - Builder instance for chaining
    */
   underline() {
@@ -125,6 +158,7 @@ export class ConsoleStringBuilder {
 
   /**
    * Apply reverse formatting
+   *
    * @returns {ConsoleStringBuilder} - Builder instance for chaining
    */
   reverse() {
@@ -134,6 +168,7 @@ export class ConsoleStringBuilder {
 
   /**
    * Apply strikethrough formatting
+   *
    * @returns {ConsoleStringBuilder} - Builder instance for chaining
    */
   strikeThrough() {
@@ -194,6 +229,7 @@ export class ConsoleStringBuilder {
 
   /**
    * Reset all formatting
+   *
    * @returns {ConsoleStringBuilder} - Builder instance for chaining
    */
   reset() {
@@ -203,7 +239,8 @@ export class ConsoleStringBuilder {
 
   /**
    * Set auto-reset behavior (automatically reset at end of build)
-   * @param {boolean} autoReset - Whether to auto-reset
+   *
+   * @param {boolean} [autoReset=true] - Whether to auto-reset
    * @returns {ConsoleStringBuilder} - Builder instance for chaining
    */
   autoReset(autoReset = true) {
@@ -213,6 +250,7 @@ export class ConsoleStringBuilder {
 
   /**
    * Add custom ANSI code
+   *
    * @param {string} code - ANSI escape code
    * @returns {ConsoleStringBuilder} - Builder instance for chaining
    */
@@ -223,6 +261,7 @@ export class ConsoleStringBuilder {
 
   /**
    * Clear the current buffer
+   *
    * @returns {ConsoleStringBuilder} - Builder instance for chaining
    */
   clear() {
@@ -233,6 +272,7 @@ export class ConsoleStringBuilder {
 
   /**
    * Get the current text length
+   *
    * @returns {number} - Buffer length
    */
   textLength() {
@@ -241,6 +281,7 @@ export class ConsoleStringBuilder {
 
   /**
    * Get the current buffer length
+   *
    * @returns {number} - Buffer length
    */
   bufferLength() {
@@ -249,6 +290,7 @@ export class ConsoleStringBuilder {
 
   /**
    * Check if buffer is empty
+   *
    * @returns {boolean} - True if buffer is empty
    */
   isEmpty() {
@@ -257,6 +299,7 @@ export class ConsoleStringBuilder {
 
   /**
    * Build the final string
+   *
    * @returns {string} - Formatted console string
    */
   build() {
@@ -269,6 +312,7 @@ export class ConsoleStringBuilder {
 
   /**
    * Build and automatically log to console
+   *
    * @returns {ConsoleStringBuilder} - Builder instance for chaining
    */
   log() {
@@ -278,6 +322,7 @@ export class ConsoleStringBuilder {
 
   /**
    * Build and automatically error to console
+   *
    * @returns {ConsoleStringBuilder} - Builder instance for chaining
    */
   error() {
@@ -287,6 +332,7 @@ export class ConsoleStringBuilder {
 
   /**
    * Build and automatically warn to console
+   *
    * @returns {ConsoleStringBuilder} - Builder instance for chaining
    */
   warn() {
@@ -298,6 +344,7 @@ export class ConsoleStringBuilder {
 
   /**
    * Add success message with green color and checkmark
+   *
    * @param {string} message - Success message
    * @returns {ConsoleStringBuilder} - Builder instance for chaining
    */
@@ -307,6 +354,7 @@ export class ConsoleStringBuilder {
 
   /**
    * Add error message with red color and X mark
+   *
    * @param {string} message - Error message
    * @returns {ConsoleStringBuilder} - Builder instance for chaining
    */
@@ -316,6 +364,7 @@ export class ConsoleStringBuilder {
 
   /**
    * Add warning message with yellow color and warning sign
+   *
    * @param {string} message - Warning message
    * @returns {ConsoleStringBuilder} - Builder instance for chaining
    */
@@ -325,6 +374,7 @@ export class ConsoleStringBuilder {
 
   /**
    * Add info message with blue color and info icon
+   *
    * @param {string} message - Info message
    * @returns {ConsoleStringBuilder} - Builder instance for chaining
    */
@@ -334,6 +384,8 @@ export class ConsoleStringBuilder {
 
   /**
    * Create a new builder instance (static factory method)
+   *
+   * @static
    * @returns {ConsoleStringBuilder} - New builder instance
    */
   static create() {

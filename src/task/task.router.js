@@ -13,7 +13,6 @@ import { messages } from '../shared/messages.js';
  * TaskRouter.route(['add', 'My task name']);
  * // Calls TaskView.addTask('My task name')
  * ```
- * @class
  */
 export class TaskRouter {
   /**
@@ -21,9 +20,9 @@ export class TaskRouter {
    *
    * Each handler delegates execution to a method on {@link TaskView}.
    *
-   * @type {Record<TaskCommand, (...args: string[]) => void>}
    * @static
    * @private
+   * @type {Record<TaskCommand, (...args: string[]) => void>}
    */
   static #commandHandlers = {
     [TaskCommand.ADD]: (...args) => TaskView.addTask(...args),
@@ -42,8 +41,6 @@ export class TaskRouter {
    * @param {string[]} args - The CLI arguments where the first element
    *   is expected to be a {@link TaskCommand}. The remaining elements
    *   are passed to the handler.
-   *
-   * @returns {Promise<void>}
    *
    * @example
    * ```ts

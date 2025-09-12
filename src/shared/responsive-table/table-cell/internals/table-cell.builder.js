@@ -3,25 +3,62 @@ import { HorizontalAlignment, TableBorder } from '../../../enums.js';
 
 /**
  * Builder class for creating cell separator.
- * @class
+ *
+ * @internal
  */
 export class SeparatorCellBuilder {
+  /**
+   * The width of the cell.
+   * @type {number}
+   * @private
+   */
   #width;
+
+  /**
+   * The left padding of the cell.
+   * @type {number}
+   * @private
+   */
   #paddingLeft;
+
+  /**
+   * The right padding of the cell.
+   * @type {number}
+   * @private
+   */
   #paddingRight;
+
+  /**
+   * The horizontal position of the cell relative to the table.
+   * @type {HorizontalAlignment}
+   * @private
+   */
   #xPosition;
+
+  /**
+   * The vertical position of the cell relative to the table.
+   * @type {VerticalAlignment}
+   * @private
+   */
   #yPosition;
+
+  /**
+   * Whether the table contains only one column.
+   * @type {boolean}
+   * @private
+   */
   #singleColumn;
 
   /**
+   * Creates a new SeparatorCellBuilder instance.
+   *
+   * @constructor
    * @param {object} options - The options for the table cell.
    * @param {number} options.width - The width of the cell.
    * @param {number} options.paddingLeft - The left padding of the cell.
    * @param {number} options.paddingRight - The right padding of the cell.
-   * @param {HorizontalAlignment} options.xPosition -
-   *   The horizontal position of the cell relative to the table.
-   * @param {VerticalAlignment} options.yPosition -
-   *   The vertical position of the cell relative to the table.
+   * @param {HorizontalAlignment} options.xPosition - The horizontal position of the cell relative to the table.
+   * @param {VerticalAlignment} options.yPosition - The vertical position of the cell relative to the table.
    * @param {boolean} options.singleColumn - Whether the table contains only one column.
    */
   constructor(options) {
@@ -34,7 +71,9 @@ export class SeparatorCellBuilder {
   }
 
   /**
-   * @returns {string} The string representation of the separator cell.
+   * Builds the string representation of the separator cell.
+   *
+   * @returns {string} The separator cell as a string.
    */
   build() {
     const leftBorder = this.#generateLeftCorner();
@@ -47,8 +86,8 @@ export class SeparatorCellBuilder {
   /**
    * Generates the left corner of the separator cell.
    *
-   * @returns {string} The left corner of the separator cell.
    * @private
+   * @returns {string} The cell left corner.
    */
   #generateLeftCorner() {
     if (this.#xPosition === HorizontalAlignment.LEFT) {
@@ -61,8 +100,8 @@ export class SeparatorCellBuilder {
   /**
    * Generates the right corner of the separator cell.
    *
-   * @returns {string} The right corner of the separator cell.
    * @private
+   * @returns {string} The cell right corner.
    */
   #generateRightCorner() {
     const isLastColumn =
@@ -77,20 +116,77 @@ export class SeparatorCellBuilder {
 
 /**
  * Builder class for creating cell content.
- * @class
+ *
+ * @internal
  */
 export class ContentCellBuilder {
+  /**
+   * The width of the cell.
+   * @type {number}
+   * @private
+   */
   #width;
+
+  /**
+   * The ConsoleStringBuilder instance representing the cell content.
+   * @type {ConsoleStringBuilder}
+   * @private
+   */
   #content;
+
+  /**
+   * The left padding of the cell.
+   * @type {number}
+   * @private
+   */
   #paddingLeft;
+
+  /**
+   * The right padding of the cell.
+   * @type {number}
+   * @private
+   */
   #paddingRight;
+
+  /**
+   * The horizontal position of the cell relative to the table.
+   * @type {HorizontalAlignment}
+   * @private
+   */
   #xPosition;
+
+  /**
+   * The text align property of the cell.
+   * @type {HorizontalAlignment}
+   * @private
+   */
   #textAlign;
+
+  /**
+   * Whether to include the console style in the string representation.
+   * @type {boolean}
+   * @private
+   */
   #withStyle;
+
+  /**
+   * The whitespace to the left of the cell content, used to adjust text alignment.
+   * @type {string}
+   * @private
+   */
   #whitespaceLeft = '';
+
+  /**
+   * The whitespace to the right of the cell content, used to adjust text alignment.
+   * @type {string}
+   * @private
+   */
   #whitespaceRight = '';
 
   /**
+   * Creates a new ContentCellBuilder instance.
+   *
+   * @constructor
    * @param {object} options - The options for the content cell builder.
    * @param {number} options.width - The width of the cell.
    * @param {ConsoleStringBuilder} options.content - The content of the cell.
@@ -111,7 +207,9 @@ export class ContentCellBuilder {
   }
 
   /**
-   * @returns {string} The string representation of the content cell.
+   * Builds the string representation of the content cell.
+   *
+   * @returns {string} The content cell as a string.
    */
   build() {
     let content = this.#generateContent();
@@ -122,10 +220,10 @@ export class ContentCellBuilder {
   }
 
   /**
-   * Generates the content of the cell.
+   * Generates the content of the cell as a string.
    *
-   * @returns {string} The content (text) of the cell.
    * @private
+   * @returns {string} The cell content.
    */
   #generateContent() {
     this.#addWhitespaceToContent();
@@ -138,8 +236,8 @@ export class ContentCellBuilder {
   /**
    * Generates the left corner of the content cell.
    *
-   * @returns {string} The left corner of the content cell.
    * @private
+   * @returns {string} The cell left corner.
    */
   #generateLeftCorner() {
     return this.#xPosition === HorizontalAlignment.LEFT
@@ -150,8 +248,8 @@ export class ContentCellBuilder {
   /**
    * Generates the right corner of the content cell.
    *
-   * @returns {string} The right corner of the content cell.
    * @private
+   * @returns {string} The cell right corner.
    */
   #generateRightCorner() {
     return TableBorder.VERTICAL;

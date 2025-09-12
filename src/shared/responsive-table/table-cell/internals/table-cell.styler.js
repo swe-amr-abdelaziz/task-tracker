@@ -1,14 +1,29 @@
 import { ConsoleStringBuilder } from '../../../console-string.builder.js';
 
 /**
- * Styler class for creating cell content with visual styles.
- * @class
+ * Styler class for creating cell content visual styles.
+ *
+ * @internal
  */
 export class ContentCellStyler {
+  /**
+   * The content of the cell in any format.
+   * @type {unknown}
+   * @private
+   */
   #content
+
+  /**
+   * Whether the cell is a header cell.
+   * @type {boolean}
+   * @private
+   */
   #isHeader
 
   /**
+   * Creates a new ContentCellStyler instance.
+   *
+   * @constructor
    * @param {object} options - The options for the content cell styler.
    * @param {unknown} options.content - The content of the cell.
    * @param {boolean} options.isHeader - Whether the cell is a header cell.
@@ -19,7 +34,9 @@ export class ContentCellStyler {
   }
 
   /**
-   * @returns {ConsoleStringBuilder} The string representation of the content cell.
+   * Builds the {@Link ConsoleStringBuilder} instance with visual styles representing the content cell.
+   *
+   * @returns {ConsoleStringBuilder} The content of the cell.
    */
   build() {
     const builder = ConsoleStringBuilder.create();
@@ -30,8 +47,8 @@ export class ContentCellStyler {
   /**
    * Sets the style for the content of the cell based on its content type.
    *
-   * @param {ConsoleStringBuilder} builder - The builder to set the style for.
    * @private
+   * @param {ConsoleStringBuilder} builder - The builder instance to set the style for.
    */
   #setStyle(builder) {
     if (this.#isHeader) {

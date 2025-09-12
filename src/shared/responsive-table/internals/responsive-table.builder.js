@@ -5,10 +5,39 @@ import {
 } from '../../enums.js';
 import { ContentRow, SeparatorRow } from '../table-row/table-row.js';
 
+/**
+ * Responsive table builder class.
+ * Builds a responsive table from the given data and header data.
+ *
+ * @internal
+ */
 export class ResponsiveTableBuilder {
+  /**
+   * The data to be displayed in the table.
+   * @type {object[]}
+   * @private
+   */
   #data;
+
+  /**
+   * The list of header labels to be used in the table.
+   * @type {TableHeader[]}
+   * @private
+   */
   #headerData;
+
+  /**
+   * The options of the table.
+   * @type {TableOptions}
+   * @private
+   */
   #tableOptions;
+
+  /**
+   * The options of the responsive table layout.
+   * @type {LayoutOptions}
+   * @private
+   */
   #layoutOptions;
 
   /**
@@ -28,6 +57,9 @@ export class ResponsiveTableBuilder {
    */
 
   /**
+   * Creates a new ResponsiveTableBuilder instance.
+   *
+   * @constructor
    * @param {object[]} data - The table data.
    * @param {TableHeader[]} headerData - The list of header labels.
    * @param {TableOptions} options - The options for the table.
@@ -46,6 +78,7 @@ export class ResponsiveTableBuilder {
 
   /**
    * Builds the content of the responsive table.
+   *
    * @param {LayoutOptions} layoutOptions - The options for the responsive table layout.
    * @returns {string} The responsive table as a string.
    */
@@ -58,8 +91,10 @@ export class ResponsiveTableBuilder {
   }
 
   /**
-   * @returns {string} The responsive table as a string for small view port mode.
+   * Builds the content of the responsive table for small view port mode.
+   *
    * @private
+   * @returns {string} The responsive table content in a string format.
    */
   #buildSmallTable() {
     const rows = [];
@@ -99,8 +134,10 @@ export class ResponsiveTableBuilder {
   }
 
   /**
-   * @returns {string} The responsive table as a string for normal view port mode.
+   * Builds the content of the responsive table for normal view port mode.
+   *
    * @private
+   * @returns {string} The responsive table content in a string format.
    */
   #buildNormalTable() {
     const header = this.#buildTableHeader();
@@ -113,9 +150,10 @@ export class ResponsiveTableBuilder {
 
   /**
    * Builds the header of the responsive table in normal view port mode.
+   *
+   * @private
    * @param {LayoutOptions} layoutOptions - The options for the responsive table layout.
    * @returns {string} The responsive table header as a string.
-   * @private
    */
   #buildTableHeader() {
     const topSeparator = this.#makeSeparatorRow(VerticalAlignment.TOP);
@@ -136,8 +174,10 @@ export class ResponsiveTableBuilder {
   }
 
   /**
-   * @returns {string} The responsive table body as a string in normal view port mode.
+   * Builds the body of the responsive table in normal view port mode.
+   *
    * @private
+   * @returns {string} The responsive table body as a string.
    */
   #buildTableBody() {
     const rows = [];
@@ -167,10 +207,11 @@ export class ResponsiveTableBuilder {
 
   /**
    * Creates a content row with the given cells and isHeader property.
+   *
+   * @private
    * @param {CellOptions[]} cells - The cells of the content row.
    * @param {boolean} isHeader - Whether the content row is a header row.
    * @returns {ContentRow} The content row.
-   * @private
    */
   #makeContentRow(cells, isHeader) {
     return new ContentRow({
@@ -183,10 +224,11 @@ export class ResponsiveTableBuilder {
   }
 
   /**
-   * Creates a separator row with the given vertical position.
+   * Creates a separator row of the given vertical position.
+   *
+   * @private
    * @param {VerticalAlignment} yPosition - The vertical position of the separator row.
    * @returns {SeparatorRow} The separator row.
-   * @private
    */
   #makeSeparatorRow(yPosition) {
     return new SeparatorRow({
@@ -198,8 +240,10 @@ export class ResponsiveTableBuilder {
   }
 
   /**
-   * @returns {ContentRow} A row of whitespace (No content).
+   * Creates a row of whitespace (no content).
+   *
    * @private
+   * @returns {ContentRow} A whitespace row.
    */
   #makeWhitespaceRow() {
     const cells = this.#layoutOptions.widths.map((width) => ({
@@ -217,10 +261,11 @@ export class ResponsiveTableBuilder {
 
   /**
    * Formalizes the header data for the responsive table.
+   *
+   * @static
    * @param {object[]} data - The table data.
    * @param {TableHeader[]} headerData - The list of header labels.
    * @returns {TableHeader[]} The formalized header data.
-   * @static
    */
   static formalizeHeaderData(data, headerData) {
     if (!Array.isArray(headerData) || headerData.length === 0) {
@@ -230,11 +275,12 @@ export class ResponsiveTableBuilder {
   }
 
   /**
-   * Creates header data from the table data.
-   * @param {object[]} data - The table data.
-   * @returns {TableHeader[]} The header data.
+   * Creates header data from a given table data.
+   *
    * @static
    * @private
+   * @param {object[]} data - The table data.
+   * @returns {TableHeader[]} The header data.
    */
   static #createHeaderDataFromTableData(data) {
     const headerKeys = new Set();
@@ -255,10 +301,11 @@ export class ResponsiveTableBuilder {
 
   /**
    * Creates header data with default options.
-   * @param {TableHeader[]} headerData - The list of header labels.
-   * @returns {TableHeader[]} The header data with default options.
+   *
    * @static
    * @private
+   * @param {TableHeader[]} headerData - The list of header labels.
+   * @returns {TableHeader[]} The header data with default options.
    */
   static #createDefaultHeaderData(headerData) {
     return headerData.map((header) => ({

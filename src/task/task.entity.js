@@ -4,15 +4,28 @@ import { messages } from '../shared/messages.js';
 
 /**
  * Represents a task with a description, status, and base entity members.
- * @class
+ *
  * @extends BaseEntity
  */
 export class Task extends BaseEntity {
+  /**
+   * The description of the task.
+   * @type {string}
+   * @private
+   */
   #description;
+
+  /**
+   * The status of the task.
+   * @type {TaskStatus}
+   * @private
+   */
   #status;
 
   /**
    * Create a new Task instance.
+   *
+   * @constructor
    * @param {string} description - The description of the task.
    * @param {string} [status=TaskStatus.TODO] - The status of the task.
    */
@@ -23,13 +36,17 @@ export class Task extends BaseEntity {
   }
 
   /**
-   * @returns {string} The task description.
+   * Gets the description of the task.
+   *
+   * @type {string}
    */
   get description() {
     return this.#description;
   }
 
   /**
+   * Sets the description of the task.
+   *
    * @param {string} description - The new task description.
    */
   set description(description) {
@@ -41,13 +58,17 @@ export class Task extends BaseEntity {
   }
 
   /**
-   * @returns {TaskStatus} The current status of the task.
+   * Gets the current status of the task.
+   *
+   * @type {TaskStatus}
    */
   get status() {
     return this.#status;
   }
 
   /**
+   * Sets the current status of the task.
+   *
    * @param {TaskStatus} status - The new task status.
    */
   set status(status) {
@@ -100,9 +121,9 @@ export class Task extends BaseEntity {
    * Set the count of tasks.
    *
    * @static
-   * @param {number} _count - The count of tasks.
+   * @param {number} count - The count of tasks.
    */
-  static setIdCount(_count) {
-    BaseEntity.count = _count;
+  static setIdCount(count) {
+    BaseEntity.count = count;
   }
 };

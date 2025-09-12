@@ -3,14 +3,25 @@ import { TaskStatus } from '../shared/enums.js';
 
 /**
  * Builder for creating Task instances in a fluent and readable way.
- * @class
  */
 export class TaskBuilder {
+  /**
+   * The description of the task.
+   * @type {string}
+   * @private
+   */
   #description = 'Task';
+
+  /**
+   * The status of the task.
+   * @type {TaskStatus}
+   * @private
+   */
   #status = TaskStatus.TODO;
 
   /**
    * Set the task description.
+   *
    * @param {string} description - The task description.
    * @returns {TaskBuilder}
    */
@@ -21,6 +32,7 @@ export class TaskBuilder {
 
   /**
    * Set the task status.
+   *
    * @param {TaskStatus} status - The task status.
    * @returns {TaskBuilder}
    */
@@ -31,6 +43,7 @@ export class TaskBuilder {
 
   /**
    * Builds and returns a Task instance.
+   *
    * @returns {Task} The constructed Task object.
    */
   build() {
