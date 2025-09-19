@@ -1,6 +1,7 @@
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 
+import { ANSI_ESCAPE_REGEX, WHITESPACE_REGEX } from './regex.js';
 import { ConsoleStringBuilder } from './console-string.builder.js';
 import { messages } from './messages.js';
 
@@ -152,7 +153,7 @@ export class Utils {
     let splitIndex = splitSize;
     const head = str.slice(0, splitSize + 1);
     for (let i = head.length - 1; i >= 0; i--) {
-      const isWhitespace = /\s/.test(head[i]);
+      const isWhitespace = WHITESPACE_REGEX.test(head[i]);
       if (isWhitespace) {
         splitIndex = i;
         break;
@@ -182,7 +183,6 @@ export class Utils {
    * // => 'Hello'
    */
   static clearAnsiSequences(str) {
-    const ansiRegex = /\x1B\[[0-9;]*m/g;
-    return str.replace(ansiRegex, '');
+    return str.replace(ANSI_ESCAPE_REGEX, '');
   }
 }

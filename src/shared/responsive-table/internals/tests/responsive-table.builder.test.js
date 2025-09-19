@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 
 import { HorizontalAlignment, PADDING_DEFAULT } from '../../../enums.js';
 import { ResponsiveTableBuilder } from '../responsive-table.builder.js';
+import { STARTS_WITH_NEWLINE_REGEX } from '../../../regex.js';
 import { TestUtils } from '../../../test-utils.js';
 import { Utils } from '../../../utils.js';
 
@@ -38,7 +39,7 @@ describe('ResponsiveTableBuilder', () => {
       ];
     }
     function removeFirstLine(str) {
-      return str.replace(/^\n/, '');
+      return str.replace(STARTS_WITH_NEWLINE_REGEX, '');
     }
     const tableOptions = {
       paddingLeft: PADDING_DEFAULT,

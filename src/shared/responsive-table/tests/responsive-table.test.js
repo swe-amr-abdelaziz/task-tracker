@@ -5,6 +5,7 @@ import { HorizontalAlignment, PADDING_DEFAULT } from '../../enums.js';
 import { ResponsiveTable } from '../responsive-table.js';
 import { ResponsiveTableBuilder } from '../internals/responsive-table.builder.js';
 import { ResponsiveTableValidator } from '../internals/responsive-table.validator.js';
+import { STARTS_WITH_NEWLINE_REGEX } from '../../regex.js';
 import { TestUtils } from '../../test-utils.js';
 import { Utils } from '../../utils.js';
 
@@ -119,8 +120,8 @@ describe('ResponsiveTable', () => {
         },
       ];
     }
-    function removeFirstLine(str) {
-      return str.replace(/^\n/, '');
+    function removeFirstNewline(str) {
+      return str.replace(STARTS_WITH_NEWLINE_REGEX, '');
     }
     const tableOptions = {
       paddingLeft: PADDING_DEFAULT,
@@ -147,7 +148,7 @@ describe('ResponsiveTable', () => {
 │ 3  │ Alice Brown │ 40  │
 ╰────┴─────────────┴─────╯`;
 
-      match(actual, new RegExp(removeFirstLine(expected)));
+      match(actual, new RegExp(removeFirstNewline(expected)));
 
       consoleLogFn.mock.restore();
     });
