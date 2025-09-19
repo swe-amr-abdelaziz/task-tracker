@@ -3,20 +3,24 @@ import { promises as fs } from 'fs';
 
 import { DB_FILENAME, DB_FILE_ENCODING, TaskStatus } from '../shared/enums.js';
 import { Task } from './task.entity.js';
-import { TaskBuilder } from './task.builder.js';
+import { TaskBuilder } from './utils/task.builder.js';
 import { messages } from '../shared/messages.js';
 
 /**
- * TaskModel is responsible for managing task entities in memory
- * and persisting them to a JSON file that acts as a simple database.
+ * Data access layer responsible for managing {@link Task} entities.
  *
- * It supports CRUD operations (create, read, update, delete)
- * and ensures changes are written to disk.
+ * The `TaskModel` provides:
+ * - In-memory storage for tasks (acting as a cache).
+ * - Persistent storage in a JSON file that serves as a lightweight database.
+ * - Full CRUD operations (create, read, update, delete).
+ * - Utility methods for reading help documentation.
+ *
+ * This class should only be used by the controller layer.
+ * The view layer must never interact with the model directly.
  */
 export class TaskModel {
   /**
    * The absolute path of the database file.
-   *
    * @static
    * @private
    * @type {string}
@@ -28,7 +32,6 @@ export class TaskModel {
 
   /**
    * The in-memory list of tasks.
-   *
    * @static
    * @private
    * @type {Task[]}
@@ -60,19 +63,13 @@ export class TaskModel {
   }
 
   /**
-   * Retrieves the list of tasks, optionally filtered by status.
+   * Retrieves the list of tasks.
    *
    * @static
-   * @param {TaskStatus} [status] - Optional status to filter tasks by.
-   * @returns {Task[]} The filtered or complete list of tasks.
+   * @returns {Task[]} The list of tasks.
    */
-  static getTasksList(status) {
-    if (!status) {
-      return TaskModel.#tasks;
-    }
-    return TaskModel.#tasks.filter(
-      (task) => task.status === status
-    );
+  static getTasksList() {
+    return TaskModel.#tasks;
   }
 
   /**
@@ -93,6 +90,7 @@ export class TaskModel {
    *
    * @static
    * @param {string} description - The description of the new task.
+   * @returns {Promise<Task | undefined>} The newly created task.
    */
   static async addTask(description) {
     const task = new TaskBuilder()
@@ -101,6 +99,7 @@ export class TaskModel {
       .build();
     TaskModel.#tasks.push(task);
     await TaskModel._writeChangesToDb();
+    return task;
   }
 
   /**
@@ -109,6 +108,7 @@ export class TaskModel {
    * @static
    * @param {string} id - The unique identifier of the task.
    * @param {string} description - The new description for the task.
+   * @returns {Promise<Task | undefined>} The updated task, or undefined if not found.
    */
   static async updateTaskDescription(id, description) {
     const task = TaskModel.getTaskById(id);
@@ -116,6 +116,7 @@ export class TaskModel {
       task.description = description;
       await TaskModel._writeChangesToDb();
     }
+    return task;
   }
 
   /**
@@ -124,6 +125,7 @@ export class TaskModel {
    * @static
    * @param {string} id - The unique identifier of the task.
    * @param {TaskStatus} status - The new status for the task.
+   * @returns {Promise<Task | undefined>} The updated task, or undefined if not found.
    */
   static async updateTaskStatus(id, status) {
     const task = TaskModel.getTaskById(id);
@@ -131,6 +133,7 @@ export class TaskModel {
       task.status = status;
       await TaskModel._writeChangesToDb();
     }
+    return task;
   }
 
   /**
@@ -138,15 +141,17 @@ export class TaskModel {
    *
    * @static
    * @param {string} id - The unique identifier of the task to delete.
+   * @returns {Promise<Task | undefined>} The deleted task, or undefined if not found.
    */
   static async deleteTask(id) {
-    const tasksCount = TaskModel.#tasks.length;
-    TaskModel.#tasks = TaskModel.#tasks.filter(
-      (task) => task.id !== id
-    );
-    if (TaskModel.#tasks.length < tasksCount) {
+    const task = TaskModel.getTaskById(id);
+    if (task) {
+      TaskModel.#tasks = TaskModel.#tasks.filter(
+        (task) => task.id !== id
+      );
       await TaskModel._writeChangesToDb();
     }
+    return task;
   }
 
   /**
@@ -161,7 +166,7 @@ export class TaskModel {
     try {
       const helpPage = await fs.readFile(docsPath, DB_FILE_ENCODING);
       return helpPage;
-    } catch (e) {
+    } catch (_) {
       const message = messages.error.INVALID_TASK_COMMAND.replace('{0}', command);
       throw new Error(message);
     }

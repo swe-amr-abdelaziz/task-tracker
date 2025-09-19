@@ -32,6 +32,15 @@ export const TaskStatus = Object.freeze({
 });
 
 /**
+ * @enum {string} Task status icons.
+ */
+export const TaskStatusIcon = Object.freeze({
+  [TaskStatus.TODO]: '🔴',
+  [TaskStatus.IN_PROGRESS]: '🟡',
+  [TaskStatus.DONE]: '🟢',
+});
+
+/**
  * @enum {string} Task commands for the CLI.
  */
 export const TaskCommand = Object.freeze({

@@ -117,6 +117,20 @@ describe('TaskRouter', () => {
       );
     });
 
+    it('should call the "help" method with command options if the command is "help"', () => {
+      const helpMock = mock.method(TaskView, 'help', () => {});
+      const secondArg = TestUtils.generateRandomString({ minLength: 10 });
+      const args = [TaskCommand.HELP, secondArg];
+
+      TaskRouter.route(args);
+
+      equal(helpMock.mock.callCount(), 1);
+      deepStrictEqual(
+        helpMock.mock.calls[0].arguments,
+        [secondArg],
+      );
+    });
+
     it('should throw an error if the command is invalid', async () => {
       const command = TestUtils.generateRandomString({ minLength: 10 });
       const args = [command];

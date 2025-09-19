@@ -1,7 +1,7 @@
 import path from 'path';
-import { afterEach, beforeEach, describe, it, mock } from 'node:test';
-import { deepEqual, equal, notEqual, rejects } from 'node:assert';
 import { promises as fs } from 'fs';
+import { deepEqual, equal, notEqual, rejects } from 'node:assert';
+import { after, afterEach, beforeEach, describe, it, mock } from 'node:test';
 
 import {
   DB_FILENAME,
@@ -9,18 +9,18 @@ import {
   TaskCommand,
   TaskStatus,
 } from '../../shared/enums.js';
-import { TaskBuilder } from '../task.builder.js';
+import { TaskBuilder } from '../utils/task.builder.js';
 import { TaskModel } from '../task.model.js';
 import { TestUtils } from '../../shared/test-utils.js';
 import { Utils } from '../../shared/utils.js';
 import { messages } from '../../shared/messages.js';
 
 describe('TaskModel', () => {
+  const writeChangesToDbFn = mock.method(TaskModel, '_writeChangesToDb');
   const dbPath = path.join(
     process.cwd(),
     DB_FILENAME,
   );
-
   const createDbFile = async (tasks) => {
     await fs.writeFile(
       dbPath,
@@ -28,7 +28,6 @@ describe('TaskModel', () => {
       DB_FILE_ENCODING,
     );
   };
-
   const tasks = [
     new TaskBuilder()
       .withDescription(TestUtils.generateRandomString())
@@ -50,6 +49,11 @@ describe('TaskModel', () => {
 
   afterEach(async () => {
     await fs.rm(dbPath, { force: true });
+    writeChangesToDbFn.mock.resetCalls();
+  });
+
+  after(() => {
+    writeChangesToDbFn.mock.restore();
   });
 
   describe('populateData', () => {
@@ -96,38 +100,11 @@ describe('TaskModel', () => {
   });
 
   describe('getTasksList', () => {
-    it('should return all tasks if status is not provided', () => {
+    it('should return all tasks', () => {
       const allTasks = TaskModel.getTasksList();
 
       equal(allTasks.length, tasks.length);
       deepEqual(allTasks, tasks);
-    });
-
-    it('should return tasks with `todo` status', () => {
-      const status = TaskStatus.TODO;
-
-      const todoTasks = TaskModel.getTasksList(status);
-
-      equal(todoTasks.length, 1);
-      deepEqual(tasks[0], todoTasks[0]);
-    });
-
-    it('should return tasks with `in-progress` status', () => {
-      const status = TaskStatus.IN_PROGRESS;
-
-      const todoTasks = TaskModel.getTasksList(status);
-
-      equal(todoTasks.length, 1);
-      deepEqual(tasks[1], todoTasks[0]);
-    });
-
-    it('should return tasks with `done` status', () => {
-      const status = TaskStatus.DONE;
-
-      const todoTasks = TaskModel.getTasksList(status);
-
-      equal(todoTasks.length, 1);
-      deepEqual(tasks[2], todoTasks[0]);
     });
   });
 
@@ -156,24 +133,27 @@ describe('TaskModel', () => {
 
       await TaskModel.addTask(description);
       const newTasks = TaskModel.getTasksList();
-      const insertedTask = newTasks[newTasks.length - 1];
 
       equal(newTasks.length, oldTasks.length + 1);
-      equal(insertedTask.description, description);
-      equal(insertedTask.status, TaskStatus.TODO);
-      equal(insertedTask.createdAt instanceof Date, true);
-      equal(insertedTask.createdAt instanceof Date, true);
+    });
+
+    it('should return the new inserted task', async () => {
+      const description = TestUtils.generateRandomString();
+
+      const newTask = await TaskModel.addTask(description);
+
+      equal(newTask.description, description);
+      equal(newTask.status, TaskStatus.TODO);
+      equal(newTask.createdAt instanceof Date, true);
+      equal(newTask.updatedAt instanceof Date, true);
     });
 
     it('should write changes to the database', async () => {
-      const writeChangesToDbMock = mock.method(TaskModel, '_writeChangesToDb', () => {}).mock;
       const description = TestUtils.generateRandomString();
 
       await TaskModel.addTask(description);
 
-      equal(writeChangesToDbMock.calls.length, 1);
-
-      writeChangesToDbMock.restore();
+      equal(writeChangesToDbFn.mock.calls.length, 1);
     });
   });
 
@@ -191,27 +171,34 @@ describe('TaskModel', () => {
       equal(newTask.description, newDescription);
     });
 
+    it('should return the updated task', async () => {
+      const taskIndex = 0;
+      const task = TaskModel.getTasksList()[taskIndex];
+      const description = TestUtils.generateRandomString();
+
+      const updatedTask = await TaskModel.updateTaskDescription(task.id, description);
+
+      deepEqual(updatedTask, task);
+    });
+
     it('should write changes to the database if the task exists', async () => {
-      const writeChangesToDbMock = mock.method(TaskModel, '_writeChangesToDb', () => {});
       const task = TaskModel.getTasksList()[0];
       const description = TestUtils.generateRandomString();
 
       await TaskModel.updateTaskDescription(task.id, description);
 
-      equal(writeChangesToDbMock.mock.calls.length, 1);
+      equal(writeChangesToDbFn.mock.calls.length, 1);
 
-      writeChangesToDbMock.mock.restore();
+      writeChangesToDbFn.mock.resetCalls();
     });
 
     it('should not write changes to the database if the task doesn\'t exist', async () => {
-      const writeChangesToDbMock = mock.method(TaskModel, '_writeChangesToDb', () => {});
       const id = -1;
       const description = TestUtils.generateRandomString();
 
       await TaskModel.updateTaskDescription(id, description);
 
-      equal(writeChangesToDbMock.mock.calls.length, 0);
-      writeChangesToDbMock.mock.restore();
+      equal(writeChangesToDbFn.mock.calls.length, 0);
     });
   });
 
@@ -229,26 +216,32 @@ describe('TaskModel', () => {
       equal(newTask.status, newStatus);
     });
 
+    it('should return the updated task', async () => {
+      const taskIndex = 0;
+      const task = TaskModel.getTasksList()[taskIndex];
+      const status = TaskStatus.IN_PROGRESS;
+
+      const updatedTask = await TaskModel.updateTaskStatus(task.id, status);
+
+      deepEqual(updatedTask, task);
+    });
+
     it('should write changes to the database if the task exists', async () => {
-      const writeChangesToDbMock = mock.method(TaskModel, '_writeChangesToDb', () => {});
       const task = TaskModel.getTasksList()[0];
 
       await TaskModel.updateTaskStatus(task.id, TaskStatus.IN_PROGRESS);
 
-      equal(writeChangesToDbMock.mock.calls.length, 1);
+      equal(writeChangesToDbFn.mock.calls.length, 1);
 
-      writeChangesToDbMock.mock.restore();
+      writeChangesToDbFn.mock.resetCalls();
     });
 
     it('should not write changes to the database if the task doesn\'t exist', async () => {
-      const writeChangesToDbMock = mock.method(TaskModel, '_writeChangesToDb', () => {});
       const id = -1;
 
       await TaskModel.updateTaskStatus(id, TaskStatus.IN_PROGRESS);
 
-      equal(writeChangesToDbMock.mock.calls.length, 0);
-
-      writeChangesToDbMock.mock.restore();
+      equal(writeChangesToDbFn.mock.calls.length, 0);
     });
   });
 
@@ -266,26 +259,31 @@ describe('TaskModel', () => {
       equal(task, undefined);
     });
 
+    it('should return the deleted task', async () => {
+      const taskIndex = 0;
+      const task = TaskModel.getTasksList()[taskIndex];
+
+      const deletedTask = await TaskModel.deleteTask(task.id);
+
+      deepEqual(deletedTask, task);
+    });
+
     it('should write changes to the database if the task is found', async () => {
-      const writeChangesToDbMock = mock.method(TaskModel, '_writeChangesToDb', () => {});
       const task = TaskModel.getTasksList()[0];
 
       await TaskModel.deleteTask(task.id);
 
-      equal(writeChangesToDbMock.mock.calls.length, 1);
+      equal(writeChangesToDbFn.mock.calls.length, 1);
 
-      writeChangesToDbMock.mock.restore();
+      writeChangesToDbFn.mock.resetCalls();
     });
 
     it('should not write changes to the database if the task is not found', async () => {
-      const writeChangesToDbMock = mock.method(TaskModel, '_writeChangesToDb', () => {});
       const id = -1;
 
       await TaskModel.deleteTask(id);
 
-      equal(writeChangesToDbMock.mock.calls.length, 0);
-
-      writeChangesToDbMock.mock.restore();
+      equal(writeChangesToDbFn.mock.calls.length, 0);
     });
   });
 

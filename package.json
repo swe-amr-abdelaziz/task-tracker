@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "start": "node main.js",
+    "test": "node --test",
+    "test:watch": "node --test --watch",
+    "test:cov": "node --test --experimental-test-coverage"
+  },
+  "type": "module"
+}

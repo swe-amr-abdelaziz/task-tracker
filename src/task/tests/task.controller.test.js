@@ -1,15 +1,459 @@
 import path from 'path';
+import { equal, rejects } from 'node:assert';
 import { after, afterEach, describe, it, mock } from 'node:test';
-import { equal } from 'node:assert';
 
-import { TaskCommand } from '../../shared/enums.js';
+import { TaskBuilder } from '../utils/task.builder.js';
+import { TaskCommand, TaskStatus } from '../../shared/enums.js';
 import { TaskController } from '../task.controller.js';
 import { TaskModel } from '../task.model.js';
 import { TestUtils } from '../../shared/test-utils.js';
+import { messages } from '../../shared/messages.js';
 
 describe('TaskController', () => {
+  const getTaskByIdFn = mock.method(TaskModel, 'getTaskById', () => new TaskBuilder().build());
+  const updateTaskDescriptionFn = mock.method(TaskModel, 'updateTaskDescription', () => {});
+  const updateTaskStatusFn = mock.method(TaskModel, 'updateTaskStatus', () => {});
+
+  afterEach(() => {
+    getTaskByIdFn.mock.resetCalls();
+    updateTaskDescriptionFn.mock.resetCalls();
+    updateTaskStatusFn.mock.resetCalls();
+  });
+
   after(() => {
-    mock.restoreAll();
+    getTaskByIdFn.mock.restore();
+    updateTaskDescriptionFn.mock.restore();
+    updateTaskStatusFn.mock.restore();
+  });
+
+  describe('getTasksList', () => {
+    const tasks = [
+      new TaskBuilder().build(),
+      new TaskBuilder().build(),
+    ];
+    const getTasksListFn = mock.method(TaskModel, 'getTasksList', () => tasks);
+
+    afterEach(() => {
+      getTasksListFn.mock.resetCalls();
+    });
+
+    after(() => {
+      getTasksListFn.mock.restore();
+    });
+
+    it('should return the list of tasks', async () => {
+      const result = TaskController.getTasksList();
+
+      equal(result, tasks);
+    });
+  });
+
+  describe('addTask', () => {
+    const addTaskFn = mock.method(TaskModel, 'addTask', () => {});
+
+    afterEach(() => {
+      addTaskFn.mock.resetCalls();
+    });
+
+    after(() => {
+      addTaskFn.mock.restore();
+    });
+
+    it('should throw a TypeError if the description is missing', async () => {
+      let description;
+
+      await rejects(
+        async () => await TaskController.addTask(description),
+        {
+          name: 'TypeError',
+          message: messages.error.REQUIRED_TASK_DESCRIPTION,
+        },
+      );
+    });
+
+    it('should throw a TypeError if the description is not a string', async () => {
+      const description = TestUtils.generateRandomInt();
+
+      await rejects(
+        async () => await TaskController.addTask(description),
+        {
+          name: 'TypeError',
+          message: messages.error.INVALID_TASK_DESCRIPTION,
+        },
+      );
+    });
+
+    it('should call addTask method from the model with the description', async () => {
+      const description = TestUtils.generateRandomString();
+
+      await TaskController.addTask(description);
+
+      equal(addTaskFn.mock.callCount(), 1);
+      equal(addTaskFn.mock.calls[0].arguments[0], description);
+    });
+
+    it('should return the newly created task', async () => {
+      const description = TestUtils.generateRandomString();
+      const task = new TaskBuilder().withDescription(description).build();
+      addTaskFn.mock.mockImplementationOnce(() => task);
+
+      const result = await TaskController.addTask(description);
+
+      equal(result, task);
+    });
+  });
+
+  describe('updateTask', () => {
+    afterEach(() => {
+      updateTaskDescriptionFn.mock.resetCalls();
+    });
+
+    after(() => {
+      updateTaskDescriptionFn.mock.restore();
+    });
+
+    it('should throw a TypeError if the task ID is missing', async () => {
+      let id;
+
+      await rejects(
+        async () => await TaskController.updateTask(id),
+        {
+          name: 'TypeError',
+          message: messages.error.REQUIRED_TASK_ID,
+        },
+      );
+    });
+
+    it('should throw a TypeError if the task ID is not a number', async () => {
+      const id = TestUtils.generateRandomString();
+
+      await rejects(
+        async () => await TaskController.updateTask(id),
+        {
+          name: 'TypeError',
+          message: messages.error.INVALID_TASK_ID,
+        },
+      );
+    });
+
+    it('should throw a TypeError if the description is missing', async () => {
+      const id = TestUtils.generateRandomInt();
+      let description;
+
+      await rejects(
+        async () => await TaskController.updateTask(id, description),
+        {
+          name: 'TypeError',
+          message: messages.error.REQUIRED_TASK_DESCRIPTION,
+        },
+      );
+    });
+
+    it('should throw a TypeError if the description is not a string', async () => {
+      const id = TestUtils.generateRandomInt();
+      const description = TestUtils.generateRandomInt();
+
+      await rejects(
+        async () => await TaskController.updateTask(id, description),
+        {
+          name: 'TypeError',
+          message: messages.error.INVALID_TASK_DESCRIPTION,
+        },
+      );
+    });
+
+    it('should throw an Error if the task does not exist', async () => {
+      const id = TestUtils.generateRandomInt();
+      const description = TestUtils.generateRandomString();
+      getTaskByIdFn.mock.mockImplementationOnce(() => undefined);
+
+      await rejects(
+        async () => await TaskController.updateTask(id, description),
+        {
+          name: 'Error',
+          message: messages.error.TASK_NOT_FOUND,
+        },
+      );
+    });
+
+    it('should call updateTaskDescription method from the model with the id and description', async () => {
+      const id = TestUtils.generateRandomInt();
+      const description = TestUtils.generateRandomString();
+
+      await TaskController.updateTask(id, description);
+
+      equal(updateTaskDescriptionFn.mock.callCount(), 1);
+      equal(updateTaskDescriptionFn.mock.calls[0].arguments[0], id);
+      equal(updateTaskDescriptionFn.mock.calls[0].arguments[1], description);
+    });
+
+    it('should return the updated task', async () => {
+      const id = TestUtils.generateRandomInt();
+      const description = TestUtils.generateRandomString();
+      const task = new TaskBuilder().withDescription(description).build();
+      updateTaskDescriptionFn.mock.mockImplementationOnce(() => task);
+
+      const result = await TaskController.updateTask(id, description);
+
+      equal(result, task);
+    });
+  });
+
+  describe('markTaskAsInProgress', () => {
+    afterEach(() => {
+      updateTaskStatusFn.mock.resetCalls();
+    });
+
+    it('should throw a TypeError if the task ID is missing', async () => {
+      let id;
+
+      await rejects(
+        async () => await TaskController.markTaskAsInProgress(id),
+        {
+          name: 'TypeError',
+          message: messages.error.REQUIRED_TASK_ID,
+        },
+      );
+    });
+
+    it('should throw a TypeError if the task ID is not a number', async () => {
+      const id = TestUtils.generateRandomString();
+
+      await rejects(
+        async () => await TaskController.markTaskAsInProgress(id),
+        {
+          name: 'TypeError',
+          message: messages.error.INVALID_TASK_ID,
+        },
+      );
+    });
+
+    it('should throw an Error if the task does not exist', async () => {
+      const id = TestUtils.generateRandomInt();
+      getTaskByIdFn.mock.mockImplementationOnce(() => undefined);
+
+      await rejects(
+        async () => await TaskController.markTaskAsInProgress(id),
+        {
+          name: 'Error',
+          message: messages.error.TASK_NOT_FOUND,
+        },
+      );
+    });
+
+    it('should throw an Error if the task is already in progress', async () => {
+      const id = TestUtils.generateRandomInt();
+      const task = new TaskBuilder().withStatus(TaskStatus.IN_PROGRESS).build();
+      getTaskByIdFn.mock.mockImplementationOnce(() => task);
+
+      await rejects(
+        async () => await TaskController.markTaskAsInProgress(id),
+        {
+          name: 'Error',
+          message: messages.error.TASK_ALREADY_IN_PROGRESS,
+        },
+      );
+    });
+
+    it('should throw an Error if the task status is done', async () => {
+      const id = TestUtils.generateRandomInt();
+      const task = new TaskBuilder().withStatus(TaskStatus.DONE).build();
+      getTaskByIdFn.mock.mockImplementationOnce(() => task);
+
+      await rejects(
+        async () => await TaskController.markTaskAsInProgress(id),
+        {
+          name: 'Error',
+          message: messages.error.CANNOT_MARK_DONE_AS_IN_PROGRESS,
+        },
+      );
+    });
+
+    it('should call updateTaskStatus method from the model with the id and the new status', async () => {
+      const task = new TaskBuilder().withStatus(TaskStatus.TODO).build();
+      getTaskByIdFn.mock.mockImplementationOnce(() => task);
+      const id = TestUtils.generateRandomInt();
+
+      await TaskController.markTaskAsInProgress(id);
+
+      equal(updateTaskStatusFn.mock.callCount(), 1);
+      equal(updateTaskStatusFn.mock.calls[0].arguments[0], id);
+      equal(updateTaskStatusFn.mock.calls[0].arguments[1], TaskStatus.IN_PROGRESS);
+    });
+
+    it('should return the updated task', async () => {
+      const id = TestUtils.generateRandomInt();
+      const task = new TaskBuilder().build();
+      updateTaskStatusFn.mock.mockImplementationOnce(() => task);
+
+      const result = await TaskController.markTaskAsInProgress(id);
+
+      equal(result, task);
+    });
+  });
+
+  describe('markTaskAsDone', () => {
+    afterEach(() => {
+      updateTaskStatusFn.mock.resetCalls();
+    });
+
+    it('should throw a TypeError if the task ID is missing', async () => {
+      let id;
+
+      await rejects(
+        async () => await TaskController.markTaskAsDone(id),
+        {
+          name: 'TypeError',
+          message: messages.error.REQUIRED_TASK_ID,
+        },
+      );
+    });
+
+    it('should throw a TypeError if the task ID is not a number', async () => {
+      const id = TestUtils.generateRandomString();
+
+      await rejects(
+        async () => await TaskController.markTaskAsDone(id),
+        {
+          name: 'TypeError',
+          message: messages.error.INVALID_TASK_ID,
+        },
+      );
+    });
+
+    it('should throw an Error if the task does not exist', async () => {
+      const id = TestUtils.generateRandomInt();
+      getTaskByIdFn.mock.mockImplementationOnce(() => undefined);
+
+      await rejects(
+        async () => await TaskController.markTaskAsDone(id),
+        {
+          name: 'Error',
+          message: messages.error.TASK_NOT_FOUND,
+        },
+      );
+    });
+
+    it('should throw an Error if the task status is todo', async () => {
+      const id = TestUtils.generateRandomInt();
+      const task = new TaskBuilder().withStatus(TaskStatus.TODO).build();
+      getTaskByIdFn.mock.mockImplementationOnce(() => task);
+
+      await rejects(
+        async () => await TaskController.markTaskAsDone(id),
+        {
+          name: 'Error',
+          message: messages.error.CANNOT_MARK_TODO_AS_DONE,
+        },
+      );
+    });
+
+    it('should throw an Error if the task is already done', async () => {
+      const id = TestUtils.generateRandomInt();
+      const task = new TaskBuilder().withStatus(TaskStatus.DONE).build();
+      getTaskByIdFn.mock.mockImplementationOnce(() => task);
+
+      await rejects(
+        async () => await TaskController.markTaskAsDone(id),
+        {
+          name: 'Error',
+          message: messages.error.TASK_ALREADY_DONE,
+        },
+      );
+    });
+
+    it('should call updateTaskStatus method from the model with the id and the new status', async () => {
+      const task = new TaskBuilder().withStatus(TaskStatus.IN_PROGRESS).build();
+      getTaskByIdFn.mock.mockImplementationOnce(() => task);
+      const id = TestUtils.generateRandomInt();
+
+      await TaskController.markTaskAsDone(id);
+
+      equal(updateTaskStatusFn.mock.callCount(), 1);
+      equal(updateTaskStatusFn.mock.calls[0].arguments[0], id);
+    });
+
+    it('should return the updated task', async () => {
+      const id = TestUtils.generateRandomInt();
+      const task = new TaskBuilder().withStatus(TaskStatus.IN_PROGRESS).build();
+      getTaskByIdFn.mock.mockImplementationOnce(() => task);
+      const updatedTask = new TaskBuilder().withStatus(TaskStatus.DONE).build();
+      updateTaskStatusFn.mock.mockImplementationOnce(() => updatedTask);
+
+      const result = await TaskController.markTaskAsDone(id);
+
+      equal(result, updatedTask);
+    });
+  });
+
+  describe('deleteTask', () => {
+    const deleteTaskFn = mock.method(TaskModel, 'deleteTask', () => {});
+
+    afterEach(() => {
+      deleteTaskFn.mock.resetCalls();
+    });
+
+    after(() => {
+      deleteTaskFn.mock.restore();
+    });
+
+    it('should throw a TypeError if the task ID is missing', async () => {
+      let id;
+
+      await rejects(
+        async () => await TaskController.deleteTask(id),
+        {
+          name: 'TypeError',
+          message: messages.error.REQUIRED_TASK_ID,
+        },
+      );
+    });
+
+    it('should throw a TypeError if the task ID is not a number', async () => {
+      const id = TestUtils.generateRandomString();
+
+      await rejects(
+        async () => await TaskController.deleteTask(id),
+        {
+          name: 'TypeError',
+          message: messages.error.INVALID_TASK_ID,
+        },
+      );
+    });
+
+    it('should throw an Error if the task does not exist', async () => {
+      const id = TestUtils.generateRandomInt();
+      getTaskByIdFn.mock.mockImplementationOnce(() => undefined);
+
+      await rejects(
+        async () => await TaskController.deleteTask(id),
+        {
+          name: 'Error',
+          message: messages.error.TASK_NOT_FOUND,
+        },
+      );
+    });
+
+    it('should call deleteTask method from the model with the id', async () => {
+      const task = new TaskBuilder().build();
+      getTaskByIdFn.mock.mockImplementationOnce(() => task);
+      const id = TestUtils.generateRandomInt();
+
+      await TaskController.deleteTask(id);
+
+      equal(deleteTaskFn.mock.callCount(), 1);
+      equal(deleteTaskFn.mock.calls[0].arguments[0], id);
+    });
+
+    it('should return the updated task', async () => {
+      const id = TestUtils.generateRandomInt();
+      const task = new TaskBuilder().build();
+      deleteTaskFn.mock.mockImplementationOnce(() => task);
+
+      const result = await TaskController.deleteTask(id);
+
+      equal(result, task);
+    });
   });
 
   describe('help', () => {
@@ -22,16 +466,32 @@ describe('TaskController', () => {
       TaskCommand.MARK_IN_PROGRESS,
       TaskCommand.MARK_DONE,
       TaskCommand.LIST,
-      TaskCommand.HELP,
       undefined,
     ];
 
-    const pathJoinMock = mock.method(path, 'join', () => expectedPath).mock;
-    const readHelpPageMock = mock.method(TaskModel, 'readHelpPage', () => expectedHelpPage).mock;
+    const pathJoinFn = mock.method(path, 'join', () => expectedPath);
+    const readHelpPageFn = mock.method(TaskModel, 'readHelpPage', () => expectedHelpPage);
 
     afterEach(() => {
-      pathJoinMock.resetCalls();
-      readHelpPageMock.resetCalls();
+      pathJoinFn.mock.resetCalls();
+      readHelpPageFn.mock.resetCalls();
+    });
+
+    after(() => {
+      pathJoinFn.mock.restore();
+      readHelpPageFn.mock.restore();
+    });
+
+    it('should throw an Error if "help" itself is sent as a command', async () => {
+      const command = TaskCommand.HELP;
+
+      await rejects(
+        async () => await TaskController.help(command),
+        {
+          name: 'Error',
+          message: messages.error.INVALID_HELP_COMMAND,
+        },
+      );
     });
 
     it('should construct the "docsPath"', async () => {
@@ -40,10 +500,10 @@ describe('TaskController', () => {
         const expectedFilename = `${command ?? 'help'}.txt`;
 
         await TaskController.help(command);
-        const lastArgIndex = pathJoinMock.calls[index].arguments.length - 1;
+        const lastArgIndex = pathJoinFn.mock.calls[index].arguments.length - 1;
 
-        equal(pathJoinMock.callCount(), index + 1);
-        equal(pathJoinMock.calls[index].arguments[lastArgIndex], expectedFilename);
+        equal(pathJoinFn.mock.callCount(), index + 1);
+        equal(pathJoinFn.mock.calls[index].arguments[lastArgIndex], expectedFilename);
       }
     });
 
@@ -54,9 +514,9 @@ describe('TaskController', () => {
         const helpPage = await TaskController.help(command);
 
         equal(helpPage, expectedHelpPage);
-        equal(readHelpPageMock.callCount(), index + 1);
-        equal(readHelpPageMock.calls[index].arguments[0], expectedPath);
-        equal(readHelpPageMock.calls[index].arguments[1], command);
+        equal(readHelpPageFn.mock.callCount(), index + 1);
+        equal(readHelpPageFn.mock.calls[index].arguments[0], expectedPath);
+        equal(readHelpPageFn.mock.calls[index].arguments[1], command);
       }
     });
   });

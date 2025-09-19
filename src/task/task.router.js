@@ -22,7 +22,7 @@ export class TaskRouter {
    *
    * @static
    * @private
-   * @type {Record<TaskCommand, (...args: string[]) => void>}
+   * @type {Record<TaskCommand, (...args: string[]) => Promise<void>>}
    */
   static #commandHandlers = {
     [TaskCommand.ADD]: (...args) => TaskView.addTask(...args),
@@ -63,7 +63,19 @@ export class TaskRouter {
       throw new Error(message);
     }
 
-    const [_, ...rest] = args;
-    await handler(...rest);
+    const options = TaskRouter.#getArgsWithoutCommand(args);
+    await handler(...options);
+  }
+
+  /**
+   * Extracts the arguments from the CLI arguments array without the command.
+   *
+   * @static
+   * @private
+   * @param {string[]} args - Raw CLI arguments.
+   * @returns {string[]} The arguments without the command.
+   */
+  static #getArgsWithoutCommand(args) {
+    return args.slice(1);
   }
 }

@@ -10,22 +10,6 @@ import { messages } from './messages.js';
  */
 export class Utils {
   /**
-   * Retrieves CLI arguments passed to the Node.js process, excluding the
-   * first two default values (`node` executable path and script path).
-   *
-   * @static
-   * @returns {string[]} An array of CLI arguments, or an empty array if none.
-   *
-   * @example
-   * // Command: node main.js arg1 arg2
-   * Utils.getArgs(); // ['arg1', 'arg2']
-   */
-  static getArgs() {
-    const userDefinedArgsStartIndex = 2;
-    return process.argv.slice(userDefinedArgsStartIndex);
-  }
-
-  /**
    * Logs a success message to the console.
    *
    * @static
@@ -55,6 +39,19 @@ export class Utils {
     if (exit) {
       process.exit(-1);
     }
+  }
+
+  /**
+   * Logs an info message to the console.
+   *
+   * @static
+   * @param {string} message - The info message to display.
+   *
+   * @example
+   * Utils.logInfoMsg('No tasks found');
+   */
+  static logInfoMsg(message) {
+    ConsoleStringBuilder.create().infoMsg(message).log();
   }
 
   /**
@@ -129,9 +126,9 @@ export class Utils {
    *
    * @example
    * // Split a string at whitespace
-   * const [left, right] = Utils.getBufferSplit("Hello world, this is a test", 12);
-   * console.log(left);  // "Hello world,"
-   * console.log(right); // "this is a test"
+   * const [left, right] = Utils.getBufferSplit('Hello world, this is a test', 12);
+   * console.log(left);  // 'Hello world,'
+   * console.log(right); // 'this is a test'
    */
   static getBufferSplit(buffer, splitSize) {
     if (typeof splitSize !== 'number' || Number.isNaN(splitSize)) {
@@ -184,5 +181,25 @@ export class Utils {
    */
   static clearAnsiSequences(str) {
     return str.replace(ANSI_ESCAPE_REGEX, '');
+  }
+
+  /**
+   * Formats a `Date` object as a string in the format 'Month Day, Year, Time'.
+   *
+   * @static
+   * @param {Date} date - The `Date` object to format.
+   * @returns {string} Formatted date string.
+   *
+   * @example
+   * // Format a specific date
+   * const date = new Date('2023-12-25T15:30:00');
+   * const formatted = Utils.formatDate(date);
+   * console.log(formatted); // 'Dec 25, 2023, 3:30:00 PM'
+   */
+  static formatDate(date) {
+    return new Date(date).toLocaleString('en-US', {
+      dateStyle: 'medium',
+      timeStyle: 'medium',
+    });
   }
 }

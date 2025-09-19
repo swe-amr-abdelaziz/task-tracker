@@ -15,37 +15,15 @@ describe('Utils', () => {
   const errorMsgFn = mock.fn(() => ({ error: errorFn }));
   const logFn = mock.fn();
   const successMsgFn = mock.fn(() => ({ log: logFn }));
+  const infoMsgFn = mock.fn(() => ({ log: logFn }));
   const createFn = mock.method(ConsoleStringBuilder, 'create', () => ({
     errorMsg: errorMsgFn,
     successMsg: successMsgFn,
+    infoMsg: infoMsgFn,
   }));
 
   after(() => {
     mock.restoreAll();
-  });
-
-  describe('getArgs', () => {
-    const originalArgv = process.argv;
-
-    afterEach(() => {
-      process.argv = originalArgv;
-    });
-
-    it('should return an empty array if no arguments are provided', () => {
-      process.argv = TestUtils.generateRandomStringArray(2);
-
-      const args = Utils.getArgs();
-
-      deepStrictEqual(args, []);
-    });
-
-    it('should return cli arguments passed by the user', () => {
-      process.argv = TestUtils.generateRandomStringArray(5);
-
-      const args = Utils.getArgs();
-
-      deepStrictEqual(args, process.argv.slice(2));
-    });
   });
 
   describe('logSuccessMsg', () => {
@@ -104,6 +82,25 @@ describe('Utils', () => {
       Utils.logErrorMsg(errorMsg, exitProcess);
 
       equal(processExitFn.mock.callCount(), 0);
+    });
+  });
+
+  describe('logInfoMsg', () => {
+    afterEach(() => {
+      logFn.mock.resetCalls();
+      infoMsgFn.mock.resetCalls();
+      createFn.mock.resetCalls();
+    });
+
+    it('should print the info message to the console', () => {
+      const fakeMessage = TestUtils.generateRandomString();
+
+      Utils.logInfoMsg(fakeMessage);
+
+      equal(createFn.mock.callCount(), 1);
+      equal(infoMsgFn.mock.callCount(), 1);
+      equal(infoMsgFn.mock.calls[0].arguments[0], fakeMessage);
+      equal(logFn.mock.callCount(), 1);
     });
   });
 
@@ -338,6 +335,17 @@ describe('Utils', () => {
       const expected = str1 + str2;
 
       equal(actual, expected);
+    });
+  });
+
+  describe('formatDate', () => {
+    it('should return a formatted date string', () => {
+      const date = new Date('2025-01-01T08:45:00');
+
+      const actualDate = Utils.formatDate(date);
+
+      const expectedDate = 'Jan 1, 2025, 8:45:00 AM';
+      equal(actualDate, expectedDate);
     });
   });
 });

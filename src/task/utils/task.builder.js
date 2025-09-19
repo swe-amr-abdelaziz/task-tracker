@@ -1,5 +1,5 @@
-import { Task } from './task.entity.js';
-import { TaskStatus } from '../shared/enums.js';
+import { Task } from '../task.entity.js';
+import { TaskStatus } from '../../shared/enums.js';
 
 /**
  * Builder for creating Task instances in a fluent and readable way.
