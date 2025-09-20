@@ -25,3 +25,19 @@ export const STARTS_WITH_NEWLINE_REGEX = /^\n/;
  * @type {RegExp}
  */
 export const WHITESPACE_REGEX = /\s/g;
+
+/**
+ * Regular expression to match leading non-alphanumeric characters
+ * at the start of a string.
+ * @constant
+ * @type {RegExp}
+ */
+export const LEADING_NON_ALNUM = /^[^a-zA-Z0-9]+/;
+
+/**
+ * Regular expression to match separators (hyphen, underscore, or whitespace)
+ * followed by an optional character, used for camelCase conversion.
+ * @constant
+ * @type {RegExp}
+ */
+export const SEPARATOR_AND_NEXT = /[-_\s]+(.)?/g;

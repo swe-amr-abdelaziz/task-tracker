@@ -1,7 +1,12 @@
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 
-import { ANSI_ESCAPE_REGEX, WHITESPACE_REGEX } from './regex.js';
+import {
+  ANSI_ESCAPE_REGEX,
+  LEADING_NON_ALNUM,
+  SEPARATOR_AND_NEXT,
+  WHITESPACE_REGEX,
+} from './regex.js';
 import { ConsoleStringBuilder } from './console-string.builder.js';
 import { messages } from './messages.js';
 
@@ -201,5 +206,27 @@ export class Utils {
       dateStyle: 'medium',
       timeStyle: 'medium',
     });
+  }
+
+  /**
+   * Converts a string to camelCase.
+   * Examples:
+   *   "user-name"   -> "userName"
+   *   "user_name"   -> "userName"
+   *   "UserName"    -> "userName"
+   *   "User Name"   -> "userName"
+   *   "--user-name" -> "userName"
+   *   "userName"    -> "userName" (idempotent)
+   *
+   * @static
+   * @param {string} str - The string to convert to camelCase.
+   * @returns {string} - The camelCased string.
+   */
+  static toCamelCase(str) {
+    if (typeof str !== 'string') return str;
+
+    str = str.replace(LEADING_NON_ALNUM, '');
+    str = str.charAt(0).toLowerCase() + str.slice(1);
+    return str.replace(SEPARATOR_AND_NEXT, (_, chr) => (chr ? chr.toUpperCase() : ''));
   }
 }

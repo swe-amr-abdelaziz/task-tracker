@@ -348,4 +348,78 @@ describe('Utils', () => {
       equal(actualDate, expectedDate);
     });
   });
+
+  describe('toCamelCase', () => {
+    it('should return the same input if it is not a string', () => {
+      const expected = TestUtils.generateRandomInt();
+
+      const actual = Utils.toCamelCase(expected);
+
+      equal(actual, expected);
+    });
+
+    it('should convert kebab-case to camelCase', () => {
+      const input = 'user-name';
+      const expected = 'userName';
+
+      const actual = Utils.toCamelCase(input);
+
+      equal(actual, expected);
+    });
+
+    it('should convert snake_case to camelCase', () => {
+      const input = 'user_name';
+      const expected = 'userName';
+
+      const actual = Utils.toCamelCase(input);
+
+      equal(actual, expected);
+    });
+
+    it('should convert PascalCase to camelCase', () => {
+      const input = 'UserName';
+      const expected = 'userName';
+
+      const actual = Utils.toCamelCase(input);
+
+      equal(actual, expected);
+    });
+
+    it('should convert text with spaces to camelCase', () => {
+      const input = 'User Name';
+      const expected = 'userName';
+
+      const actual = Utils.toCamelCase(input);
+
+      equal(actual, expected);
+    });
+
+    it('should convert arguments with dashes to camelCase', () => {
+      const input = '--user-name';
+      const expected = 'userName';
+
+      const actual = Utils.toCamelCase(input);
+
+      equal(actual, expected);
+    });
+
+    it('should convert arguments with dashes to camelCase (with trailing dashes)', () => {
+      const input = '--user-name--';
+      const expected = 'userName';
+
+      const actual = Utils.toCamelCase(input);
+
+      equal(actual, expected);
+
+    });
+
+    it('should return the same input if it is already camelCase', () => {
+      const input = 'userName';
+      const expected = 'userName';
+
+      const actual = Utils.toCamelCase(input);
+
+      equal(actual, expected);
+    });
+  });
 });
