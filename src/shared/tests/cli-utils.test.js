@@ -35,8 +35,8 @@ describe('CliUtils', () => {
   describe('parseArgs', () => {
     const getArgs = () => [
       '--status=done',
-      '--created-before=2025-01-01',
       '--updated-after=2020-01-01',
+      '--created-before=2025-01-01',
       '--order-by=id',
       '--desc',
       '--page=1',
@@ -44,8 +44,8 @@ describe('CliUtils', () => {
     ];
     const getValidArgs = () => [
       'status',
-      'createdBefore',
       'updatedAfter',
+      'createdBefore',
       'orderBy',
       'desc',
       'page',
@@ -53,8 +53,8 @@ describe('CliUtils', () => {
     ];
     const getAliases = () => ({
       s: 'status',
-      cb: 'createdBefore',
       ua: 'updatedAfter',
+      cb: 'createdBefore',
       o: 'orderBy',
       p: 'page',
       l: 'limit',
@@ -183,7 +183,7 @@ describe('CliUtils', () => {
         async () => CliUtils.parseArgs(args, validArgs, aliases),
         {
           name: 'SyntaxError',
-          message: messages.error.EMPTY_CLI_ARG,
+          message: messages.error.EMPTY_CLI_ARG_KEY,
         }
       );
     });
@@ -198,7 +198,7 @@ describe('CliUtils', () => {
         async () => CliUtils.parseArgs(args, validArgs, aliases),
         {
           name: 'SyntaxError',
-          message: messages.error.EMPTY_CLI_ARG,
+          message: messages.error.EMPTY_CLI_ARG_KEY,
         }
       );
     });
@@ -259,8 +259,8 @@ describe('CliUtils', () => {
 
       deepStrictEqual(parsed, {
         status: 'done',
-        createdBefore: '2025-01-01',
         updatedAfter: '2020-01-01',
+        createdBefore: '2025-01-01',
         orderBy: 'id',
         desc: true,
         page: '1',

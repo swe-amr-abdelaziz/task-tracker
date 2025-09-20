@@ -49,7 +49,7 @@ export class CliUtils {
     return args.reduce((parsed, arg) => {
       let [key, value] = arg.replace(CLI_ARGS_PREFIX_REGEX, '').split('=');
       if (!key)
-        throw new SyntaxError(messages.error.EMPTY_CLI_ARG);
+        throw new SyntaxError(messages.error.EMPTY_CLI_ARG_KEY);
 
       const isAlias = aliases.hasOwnProperty(key);
       if (isAlias) {

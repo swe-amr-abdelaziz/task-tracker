@@ -41,6 +41,17 @@ export const TaskStatusIcon = Object.freeze({
 });
 
 /**
+ * @enum {string} Column names for the task table.
+ */
+export const TaskTableColumn = Object.freeze({
+  ID: 'id',
+  DESCRIPTION: 'description',
+  STATUS: 'status',
+  CREATED_AT: 'createdAt',
+  UPDATED_AT: 'updatedAt',
+});
+
+/**
  * @enum {string} Task commands for the CLI.
  */
 export const TaskCommand = Object.freeze({
@@ -95,6 +106,14 @@ export const VerticalAlignment = Object.freeze({
   TOP: 'TOP',
   CENTER: 'CENTER',
   BOTTOM: 'BOTTOM',
+});
+
+/**
+ * @enum {string} Valid order directions.
+ */
+export const OrderDirection = Object.freeze({
+  ASC: 'asc',
+  DESC: 'desc',
 });
 
 /**
