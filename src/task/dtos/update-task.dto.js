@@ -80,7 +80,7 @@ export class UpdateTaskDto {
    */
   #parseArgs(args) {
     const [id, description] = args;
-    this.#id = Number.parseInt(id);
+    this.#id = Number.parseInt(id, 10);
     this.#description = description;
   }
 }

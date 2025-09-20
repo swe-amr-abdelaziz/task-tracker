@@ -60,6 +60,6 @@ export class DeleteTaskDto {
    */
   #parseArgs(args) {
     const [id] = args;
-    this.#id = Number.parseInt(id);
+    this.#id = Number.parseInt(id, 10);
   }
 }
