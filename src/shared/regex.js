@@ -10,7 +10,7 @@ export const ANSI_ESCAPE_REGEX = /\x1B\[[0-9;]*m/g;
  * @constant
  * @type {RegExp}
  */
-export const CLI_ARGS_PREFIX_REGEX = /^-{1,2}/;
+export const CLI_ARGS_PREFIX_REGEX = /^-/;
 
 /**
  * Regular expression to match newlines at the start of a string.
