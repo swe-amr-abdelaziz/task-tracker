@@ -1,14 +1,37 @@
-Usage: task-cli list [status]
+Usage: task-cli list [options]
 
-Lists all tasks, or only tasks of a specific status
+Retrieves and displays tasks filtered, sorted, and paginated according to the provided options.
 
-Status:
-  todo          Show only tasks of todo status
-  in-progress   Show only tasks of in-progress status
-  done          Show only tasks of done status
+Options:
+       --id=<number>                 Filter by task id.
+  -d,  --description=<regex>         Filter by description (JavaScript RegExp, case-insensitive).
+  -s,  --status=<todo|in-progress|done>
+                                Filter by task status.
+  -ca, --created-after=<ISO date>    Include tasks created on or after this date.
+  -cb, --created-before=<ISO date>   Include tasks created on or before this date.
+  -ua, --updated-after=<ISO date>    Include tasks updated on or after this date.
+  -ub, --updated-before=<ISO date>   Include tasks updated on or before this date.
 
-Note: [status] is optional. If not specified, show all tasks
+  -o,  --order-by=<column>           Sort by a column. Valid columns:
+                                id, description, status, createdAt, updatedAt.
+       --asc                         Sort ascending (default).
+       --desc                        Sort descending.
 
-Example:
-  task-cli list
-  task-cli list done
+  -p,  --page=<number>               Page number (1-based). Default: 1.
+  -l,  --limit=<number>              Number of tasks per page. 0 means no limit (default: 0).
+
+Notes:
+  • Dates should be ISO strings (e.g. "2025-09-01T00:00:00Z") or any string accepted by Date.parse.
+  • --description accepts a regex pattern (no surrounding slashes). It will be used with the "gi" flags.
+  • --asc and --desc are mutually exclusive — providing both will produce an error.
+  • Default ordering direction is ascending (asc) when neither flag is provided.
+  • limit = 0 means "no limit" (return all matching tasks). When limit = 0, page must be 1 (page > 1 with unlimited limit is invalid).
+  • When ordering by status, order follows workflow: todo → in-progress → done (not alphabetical).
+
+Examples:
+  task-cli list --status=todo --order-by=createdAt --desc
+    Show todo tasks sorted by creation date descending.
+
+  task-cli list --description=fix --order-by=updatedAt --desc --page=1 --limit=5
+    Show tasks whose descriptions match /fix/ (case-insensitive), sorted by updatedAt descending,
+    return the first page with 5 items per page.

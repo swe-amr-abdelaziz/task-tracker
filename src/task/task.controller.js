@@ -2,10 +2,12 @@ import path from 'path';
 
 import { AddTaskDto } from './dtos/add-task.dto.js';
 import { DeleteTaskDto } from './dtos/delete-task.dto.js';
+import { GetTasksListDto } from './dtos/get-tasks-list.dto.js';
 import { HelpDto } from './dtos/help.dto.js';
 import { MarkTaskAsDoneDto } from './dtos/mark-task-as-done.dto.js';
 import { MarkTaskAsInProgressDto } from './dtos/mark-task-as-in-progress.dto.js';
 import { Task } from './task.entity.js';
+import { TaskControllerUtils } from './utils/task-controller.utils.js';
 import { TaskModel } from './task.model.js';
 import { TaskStatus } from '../shared/enums.js';
 import { UpdateTaskDto } from './dtos/update-task.dto.js';
@@ -23,14 +25,16 @@ import { messages } from '../shared/messages.js';
  */
 export class TaskController {
   /**
-   * Retrieves all tasks.
+   * Retrieves a list of tasks based on the provided filters, sort, and pagination options.
    *
    * @static
+   * @param {string[]} args - CLI arguments for retrieving tasks.
    * @returns {Task[]} A list of tasks.
    */
-  static getTasksList() {
+  static getTasksList(...args) {
+    const dto = new GetTasksListDto(...args);
     const tasks = TaskModel.getTasksList();
-    return tasks;
+    return TaskControllerUtils.filterSortPaginate(tasks, dto);
   }
 
   /**

@@ -2,11 +2,12 @@ import { HorizontalAlignment, TaskStatusIcon } from '../../shared/enums.js';
 import { ResponsiveTable } from '../../shared/responsive-table/responsive-table.js';
 import { Task } from '../task.entity.js';
 import { TaskValidator } from './task.validator.js';
+import { TaskView } from '../task.view.js';
 import { Utils } from '../../shared/utils.js';
 import { messages } from '../../shared/messages.js';
 
 /**
- * Provides utility methods for displaying task-related data.
+ * Provides utility methods for {@link TaskView}.
  */
 export class TaskViewUtils {
   /**

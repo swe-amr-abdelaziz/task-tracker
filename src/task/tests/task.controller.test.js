@@ -1,10 +1,11 @@
 import path from 'path';
-import { equal, rejects } from 'node:assert';
+import { deepEqual, equal, rejects } from 'node:assert';
 import { after, afterEach, describe, it, mock } from 'node:test';
 
 import { TaskBuilder } from '../utils/task.builder.js';
 import { TaskCommand, TaskStatus } from '../../shared/enums.js';
 import { TaskController } from '../task.controller.js';
+import { TaskControllerUtils } from '../utils/task-controller.utils.js';
 import { TaskModel } from '../task.model.js';
 import { TestUtils } from '../../shared/test-utils.js';
 import { messages } from '../../shared/messages.js';
@@ -27,24 +28,54 @@ describe('TaskController', () => {
   });
 
   describe('getTasksList', () => {
-    const tasks = [
+    const allTasks = [
       new TaskBuilder().build(),
       new TaskBuilder().build(),
     ];
-    const getTasksListFn = mock.method(TaskModel, 'getTasksList', () => tasks);
+    const processedTasks = [
+      new TaskBuilder().build(),
+      new TaskBuilder().build(),
+    ];
+    const getTasksListFn = mock.method(TaskModel, 'getTasksList', () => allTasks);
+    const filterSortPaginateFn = mock.method(TaskControllerUtils, 'filterSortPaginate', () => processedTasks);
 
     afterEach(() => {
       getTasksListFn.mock.resetCalls();
+      filterSortPaginateFn.mock.resetCalls();
     });
 
     after(() => {
       getTasksListFn.mock.restore();
+      filterSortPaginateFn.mock.restore();
+    });
+
+    it('should get all tasks from the model', async () => {
+      TaskController.getTasksList();
+
+      equal(getTasksListFn.mock.callCount(), 1);
+    });
+
+    it('should call filterSortPaginate method from the utils with the tasks and the dto', async () => {
+      TaskController.getTasksList();
+
+      equal(filterSortPaginateFn.mock.callCount(), 1);
+      deepEqual(filterSortPaginateFn.mock.calls[0].arguments[0], allTasks);
+    });
+
+    it('should send formatted dto to filterSortPaginate method', async () => {
+      TaskController.getTasksList('--status=done', '--created-before=2022-01-01', '--order-by=status')
+
+      equal(filterSortPaginateFn.mock.callCount(), 1);
+      const dto = filterSortPaginateFn.mock.calls[0].arguments[1];
+      equal(dto.status, TaskStatus.DONE);
+      equal(dto.createdBefore.toISOString(), new Date('2022-01-01').toISOString());
+      equal(dto.orderBy, 'status');
     });
 
     it('should return the list of tasks', async () => {
       const result = TaskController.getTasksList();
 
-      equal(result, tasks);
+      deepEqual(result, processedTasks);
     });
   });
 

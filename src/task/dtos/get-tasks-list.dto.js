@@ -164,7 +164,7 @@ export class GetTasksListDto {
   set id(id) {
     if (id === undefined) return;
 
-    if (!id.trim()) {
+    if (!id.toString().trim()) {
       throw new SyntaxError(messages.error.EMPTY_CLI_ARG_VALUE);
     }
     this.#id = Number.parseInt(id, 10);
@@ -191,11 +191,11 @@ export class GetTasksListDto {
   set description(description) {
     if (description === undefined) return;
 
-    if (!description.trim()) {
+    if (!description.toString().trim()) {
       throw new SyntaxError(messages.error.EMPTY_CLI_ARG_VALUE);
     }
     try {
-      this.#description = new RegExp(description);
+      this.#description = new RegExp(description, 'gi');
     }
     catch (err) {
       throw new SyntaxError(messages.error.INVALID_DESCRIPTION_REGEX);
@@ -221,7 +221,7 @@ export class GetTasksListDto {
   set status(status) {
     if (status === undefined) return;
 
-    if (!status.trim()) {
+    if (!status.toString().trim()) {
       throw new SyntaxError(messages.error.EMPTY_CLI_ARG_VALUE);
     }
     const validStatuses = Object.values(TaskStatus);
@@ -250,7 +250,7 @@ export class GetTasksListDto {
   set createdAfter(createdAfter) {
     if (createdAfter === undefined) return;
 
-    if (!createdAfter.trim()) {
+    if (!createdAfter.toString().trim()) {
       throw new SyntaxError(messages.error.EMPTY_CLI_ARG_VALUE);
     }
     if (Number.isNaN(Date.parse(createdAfter))) {
@@ -278,7 +278,7 @@ export class GetTasksListDto {
   set createdBefore(createdBefore) {
     if (createdBefore === undefined) return;
 
-    if (!createdBefore.trim()) {
+    if (!createdBefore.toString().trim()) {
       throw new SyntaxError(messages.error.EMPTY_CLI_ARG_VALUE);
     }
     if (Number.isNaN(Date.parse(createdBefore))) {
@@ -306,7 +306,7 @@ export class GetTasksListDto {
   set updatedAfter(updatedAfter) {
     if (updatedAfter === undefined) return;
 
-    if (!updatedAfter.trim()) {
+    if (!updatedAfter.toString().trim()) {
       throw new SyntaxError(messages.error.EMPTY_CLI_ARG_VALUE);
     }
     if (Number.isNaN(Date.parse(updatedAfter))) {
@@ -334,7 +334,7 @@ export class GetTasksListDto {
   set updatedBefore(updatedBefore) {
     if (updatedBefore === undefined) return;
 
-    if (!updatedBefore.trim()) {
+    if (!updatedBefore.toString().trim()) {
       throw new SyntaxError(messages.error.EMPTY_CLI_ARG_VALUE);
     }
     if (Number.isNaN(Date.parse(updatedBefore))) {
@@ -362,7 +362,7 @@ export class GetTasksListDto {
   set orderBy(orderBy) {
     if (orderBy === undefined) return;
 
-    if (!orderBy.trim()) {
+    if (!orderBy.toString().trim()) {
       throw new SyntaxError(messages.error.EMPTY_CLI_ARG_VALUE);
     }
     const validColumnNames = Object.values(TaskTableColumn);
@@ -413,7 +413,7 @@ export class GetTasksListDto {
       return;
     }
 
-    if (!page.trim()) {
+    if (!page.toString().trim()) {
       throw new SyntaxError(messages.error.EMPTY_CLI_ARG_VALUE);
     }
     this.#page = Number.parseInt(page, 10);
@@ -448,7 +448,7 @@ export class GetTasksListDto {
       return;
     }
 
-    if (!limit.trim()) {
+    if (!limit.toString().trim()) {
       throw new SyntaxError(messages.error.EMPTY_CLI_ARG_VALUE);
     }
     this.#limit = Number.parseInt(limit, 10);
