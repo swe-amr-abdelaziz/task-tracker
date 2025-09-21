@@ -7,6 +7,8 @@
 A lightweight, reliable CLI app for managing tasks.
 Built with a layered architecture, developed with TDD, and designed to produce clear, colorful terminal output.
 
+> 💡 This is a submission for the [task-tracker](https://roadmap.sh/projects/task-tracker/) challenge from [roadmap.sh](https://roadmap.sh/).
+
 ---
 
 ## Features
